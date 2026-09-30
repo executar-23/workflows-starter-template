@@ -73,7 +73,49 @@ export function successorsOf(id: string): WorkflowNode[] {
 }
 
 // Estados de execução internos; a UI traduz para a STATUS_LANGUAGE do contrato.
-export type RunStatus = "pending" | "running" | "waiting" | "completed" | "error";
+// "ready" = casa atual aguardando OK (WIP = 1); "waiting" = gate aguardando decisão.
+export type RunStatus =
+	| "pending"
+	| "ready"
+	| "running"
+	| "waiting"
+	| "completed"
+	| "error";
+
+// Cada casa espera um tipo de evento único (nó + item + tentativa),
+// então um clique duplicado nunca avança duas casas.
+const slug = (value: string) =>
+	value
+		.toLowerCase()
+		.replace(/[^a-z0-9_-]+/g, "-")
+		.replace(/^-+|-+$/g, "");
+
+function eventType(parts: (string | undefined)[], iteration: number) {
+	return [...parts, iteration > 1 ? `r${iteration}` : undefined]
+		.filter(Boolean)
+		.map((p) => slug(p!))
+		.join("-")
+		.slice(0, 100);
+}
+
+export const okEventType = (nodeId: string, item?: string, iteration = 1) =>
+	eventType(["ok", nodeId, item], iteration);
+
+export const decisionEventType = (
+	gate: WorkflowNode,
+	item?: string,
+	iteration = 1,
+) => eventType([gate.event, item], iteration);
+
+// Nós estruturais (eventos e gateways) não são casas: passam sem OK.
+export const isStructural = (node: WorkflowNode) =>
+	["start", "end", "parallel-split", "parallel-join"].includes(node.kind);
+
+export interface Awaiting {
+	nodeId: string;
+	eventType: string;
+	mode: "ok" | "decision";
+}
 
 export type StatusLabel =
 	| "NOT STARTED"
@@ -90,6 +132,7 @@ export function statusLabel(
 	statuses: Record<string, RunStatus>,
 ): StatusLabel {
 	const status = statuses[node.id] ?? "pending";
+	if (status === "ready") return "READY";
 	if (status === "running") return "IN PROGRESS";
 	if (status === "waiting") return "REVIEW";
 	if (status === "error") return "BLOCKED";
@@ -97,8 +140,5 @@ export function statusLabel(
 		if (node.doneStatus) return node.doneStatus;
 		return node.kind === "gate" ? "APPROVED" : "VERIFIED";
 	}
-	const ready =
-		node.dependsOn.length > 0 &&
-		node.dependsOn.every((d) => statuses[d] === "completed");
-	return ready ? "READY" : "NOT STARTED";
+	return "NOT STARTED";
 }

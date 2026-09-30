@@ -1,4 +1,10 @@
-import { useCallback, useLayoutEffect, useRef, useState } from "react";
+import {
+	useCallback,
+	useEffect,
+	useLayoutEffect,
+	useRef,
+	useState,
+} from "react";
 import type { ReactNode } from "react";
 import {
 	NODE_BY_ID,
@@ -8,7 +14,14 @@ import {
 	type WorkflowNode,
 } from "../../shared/schema";
 import { NodeCard, type RunView } from "./NodeCard";
-import { GateActions, NodeBadges, PhasePill, StatusTag } from "./Taxonomy";
+import { NodeBadges, PhasePill, StatusTag, StepActions } from "./Taxonomy";
+import {
+	isLive,
+	isMuted,
+	isRevealed,
+	lockedSummary,
+	phaseState,
+} from "../progress";
 
 // Layout série-paralelo derivado de dependsOn:
 // POSIÇÃO = DEPENDÊNCIA · mesma altura = mesma profundidade lógica.
@@ -56,7 +69,7 @@ const INDEX = new Map(WORKFLOW.nodes.map((n, i) => [n.id, i]));
 type Geometry = {
 	width: number;
 	height: number;
-	edges: string[];
+	edges: { d: string; muted: boolean }[];
 	loops: { d: string; x: number; y: number; label: string }[];
 };
 
@@ -99,19 +112,23 @@ export function FlowChart({ run }: { run: RunView }) {
 			};
 
 			// SETA = DEPENDÊNCIA (sequence flow, preto contínuo)
-			const edges: string[] = [];
+			const edges: Geometry["edges"] = [];
 			for (const node of WORKFLOW.nodes) {
 				const t = box(node.id);
 				if (!t) continue;
+				// Seta ainda "apagada" enquanto a casa de destino não foi alcançada.
+				const muted = isMuted(run, node);
 				for (const dep of node.dependsOn) {
 					const s = box(dep);
 					if (!s) continue;
 					if (Math.abs(s.cx - t.cx) < 1) {
-						edges.push(`M${s.cx} ${s.b} V${t.t}`);
+						edges.push({ d: `M${s.cx} ${s.b} V${t.t}`, muted });
 					} else {
-						const midY =
-							node.dependsOn.length > 1 ? t.t - 16 : s.b + 16;
-						edges.push(`M${s.cx} ${s.b} V${midY} H${t.cx} V${t.t}`);
+						const midY = node.dependsOn.length > 1 ? t.t - 16 : s.b + 16;
+						edges.push({
+							d: `M${s.cx} ${s.b} V${midY} H${t.cx} V${t.t}`,
+							muted,
+						});
 					}
 				}
 			}
@@ -128,9 +145,7 @@ export function FlowChart({ run }: { run: RunView }) {
 				const lane = ranges.filter(([a, b]) => a <= to && from <= b).length;
 				ranges.push([from, to]);
 				const right = Math.max(
-					...WORKFLOW.nodes
-						.slice(from, to + 1)
-						.map((n) => box(n.id)?.r ?? 0),
+					...WORKFLOW.nodes.slice(from, to + 1).map((n) => box(n.id)?.r ?? 0),
 				);
 				const x = right + 28 + lane * 16;
 				return [
@@ -157,7 +172,17 @@ export function FlowChart({ run }: { run: RunView }) {
 		elements.current.forEach((el) => observer.observe(el));
 		document.fonts?.ready.then(measure);
 		return () => observer.disconnect();
-	}, [run.statuses, run.details]);
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [run.statuses, run.details, run.showAll, run.instanceId]);
+
+	// Acompanha a casa atual: rola até ela a cada OK.
+	const liveId = WORKFLOW.nodes.find((n) => isLive(run, n.id))?.id;
+	useEffect(() => {
+		if (!liveId) return;
+		document
+			.getElementById(`node-${liveId}`)
+			?.scrollIntoView({ block: "center", behavior: "smooth" });
+	}, [liveId]);
 
 	// Em telas estreitas, abre centralizado no eixo principal.
 	useLayoutEffect(() => {
@@ -166,14 +191,19 @@ export function FlowChart({ run }: { run: RunView }) {
 	}, []);
 
 	const renderNode = (node: WorkflowNode, inBranch = false): ReactNode => {
+		if (!isRevealed(run, node)) return null;
 		const label = statusLabel(node, run.statuses);
-		const status = run.statuses[node.id] ?? "pending";
+		const live = isLive(run, node.id);
+		const fade = isMuted(run, node) ? "opacity-40 grayscale" : "";
 
 		switch (node.kind) {
 			case "start":
 			case "end":
 				return (
-					<div className="relative" key={node.id}>
+					<div
+						className={`relative transition duration-300 ${fade}`}
+						key={node.id}
+					>
 						<div
 							ref={register(node.id)}
 							id={`node-${node.id}`}
@@ -192,7 +222,10 @@ export function FlowChart({ run }: { run: RunView }) {
 			case "parallel-split":
 			case "parallel-join":
 				return (
-					<div className="relative" key={node.id}>
+					<div
+						className={`relative transition duration-300 ${fade}`}
+						key={node.id}
+					>
 						<Diamond
 							refFn={register(node.id)}
 							id={node.id}
@@ -207,16 +240,24 @@ export function FlowChart({ run }: { run: RunView }) {
 
 			case "gate":
 				return (
-					<div className="relative" key={node.id}>
+					<div
+						className={`relative transition duration-300 ${fade}`}
+						key={node.id}
+					>
 						<Diamond
 							refFn={register(node.id)}
 							id={node.id}
 							mark={node.symbol ?? "×"}
 							size={40}
-							active={status === "waiting" || status === "running"}
+							active={live}
 						/>
 						<div className="absolute right-[calc(100%+18px)] top-1/2 flex w-[230px] -translate-y-1/2 flex-col items-end gap-1 text-right">
 							<div className="flex items-center gap-1.5">
+								{live && (
+									<span className="rounded-full bg-ink px-1.5 py-[1px] text-[9.5px] font-bold tracking-[0.15em] text-white">
+										▶ AGORA
+									</span>
+								)}
 								<StatusTag label={label} />
 								<span className="font-mono text-[10.5px] font-semibold text-ink">
 									{node.id}
@@ -231,9 +272,7 @@ export function FlowChart({ run }: { run: RunView }) {
 									↳ {run.details[node.id]}
 								</div>
 							)}
-							{status === "waiting" && (
-								<GateActions node={node} instanceId={run.instanceId} compact />
-							)}
+							<StepActions node={node} run={run} compact />
 						</div>
 						<span className="absolute left-[calc(50%+8px)] top-[calc(100%+2px)] text-[10px] font-bold tracking-wider text-ink">
 							SIM
@@ -266,39 +305,79 @@ export function FlowChart({ run }: { run: RunView }) {
 		}
 	};
 
-	const renderItems = (items: Item[], inBranch = false) =>
-		items.map((item) =>
-			item.type === "node" ? (
-				renderNode(item.node, inBranch)
-			) : (
+	// Ramos só se abrem quando o split é alcançado.
+	const renderItems = (items: Item[], inBranch = false): ReactNode[] =>
+		items.map((item) => {
+			if (item.type === "node") return renderNode(item.node, inBranch);
+			if (!isRevealed(run, item.split)) return null;
+			const branches = item.branches
+				.map((branch) => renderItems(branch, true).filter(Boolean))
+				.filter((nodes) => nodes.length > 0);
+			return (
 				<div key={item.split.id} className="flex flex-col items-center gap-10">
 					{renderNode(item.split)}
-					<div className="flex items-start justify-center gap-6">
-						{item.branches.map((branch, i) => (
-							<div key={i} className="flex flex-col items-center gap-10">
-								{renderItems(branch, true)}
-							</div>
-						))}
-					</div>
+					{branches.length > 0 && (
+						<div className="flex items-start justify-center gap-6">
+							{branches.map((nodes, i) => (
+								<div key={i} className="flex flex-col items-center gap-10">
+									{nodes}
+								</div>
+							))}
+						</div>
+					)}
 					{renderNode(item.join)}
 				</div>
-			),
-		);
+			);
+		});
 
 	// Cabeçalhos de fase: agrupamento visual discreto, fora do eixo de dependência.
 	let lastPhase: string | undefined;
 	const blocks: ReactNode[] = [];
 	for (const item of SEQUENCE) {
 		const node = item.type === "node" ? item.node : item.split;
-		if (node.phase && node.phase !== lastPhase) {
+		if (node.phase && node.phase !== lastPhase && isRevealed(run, node)) {
 			lastPhase = node.phase;
+			const state = run.instanceId ? phaseState(run, node.phase) : null;
 			blocks.push(
-				<div key={`phase-${node.phase}`} className="-mb-4 w-full pt-2">
+				<div
+					key={`phase-${node.phase}`}
+					className={`-mb-4 flex w-full items-center gap-2 pt-2 transition duration-300 ${
+						state === "locked" ? "opacity-40 grayscale" : ""
+					}`}
+				>
 					<PhasePill phaseId={node.phase} />
+					{state && state !== "locked" && (
+						<span className="text-[10.5px] font-semibold uppercase tracking-wider text-ink">
+							{state === "done" ? "✓ concluída" : "◐ em andamento"}
+						</span>
+					)}
 				</div>,
 			);
 		}
 		blocks.push(...renderItems([item]));
+	}
+
+	// Fases ainda fechadas: resumo tracejado, abre a cada OK.
+	const locked = lockedSummary(run);
+	if (locked.length > 0) {
+		blocks.push(
+			<div
+				key="locked"
+				className="flex w-[360px] flex-col gap-2 rounded-[22px] border border-dashed border-ink/30 px-4 py-3"
+			>
+				<span className="text-[10.5px] font-bold uppercase tracking-wider text-ink-2">
+					Bloqueado · abre a cada OK
+				</span>
+				<div className="flex flex-wrap gap-1.5 opacity-50 grayscale">
+					{locked.map(({ phase, hidden }) => (
+						<span key={phase.id} className="inline-flex items-center gap-1">
+							<PhasePill phaseId={phase.id} />
+							<span className="font-mono text-[10px] text-ink-2">{hidden}</span>
+						</span>
+					))}
+				</div>
+			</div>,
+		);
 	}
 
 	return (
@@ -326,6 +405,17 @@ export function FlowChart({ run }: { run: RunView }) {
 							<path d="M0 0 L10 5 L0 10 z" fill="#171717" />
 						</marker>
 						<marker
+							id="arrow-faint"
+							viewBox="0 0 10 10"
+							refX="9"
+							refY="5"
+							markerWidth="7"
+							markerHeight="7"
+							orient="auto-start-reverse"
+						>
+							<path d="M0 0 L10 5 L0 10 z" fill="#c8c8c8" />
+						</marker>
+						<marker
 							id="arrow-muted"
 							viewBox="0 0 10 10"
 							refX="9"
@@ -337,14 +427,14 @@ export function FlowChart({ run }: { run: RunView }) {
 							<path d="M0 0 L10 5 L0 10 z" fill="#666666" />
 						</marker>
 					</defs>
-					{geo.edges.map((d, i) => (
+					{geo.edges.map((edge, i) => (
 						<path
 							key={i}
-							d={d}
+							d={edge.d}
 							fill="none"
-							stroke="#171717"
+							stroke={edge.muted ? "#c8c8c8" : "#171717"}
 							strokeWidth={1.75}
-							markerEnd="url(#arrow)"
+							markerEnd={edge.muted ? "url(#arrow-faint)" : "url(#arrow)"}
 						/>
 					))}
 					{geo.loops.map((loop, i) => (

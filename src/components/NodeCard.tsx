@@ -1,21 +1,25 @@
 import {
 	statusLabel,
+	type Awaiting,
 	type RunStatus,
 	type WorkflowNode,
 } from "../../shared/schema";
+import { isLive, isMuted } from "../progress";
 import { KIND_LABEL } from "../taxonomy";
 import {
-	GateActions,
 	NodeBadges,
 	PlatformChip,
 	ShapeGlyph,
 	StatusTag,
+	StepActions,
 } from "./Taxonomy";
 
 export interface RunView {
 	statuses: Record<string, RunStatus>;
 	details: Record<string, string>;
 	instanceId: string | null;
+	awaiting: Awaiting | null;
+	showAll: boolean;
 }
 
 export function NodeCard({
@@ -34,16 +38,22 @@ export function NodeCard({
 	const detail = run.details[node.id];
 	const isDeliverable =
 		node.kind === "deliverable" || node.kind === "subdeliverable";
-	const active = status === "running" || status === "waiting";
+	const live = isLive(run, node.id);
+	const muted = isMuted(run, node);
 
 	return (
 		<div
-			className={`relative overflow-hidden rounded-[14px] bg-white text-left ${
-				active || status === "error"
-					? "ring-2 ring-ink"
+			className={`relative overflow-hidden rounded-[14px] bg-white text-left transition duration-300 ${
+				live
+					? "shadow-lg shadow-black/10 ring-[2.5px] ring-ink"
 					: "ring-1 ring-hairline/70"
-			} ${className}`}
+			} ${muted ? "opacity-40 grayscale" : ""} ${className}`}
 		>
+			{live && status !== "error" && (
+				<div className="bg-ink px-3 py-0.5 text-[9.5px] font-bold tracking-[0.18em] text-white">
+					▶ AGORA
+				</div>
+			)}
 			{isDeliverable && (
 				<div
 					className={`flex items-center justify-between gap-2 px-3 py-1 text-[9.5px] font-bold uppercase tracking-wider text-white ${
@@ -102,9 +112,7 @@ export function NodeCard({
 					<div className="text-[10.5px] font-medium text-ink">↳ {detail}</div>
 				)}
 
-				{status === "waiting" && (
-					<GateActions node={node} instanceId={run.instanceId} compact />
-				)}
+				<StepActions node={node} run={run} compact />
 			</div>
 
 			{node.kind === "subprocess" && (

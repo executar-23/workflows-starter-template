@@ -7,12 +7,13 @@ import { KanbanView, Segmented } from "./components/KanbanView";
 import { Legend } from "./components/Legend";
 import { ListView } from "./components/ListView";
 import type { RunView } from "./components/NodeCard";
-import { GateActions } from "./components/Taxonomy";
+import { StepActions } from "./components/Taxonomy";
 import { useWorkflowWebSocket } from "./hooks/useWorkflowWebSocket";
 import type { ViewMode } from "./types";
 
 const RUN_KEY = "executar.run";
 const VIEW_KEY = "executar.view";
+const ALL_KEY = "executar.showAll";
 
 const read = (key: string) => {
 	try {
@@ -32,7 +33,9 @@ const write = (key: string, value: string | null) => {
 
 // O run fica na URL (?run=) para retomar um gate dias depois.
 function initialRun() {
-	return new URLSearchParams(window.location.search).get("run") ?? read(RUN_KEY);
+	return (
+		new URLSearchParams(window.location.search).get("run") ?? read(RUN_KEY)
+	);
 }
 
 const PLATFORM_STATUS: Record<string, string> = {
@@ -56,9 +59,11 @@ function App() {
 	const [assetIds, setAssetIds] = useState("");
 	const [runStatus, setRunStatus] = useState<string>();
 	const [isStarting, setIsStarting] = useState(false);
+	const [showAll, setShowAll] = useState(() => read(ALL_KEY) === "1");
 	const state = useWorkflowWebSocket(instanceId);
 
 	useEffect(() => write(VIEW_KEY, view), [view]);
+	useEffect(() => write(ALL_KEY, showAll ? "1" : "0"), [showAll]);
 
 	useEffect(() => {
 		write(RUN_KEY, instanceId);
@@ -117,12 +122,13 @@ function App() {
 		statuses: state.stepStatuses,
 		details: state.stepDetails,
 		instanceId,
+		awaiting: state.awaiting,
+		showAll,
 	};
 
-	const waitingGates = Object.entries(state.stepStatuses)
-		.filter(([, s]) => s === "waiting")
-		.map(([id]) => NODE_BY_ID.get(id))
-		.filter((n) => n?.decision === "human");
+	const awaitingNode = state.awaiting
+		? NODE_BY_ID.get(state.awaiting.nodeId)
+		: null;
 
 	const current = state.currentStep ? NODE_BY_ID.get(state.currentStep) : null;
 
@@ -198,29 +204,7 @@ function App() {
 					</div>
 				</dl>
 
-				{waitingGates.map(
-					(gate) =>
-						gate && (
-							<div
-								key={gate.id}
-								className="no-print flex flex-col gap-2 rounded-[22px] bg-muted px-4 py-3 ring-2 ring-ink sm:flex-row sm:items-center"
-							>
-								<div className="flex-1 text-sm">
-									<span className="mr-2 text-[11px] font-bold tracking-wider">
-										◷ AGUARDANDO DECISÃO
-									</span>
-									<span className="font-mono font-semibold">{gate.id}</span> ·{" "}
-									<span className="font-semibold">{gate.title}</span>
-									{state.stepDetails[gate.id] && (
-										<span className="text-ink-2"> · {state.stepDetails[gate.id]}</span>
-									)}
-								</div>
-								<GateActions node={gate} instanceId={instanceId} />
-							</div>
-						),
-				)}
-
-				<div className="no-print flex flex-wrap items-center justify-between gap-3">
+				<div className="no-print flex flex-wrap items-center gap-3">
 					<Segmented
 						value={view}
 						onChange={setView}
@@ -228,6 +212,15 @@ function App() {
 							["flow", "Fluxograma"],
 							["kanban", "Kanban"],
 							["list", "Lista"],
+						]}
+					/>
+					<span className="flex-1" />
+					<Segmented
+						value={showAll ? "all" : "step"}
+						onChange={(v) => setShowAll(v === "all")}
+						options={[
+							["step", "Passo a passo"],
+							["all", "Mapa completo"],
 						]}
 					/>
 					<button
@@ -238,6 +231,30 @@ function App() {
 					</button>
 				</div>
 			</header>
+
+			{/* Próxima casa (WIP = 1): sempre visível enquanto o fluxo rola. */}
+			{awaitingNode && state.awaiting && (
+				<div className="no-print sticky top-0 z-30 bg-white/90 px-4 py-2 backdrop-blur sm:px-6">
+					<div className="flex flex-col gap-2 rounded-[22px] bg-muted px-4 py-3 ring-2 ring-ink sm:flex-row sm:items-center">
+						<div className="flex-1 text-sm">
+							<span className="mr-2 text-[11px] font-bold tracking-wider">
+								{state.awaiting.mode === "ok"
+									? "▷ PRÓXIMA CASA"
+									: "◷ AGUARDANDO DECISÃO"}
+							</span>
+							<span className="font-mono font-semibold">{awaitingNode.id}</span>{" "}
+							· <span className="font-semibold">{awaitingNode.title}</span>
+							{state.stepDetails[awaitingNode.id] && (
+								<span className="text-ink-2">
+									{" "}
+									· {state.stepDetails[awaitingNode.id]}
+								</span>
+							)}
+						</div>
+						<StepActions node={awaitingNode} run={run} />
+					</div>
+				</div>
+			)}
 
 			<main>
 				{view === "flow" && <FlowChart run={run} />}
@@ -254,7 +271,9 @@ function App() {
 function Field({ label, children }: { label: string; children: ReactNode }) {
 	return (
 		<div className="flex min-w-0 items-center gap-2">
-			<dt className="text-[10px] font-bold tracking-wider text-ink-2">{label}:</dt>
+			<dt className="text-[10px] font-bold tracking-wider text-ink-2">
+				{label}:
+			</dt>
 			<dd className="flex min-w-0 flex-1 items-center">{children}</dd>
 		</div>
 	);

@@ -68,7 +68,8 @@ export function KanbanView({ run }: { run: RunView }) {
 								<div key={node.id} className="flex flex-col gap-1">
 									{groupBy === "status" && (
 										<span className="px-1 text-[10px] font-semibold uppercase tracking-wider text-phase">
-											Fase {WORKFLOW.phases.find((p) => p.id === node.phase)?.number}
+											Fase{" "}
+											{WORKFLOW.phases.find((p) => p.id === node.phase)?.number}
 										</span>
 									)}
 									<NodeCard node={node} run={run} />

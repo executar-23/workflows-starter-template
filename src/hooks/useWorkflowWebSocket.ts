@@ -12,6 +12,7 @@ const initialState: WorkflowState = {
 	stepStatuses: {},
 	stepDetails: {},
 	meta: {},
+	awaiting: null,
 	workflowStatus: "idle",
 	wsConnected: false,
 };
@@ -29,6 +30,7 @@ function workflowReducer(state: WorkflowState, action: Action): WorkflowState {
 				stepStatuses: action.payload.stepStatuses,
 				stepDetails: action.payload.stepDetails ?? {},
 				meta: action.payload.meta ?? {},
+				awaiting: action.payload.awaiting ?? null,
 				workflowStatus: action.payload.workflowStatus,
 			};
 		case "RESET":

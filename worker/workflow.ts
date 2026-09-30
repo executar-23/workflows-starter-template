@@ -1,6 +1,15 @@
 import { WorkflowEntrypoint, WorkflowStep } from "cloudflare:workers";
 import type { WorkflowEvent } from "cloudflare:workers";
-import { WORKFLOW, NODE_BY_ID, type WorkflowNode } from "../shared/schema";
+import {
+	WORKFLOW,
+	NODE_BY_ID,
+	decisionEventType,
+	isStructural,
+	okEventType,
+	type Awaiting,
+	type RunStatus,
+	type WorkflowNode,
+} from "../shared/schema";
 
 export type WorkflowParams = {
 	campaignId?: string;
@@ -28,9 +37,8 @@ type StepRecord = {
 	completedAt: string;
 };
 
-type Status = "running" | "completed" | "waiting" | "error" | "pending";
-
 const MAX_ITERATIONS = 10;
+const WAIT_TIMEOUT = "30 days";
 const RETRY = {
 	retries: { limit: 3, delay: "5 seconds" as const, backoff: "exponential" as const },
 	timeout: "10 minutes" as const,
@@ -38,25 +46,14 @@ const RETRY = {
 
 export const TRACKED_NODES = WORKFLOW.nodes.map((node) => node.id);
 
-// Unidade de execução: um nó, ou um bloco contíguo multi-instância
+// Unidade de execução: um nó, ou o bloco contíguo multi-instância
 // (N11 → D8) repetido para cada Asset_ID.
-type Unit = { nodes: WorkflowNode[]; deps: string[] };
-
-function buildUnits(): Unit[] {
-	const units: Unit[] = [];
+function buildUnits(): WorkflowNode[][] {
+	const units: WorkflowNode[][] = [];
 	for (const node of WORKFLOW.nodes) {
 		const last = units.at(-1);
-		if (node.multiInstance && last?.nodes[0].multiInstance) {
-			last.nodes.push(node);
-			continue;
-		}
-		units.push({ nodes: [node], deps: [] });
-	}
-	for (const unit of units) {
-		const members = new Set(unit.nodes.map((n) => n.id));
-		unit.deps = [
-			...new Set(unit.nodes.flatMap((n) => n.dependsOn)),
-		].filter((d) => !members.has(d));
+		if (node.multiInstance && last?.[0].multiInstance) last.push(node);
+		else units.push([node]);
 	}
 	return units;
 }
@@ -74,9 +71,14 @@ export class MyWorkflow extends WorkflowEntrypoint<Env, WorkflowParams> {
 		const status = this.env.WORKFLOW_STATUS.get(
 			this.env.WORKFLOW_STATUS.idFromName(instanceId),
 		);
-		const notify = async (id: string, value: Status, detail?: string) => {
+		const notify = async (
+			id: string,
+			value: RunStatus,
+			detail?: string,
+			awaiting?: Awaiting,
+		) => {
 			try {
-				await status.updateStep(id, value, detail);
+				await status.updateStep(id, value, detail, awaiting);
 			} catch {
 				// UI updates are best-effort. Workflow execution remains durable.
 			}
@@ -90,7 +92,22 @@ export class MyWorkflow extends WorkflowEntrypoint<Env, WorkflowParams> {
 		const itemDetail = (item?: string) =>
 			item ? `${item} · ${assetIds.indexOf(item) + 1}/${assetIds.length}` : undefined;
 
+		// WIP = 1: cada casa só executa depois do OK dessa casa específica.
+		const awaitOk = async (node: WorkflowNode, item?: string, iteration = 1) => {
+			const type = okEventType(node.id, item, iteration);
+			await notify(node.id, "ready", itemDetail(item), {
+				nodeId: node.id,
+				eventType: type,
+				mode: "ok",
+			});
+			await step.waitForEvent(`${stepName(node, item, iteration)} · OK`, {
+				type,
+				timeout: WAIT_TIMEOUT,
+			});
+		};
+
 		const doWork = async (node: WorkflowNode, item?: string, iteration = 1) => {
+			await awaitOk(node, item, iteration);
 			await notify(node.id, "running", itemDetail(item));
 			const record = await step.do(
 				stepName(node, item, iteration),
@@ -110,6 +127,7 @@ export class MyWorkflow extends WorkflowEntrypoint<Env, WorkflowParams> {
 				}),
 			);
 			results.set(key(node.id, item), record);
+			await notify(node.id, "completed", itemDetail(item));
 		};
 
 		// Reexecuta o trecho [target → gate) após reprovação (loop de retrabalho).
@@ -152,14 +170,21 @@ export class MyWorkflow extends WorkflowEntrypoint<Env, WorkflowParams> {
 				let reason = "";
 
 				if (gate.decision === "human" && gate.event) {
-					await notify(gate.id, "waiting", itemDetail(item));
+					const type = decisionEventType(gate, item, iteration);
+					await notify(gate.id, "waiting", itemDetail(item), {
+						nodeId: gate.id,
+						eventType: type,
+						mode: "decision",
+					});
 					const response = await step.waitForEvent<EventPayload>(
 						stepName(gate, item, iteration),
-						{ type: gate.event, timeout: "30 days" },
+						{ type, timeout: WAIT_TIMEOUT },
 					);
 					approved = response.payload?.approved !== false;
 					reason = String(response.payload?.comment ?? "sem comentário");
 				} else {
+					// Gate automático (ORCH: CLP) também é uma casa: OK → verificar.
+					await awaitOk(gate, item, iteration);
 					await notify(gate.id, "running", itemDetail(item));
 					const missing = await step.do(
 						stepName(gate, item, iteration),
@@ -193,41 +218,25 @@ export class MyWorkflow extends WorkflowEntrypoint<Env, WorkflowParams> {
 			item?: string,
 			iteration = 1,
 		): Promise<void> => {
-			switch (node.kind) {
-				case "start":
-				case "end":
-				case "parallel-split":
-				case "parallel-join":
-					await notify(node.id, "completed");
-					return;
-				case "gate":
-					return execGate(node, item);
-				case "platform-distribution":
-					await notify(node.id, "running");
-					await Promise.all(
-						(node.platforms ?? []).map((platform) =>
-							step.do(`${node.id} · ${platform}`, RETRY, async () => ({
-								platform,
-								campaignId,
-								runId: instanceId,
-							})),
-						),
-					);
-					await notify(node.id, "completed");
-					return;
-				default:
-					await doWork(node, item, iteration);
-					if (!node.multiInstance) await notify(node.id, "completed");
-					else await notify(node.id, "completed", itemDetail(item));
+			if (isStructural(node)) {
+				await notify(node.id, "completed");
+				return;
 			}
-		};
-
-		const execUnit = async (unit: Unit) => {
-			if (!unit.nodes[0].multiInstance) return execNode(unit.nodes[0]);
-			// Para cada Asset_ID, em sequência: gerar → revisar → registrar.
-			for (const item of assetIds) {
-				for (const node of unit.nodes) await execNode(node, item);
+			if (node.kind === "gate") return execGate(node, item);
+			if (node.kind === "platform-distribution") {
+				await awaitOk(node, item, iteration);
+				await notify(node.id, "running");
+				for (const platform of node.platforms ?? []) {
+					await step.do(`${node.id} · ${platform}`, RETRY, async () => ({
+						platform,
+						campaignId,
+						runId: instanceId,
+					}));
+				}
+				await notify(node.id, "completed");
+				return;
 			}
+			await doWork(node, item, iteration);
 		};
 
 		await status
@@ -235,16 +244,14 @@ export class MyWorkflow extends WorkflowEntrypoint<Env, WorkflowParams> {
 			.catch(() => {});
 
 		try {
-			// Agendador de DAG: cada unidade aguarda apenas seus predecessores,
-			// então ramos de split paralelo executam concorrentemente.
-			const done = new Map<string, Promise<void>>();
+			// Execução serial em ordem topológica: ramos paralelos do grafo
+			// são percorridos um de cada vez (WIP = 1).
 			for (const unit of UNITS) {
-				const promise = Promise.all(unit.deps.map((d) => done.get(d)!)).then(
-					() => execUnit(unit),
-				);
-				for (const node of unit.nodes) done.set(node.id, promise);
+				const items = unit[0].multiInstance ? assetIds : [undefined];
+				for (const item of items) {
+					for (const node of unit) await execNode(node, item);
+				}
 			}
-			await Promise.all(done.values());
 			await status.setWorkflowStatus("completed").catch(() => {});
 
 			return {

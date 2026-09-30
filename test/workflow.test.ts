@@ -1,6 +1,25 @@
 import { env, introspectWorkflowInstance } from "cloudflare:test";
 import { describe, it, expect } from "vitest";
-import { WORKFLOW, NODE_BY_ID } from "../shared/schema";
+import {
+	WORKFLOW,
+	NODE_BY_ID,
+	decisionEventType,
+	isStructural,
+	okEventType,
+} from "../shared/schema";
+
+// Todos os eventos de um run aprovado de ponta a ponta (1 por casa).
+function allEvents(assetIds: string[]) {
+	return WORKFLOW.nodes
+		.filter((n) => !isStructural(n))
+		.flatMap((n) =>
+			(n.multiInstance ? assetIds : [undefined]).map((item) =>
+				n.decision === "human"
+					? decisionEventType(n, item)
+					: okEventType(n.id, item),
+			),
+		);
+}
 
 describe("workflow.json (grafo de dependências)", () => {
 	it("é um DAG em ordem topológica, de N0 até END", () => {
@@ -42,7 +61,7 @@ describe("MyWorkflow (execução)", () => {
 		);
 		await instance.modify(async (m) => {
 			await m.disableSleeps();
-			for (const type of ["g01-approved", "g04-approved", "g06-approved"]) {
+			for (const type of allEvents(["A1", "A2"])) {
 				await m.mockEvent({ type, payload: { approved: true } });
 			}
 		});
@@ -65,6 +84,33 @@ describe("MyWorkflow (execução)", () => {
 		await expect(instance.waitForStatus("complete")).resolves.not.toThrow();
 	});
 
+	it("WIP = 1: sem OK a casa N1 não executa", async () => {
+		const instanceId = `test-${Date.now()}-wip`;
+		await using instance = await introspectWorkflowInstance(
+			env.MY_WORKFLOW,
+			instanceId,
+		);
+		await instance.modify(async (m) => {
+			await m.disableSleeps();
+			await m.mockEvent({ type: okEventType("N1"), payload: {} });
+		});
+
+		await env.MY_WORKFLOW.create({ id: instanceId });
+
+		// Um OK → exatamente uma casa (N1). G01 fica aguardando decisão.
+		const n1 = await instance.waitForStepResult({
+			name: "N1 · Definir pilar estratégico",
+		});
+		expect(n1).toMatchObject({ nodeId: "N1", iteration: 1 });
+		const next = await Promise.race([
+			instance
+				.waitForStepResult({ name: "N2 · Iniciar campanha" })
+				.then(() => "advanced"),
+			new Promise((resolve) => setTimeout(() => resolve("blocked"), 1500)),
+		]);
+		expect(next).toBe("blocked");
+	});
+
 	it("reprovação no G01 retorna a N1 (loop de retrabalho)", async () => {
 		const instanceId = `test-${Date.now()}-rej`;
 		await using instance = await introspectWorkflowInstance(
@@ -73,10 +119,12 @@ describe("MyWorkflow (execução)", () => {
 		);
 		await instance.modify(async (m) => {
 			await m.disableSleeps();
+			await m.mockEvent({ type: okEventType("N1"), payload: {} });
 			await m.mockEvent({
 				type: "g01-approved",
 				payload: { approved: false, comment: "refazer" },
 			});
+			await m.mockEvent({ type: okEventType("N1", undefined, 2), payload: {} });
 		});
 
 		await env.MY_WORKFLOW.create({ id: instanceId });

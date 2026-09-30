@@ -11,6 +11,7 @@ import {
 	badgesOf,
 	type BadgeData,
 } from "../taxonomy";
+import type { RunView } from "./NodeCard";
 
 export function Badge({ badge }: { badge: BadgeData }) {
 	const style = BADGE_STYLE[badge.kind];
@@ -59,12 +60,16 @@ export function NodeBadges({
 }
 
 export function StatusTag({ label }: { label: StatusLabel }) {
-	const strong =
-		label === "IN PROGRESS" || label === "REVIEW" || label === "BLOCKED";
+	const live = ["READY", "IN PROGRESS", "REVIEW", "BLOCKED"].includes(label);
+	const done = ["APPROVED", "VERIFIED", "RELEASED"].includes(label);
 	return (
 		<span
 			className={`inline-flex shrink-0 items-center gap-1 whitespace-nowrap rounded-full px-1.5 py-[1px] text-[9.5px] font-semibold tracking-wide ${
-				strong ? "bg-ink text-white" : "text-ink-2 ring-1 ring-ink/25"
+				live
+					? "bg-ink text-white"
+					: done
+						? "text-ink ring-1 ring-ink"
+						: "text-ink-2 ring-1 ring-ink/25"
 			}`}
 		>
 			<span aria-hidden>{STATUS_SYMBOL[label]}</span>
@@ -193,55 +198,77 @@ export function ShapeGlyph({
 	);
 }
 
-export function GateActions({
+export function StepActions({
 	node,
-	instanceId,
+	run,
 	compact = false,
 }: {
 	node: WorkflowNode;
-	instanceId: string | null;
+	run: RunView;
 	compact?: boolean;
 }) {
-	const [sending, setSending] = useState(false);
-	if (!instanceId || node.decision !== "human" || !node.event) return null;
+	const awaiting = run.awaiting;
+	const [sentFor, setSentFor] = useState<string | null>(null);
+	if (!run.instanceId || !awaiting || awaiting.nodeId !== node.id) return null;
+	// Trava após o clique até o Worker pedir o próximo evento (1 OK = 1 casa).
+	const sent = sentFor === awaiting.eventType;
 
-	const send = async (approved: boolean) => {
-		const comment = approved
-			? "Aprovado via UI"
-			: window.prompt(
-					`Motivo da reprovação (NÃO → ${node.onReject?.label ?? "retrabalho"}):`,
-				);
-		if (comment === null) return;
-		setSending(true);
+	const send = async (payload: { approved?: boolean; comment?: string }) => {
+		setSentFor(awaiting.eventType);
 		try {
-			await fetch(`/api/workflow/event/${instanceId}`, {
+			const res = await fetch(`/api/workflow/event/${run.instanceId}`, {
 				method: "POST",
 				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify({
-					type: node.event,
-					payload: { approved, comment: comment || "Reprovado via UI" },
-				}),
+				body: JSON.stringify({ type: awaiting.eventType, payload }),
 			});
-		} finally {
-			setSending(false);
+			if (!res.ok) setSentFor(null);
+		} catch {
+			setSentFor(null);
 		}
 	};
 
 	const base = `rounded-full font-semibold transition disabled:opacity-40 ${
 		compact ? "px-2.5 py-1 text-[11px]" : "px-3.5 py-1.5 text-xs"
 	}`;
+
+	if (awaiting.mode === "ok") {
+		return (
+			<div className="no-print flex flex-wrap gap-1.5">
+				<button
+					disabled={sent}
+					onClick={() => send({})}
+					className={`${base} bg-ink text-white hover:bg-neutral-700`}
+				>
+					{sent
+						? "Executando…"
+						: node.kind === "gate"
+							? "OK · Verificar"
+							: "OK · Executar"}
+				</button>
+			</div>
+		);
+	}
+
+	const reject = () => {
+		const comment = window.prompt(
+			`Motivo da reprovação (NÃO → ${node.onReject?.label ?? "retrabalho"}):`,
+		);
+		if (comment !== null)
+			send({ approved: false, comment: comment || "Reprovado via UI" });
+	};
+
 	return (
 		<div className="no-print flex flex-wrap gap-1.5">
 			<button
-				disabled={sending}
-				onClick={() => send(true)}
+				disabled={sent}
+				onClick={() => send({ approved: true, comment: "Aprovado via UI" })}
 				className={`${base} bg-ink text-white hover:bg-neutral-700`}
 			>
 				SIM · Aprovar
 			</button>
 			<button
-				disabled={sending}
-				onClick={() => send(false)}
+				disabled={sent}
+				onClick={reject}
 				className={`${base} bg-white text-ink ring-1 ring-ink hover:bg-muted`}
 			>
 				NÃO · Reprovar

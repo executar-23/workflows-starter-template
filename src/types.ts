@@ -1,4 +1,4 @@
-import type { RunStatus } from "../shared/schema";
+import type { Awaiting, RunStatus } from "../shared/schema";
 
 export type WorkflowStatus = "idle" | "running" | "completed" | "error";
 
@@ -9,6 +9,7 @@ export interface WorkflowState {
 	stepStatuses: Record<string, RunStatus>;
 	stepDetails: Record<string, string>;
 	meta: Record<string, string>;
+	awaiting: Awaiting | null;
 	workflowStatus: WorkflowStatus;
 	wsConnected: boolean;
 }
@@ -19,6 +20,7 @@ export interface WorkflowUpdateMessage {
 	stepStatuses: Record<string, RunStatus>;
 	stepDetails?: Record<string, string>;
 	meta?: Record<string, string>;
+	awaiting?: Awaiting | null;
 	workflowStatus: "running" | "completed" | "error";
 	timestamp: number;
 }

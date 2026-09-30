@@ -58,6 +58,13 @@ Content-Type: application/json
 }
 ```
 
+### Passo a passo (WIP = 1)
+
+Cada casa (atividade, entregável, subprocesso, distribuição e gate automático) só executa após um OK. Os nós estruturais (START, END, gateways) passam sozinhos, e os ramos paralelos são percorridos um de cada vez. Cada casa espera um tipo de evento único, que a UI recebe pelo WebSocket no campo `awaiting`:
+
+- OK de casa: `ok-<nó>[-<asset>][-r<tentativa>]`, por exemplo `ok-n1`, `ok-n11-a1`, `ok-n1-r2`
+- decisão de gate humano: `<evento>[-<asset>][-r<tentativa>]`, por exemplo `g01-approved`, `g04-approved-a1`
+
 Gates humanos (owner LEONARDO) e seus eventos: `g01-approved` (G01 · Pilar definido?), `g04-approved` (G04 · Visual OK?, um por Asset_ID) e `g06-approved` (G06 · Peças finais OK?). Envie `approved: false` para reprovar: o workflow executa o loop de retrabalho definido em `onReject`.
 
 Os gates G02, G03 e G05 são automáticos (ORCH: CLP) e verificam os predecessores listados em `check`.

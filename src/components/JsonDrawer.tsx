@@ -13,12 +13,15 @@ function rangeOf(nodeId: string | null): [number, number] | null {
 	const open = idLine - 1;
 	const indent = LINES[open].match(/^\s*/)![0];
 	let close = idLine;
-	while (close < LINES.length && !LINES[close].startsWith(`${indent}}`)) close++;
+	while (close < LINES.length && !LINES[close].startsWith(`${indent}}`))
+		close++;
 	return [open + 1, close + 1];
 }
 
 function highlight(line: string): JSX.Element {
-	const tokens = line.split(/("(?:[^"\\]|\\.)*"(?:\s*:)?|\b\d+\b|\btrue\b|\bfalse\b|\bnull\b)/g);
+	const tokens = line.split(
+		/("(?:[^"\\]|\\.)*"(?:\s*:)?|\b\d+\b|\btrue\b|\bfalse\b|\bnull\b)/g,
+	);
 	return (
 		<>
 			{tokens.map((token, i) => {
@@ -151,7 +154,9 @@ export function JsonDrawer({ currentStep }: { currentStep: string | null }) {
 									<span className="mr-4 w-8 shrink-0 select-none text-right text-ink/30">
 										{n}
 									</span>
-									<span className="whitespace-pre">{highlight(line || " ")}</span>
+									<span className="whitespace-pre">
+										{highlight(line || " ")}
+									</span>
 								</div>
 							);
 						})}

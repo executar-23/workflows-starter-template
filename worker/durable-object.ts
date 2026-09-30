@@ -1,10 +1,12 @@
 import { DurableObject } from "cloudflare:workers";
 import { TRACKED_NODES } from "./workflow";
+import type { Awaiting } from "../shared/schema";
 
 export class WorkflowStatusDO extends DurableObject {
 	private stepStatuses: Map<string, string>;
 	private stepDetails: Map<string, string>;
 	private meta: Record<string, string> = {};
+	private awaiting: Awaiting | null = null;
 	private currentStep: string | null;
 	private workflowStatus: "running" | "completed" | "error";
 
@@ -33,6 +35,7 @@ export class WorkflowStatusDO extends DurableObject {
 
 			this.stepDetails = new Map(Object.entries(storedDetails ?? {}));
 			this.meta = (await ctx.storage.get<Record<string, string>>("meta")) ?? {};
+			this.awaiting = (await ctx.storage.get<Awaiting>("awaiting")) ?? null;
 			this.currentStep = storedCurrent ?? null;
 			this.workflowStatus = storedWorkflowStatus ?? "running";
 		});
@@ -53,12 +56,20 @@ export class WorkflowStatusDO extends DurableObject {
 		stepName: string,
 		status: string,
 		detail?: string,
+		awaiting?: Awaiting,
 	): Promise<void> {
+		if (awaiting) this.awaiting = awaiting;
+		else if (this.awaiting?.nodeId === stepName) this.awaiting = null;
 		this.stepStatuses.set(stepName, status);
 		if (detail) this.stepDetails.set(stepName, detail);
 		else this.stepDetails.delete(stepName);
 
-		if (status === "running" || status === "waiting" || status === "error") {
+		if (
+			status === "ready" ||
+			status === "running" ||
+			status === "waiting" ||
+			status === "error"
+		) {
 			this.currentStep = stepName;
 		}
 
@@ -90,6 +101,7 @@ export class WorkflowStatusDO extends DurableObject {
 		status: "running" | "completed" | "error",
 	): Promise<void> {
 		this.workflowStatus = status;
+		if (status !== "running") this.awaiting = null;
 		if (status === "completed") this.currentStep = null;
 		await this.persist();
 		this.broadcast(this.getStateMessage());
@@ -118,6 +130,7 @@ export class WorkflowStatusDO extends DurableObject {
 			Object.fromEntries(this.stepDetails),
 		);
 		await this.ctx.storage.put("currentStep", this.currentStep);
+		await this.ctx.storage.put("awaiting", this.awaiting);
 		await this.ctx.storage.put("workflowStatus", this.workflowStatus);
 	}
 
@@ -139,6 +152,7 @@ export class WorkflowStatusDO extends DurableObject {
 			stepStatuses: Object.fromEntries(this.stepStatuses),
 			stepDetails: Object.fromEntries(this.stepDetails),
 			meta: this.meta,
+			awaiting: this.awaiting,
 			workflowStatus: this.workflowStatus,
 			timestamp: Date.now(),
 		};

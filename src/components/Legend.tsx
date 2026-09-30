@@ -54,7 +54,12 @@ export function Legend() {
 				</span>
 				<span className="inline-flex items-center gap-1.5">
 					<svg width="28" height="8" aria-hidden>
-						<path d="M0 4 H28" stroke="#666" strokeWidth="1.1" strokeDasharray="5 4" />
+						<path
+							d="M0 4 H28"
+							stroke="#666"
+							strokeWidth="1.1"
+							strokeDasharray="5 4"
+						/>
 					</svg>
 					Retrabalho
 				</span>
@@ -64,8 +69,10 @@ export function Legend() {
 			</div>
 			<p className="text-[11px] leading-relaxed text-ink-2">
 				Posição = dependência · Seta = sequence flow · Cor = tipo semântico ·
-				Forma = função · Badge = metadado. Status: ○ NOT STARTED · ▷ READY · ◐
-				IN PROGRESS · ◷ REVIEW · ✓ APPROVED/VERIFIED · ↗ RELEASED · ✕ BLOCKED.
+				Forma = função · Badge = metadado. Cinza = casa fechada · cor = casa
+				alcançada · ▶ AGORA = casa atual (WIP 1: cada OK avança uma casa).
+				Status: ○ NOT STARTED · ▷ READY · ◐ IN PROGRESS · ◷ REVIEW · ✓
+				APPROVED/VERIFIED · ↗ RELEASED · ✕ BLOCKED.
 			</p>
 		</footer>
 	);
