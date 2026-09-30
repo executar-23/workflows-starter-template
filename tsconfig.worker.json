@@ -3,6 +3,7 @@
 	"compilerOptions": {
 		"tsBuildInfoFile": "./node_modules/.tmp/tsconfig.worker.tsbuildinfo",
 		"lib": ["ESNext"],
+		"resolveJsonModule": true,
 		"types": [
 			"./worker-configuration.d.ts",
 			"vite/client",
