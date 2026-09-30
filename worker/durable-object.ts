@@ -91,6 +91,14 @@ export class WorkflowStatusDO extends DurableObject {
 		this.broadcast(this.getStateMessage());
 	}
 
+	async getMeta(): Promise<Record<string, string>> {
+		return this.meta;
+	}
+
+	async getAwaiting(): Promise<Awaiting | null> {
+		return this.awaiting;
+	}
+
 	async setMeta(meta: Record<string, string>): Promise<void> {
 		this.meta = meta;
 		await this.ctx.storage.put("meta", meta);

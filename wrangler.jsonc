@@ -36,6 +36,10 @@
 			{
 				"name": "WORKFLOW_STATUS",
 				"class_name": "WorkflowStatusDO"
+			},
+			{
+				"name": "TASK_BOARD",
+				"class_name": "TaskBoardDO"
 			}
 		]
 	},
@@ -47,6 +51,19 @@
 		{
 			"tag": "v1",
 			"new_sqlite_classes": ["WorkflowStatusDO"]
+		},
+		{
+			"tag": "v2",
+			"new_sqlite_classes": ["TaskBoardDO"]
+		}
+	],
+	/**
+	 * R2: entregáveis reais do fluxo (campaigns/{cmp}/runs/{run}/{nó}/...)
+	 */
+	"r2_buckets": [
+		{
+			"binding": "ARTIFACTS",
+			"bucket_name": "executar-artifacts"
 		}
 	],
 	"workers_dev": true,

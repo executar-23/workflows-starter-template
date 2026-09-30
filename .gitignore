@@ -29,3 +29,11 @@ dist-ssr
 .env*
 !.env.example
 .inline
+
+# agent-handoff: estado transitório do ciclo (config.md e backlog.md são versionados)
+.handoff/plan.md
+.handoff/task.md
+.handoff/review.md
+# pasta de trabalho dos agentes
+out/
+.claude/settings.local.json

@@ -43,7 +43,18 @@ export interface WorkflowNode {
 	event?: string;
 	check?: string[];
 	onReject?: { target: string | null; label: string };
+	executor?: Executor;
+	executorNote?: string;
 }
+
+// Quem executa a casa de verdade.
+export type Executor =
+	| "human"
+	| "verify"
+	| "agent:clp"
+	| "agent:research"
+	| "agent:plano-ops"
+	| "agent:analytics";
 
 export interface Phase {
 	id: string;
@@ -111,10 +122,114 @@ export const decisionEventType = (
 export const isStructural = (node: WorkflowNode) =>
 	["start", "end", "parallel-split", "parallel-join"].includes(node.kind);
 
+export const doneEventType = (
+	nodeId: string,
+	item?: string,
+	iteration = 1,
+	attempt = 1,
+) =>
+	eventType(
+		["done", nodeId, item, attempt > 1 ? `a${attempt}` : undefined],
+		iteration,
+	);
+
+// ok = autorizar a casa · decision = gate SIM/NÃO · evidence = humano entrega
+// evidência/arquivo · agent = tarefa despachada aguardando um agente.
 export interface Awaiting {
 	nodeId: string;
 	eventType: string;
-	mode: "ok" | "decision";
+	mode: "ok" | "decision" | "evidence" | "agent";
+	taskId?: string;
+}
+
+export type ExecutorKind = Executor | "decision" | "auto" | "structural";
+
+export function executorOf(node: WorkflowNode): ExecutorKind {
+	if (isStructural(node)) return "structural";
+	if (node.kind === "gate") return node.decision === "human" ? "decision" : "auto";
+	return node.executor ?? "human";
+}
+
+export const isAgent = (node: WorkflowNode) =>
+	executorOf(node).startsWith("agent:");
+
+// Entregáveis produzidos diretamente pela casa (o artefato é gravado no
+// prefixo do entregável: N4 → D1).
+export const producesOf = (node: WorkflowNode) =>
+	successorsOf(node.id).filter(
+		(n) => n.kind === "deliverable" || n.kind === "subdeliverable",
+	);
+
+export const taskIdOf = (runId: string, doneType: string) =>
+	`${runId}~${doneType}`;
+
+export const itemSlug = (item?: string) => (item ? slug(item) : undefined);
+
+// campaigns/{cmp}/runs/{run}/
+export const runPrefix = (campaignId: string, runId: string) =>
+	`campaigns/${slug(campaignId) || "sem-campanha"}/runs/${runId}/`;
+
+// campaigns/{cmp}/runs/{run}/{nó}[/{item}]/
+export const artifactPrefix = (
+	campaignId: string,
+	runId: string,
+	nodeId: string,
+	item?: string,
+) => `${runPrefix(campaignId, runId)}${nodeId}/${item ? `${slug(item)}/` : ""}`;
+
+export const safeFileName = (name: string) =>
+	name
+		.normalize("NFD")
+		.replace(/[\u0300-\u036f]/g, "")
+		.replace(/[^A-Za-z0-9._-]+/g, "-")
+		.replace(/^-+|-+$/g, "")
+		.slice(0, 120) || "arquivo";
+
+// CSV RFC 4180: aspas, vírgulas e quebras de linha dentro de campos.
+export function parseCsv(text: string): string[][] {
+	const rows: string[][] = [];
+	let row: string[] = [];
+	let field = "";
+	let quoted = false;
+	const src = text.replace(/^\uFEFF/, "");
+	for (let i = 0; i < src.length; i++) {
+		const c = src[i];
+		if (quoted) {
+			if (c === '"') {
+				if (src[i + 1] === '"') {
+					field += '"';
+					i++;
+				} else quoted = false;
+			} else field += c;
+		} else if (c === '"') quoted = true;
+		else if (c === ",") {
+			row.push(field);
+			field = "";
+		} else if (c === "\n" || c === "\r") {
+			if (c === "\r" && src[i + 1] === "\n") i++;
+			row.push(field);
+			rows.push(row);
+			row = [];
+			field = "";
+		} else field += c;
+	}
+	if (field !== "" || row.length) {
+		row.push(field);
+		rows.push(row);
+	}
+	return rows.filter((r) => r.some((cell) => cell.trim() !== ""));
+}
+
+// Linhas do CSV como objetos, chaves do cabeçalho em minúsculas.
+export function csvRecords(text: string) {
+	const [header = [], ...rows] = parseCsv(text);
+	const keys = header.map((h) => h.trim().toLowerCase());
+	return {
+		header: keys,
+		rows: rows.map((r) =>
+			Object.fromEntries(keys.map((k, i) => [k, (r[i] ?? "").trim()])),
+		),
+	};
 }
 
 export type StatusLabel =

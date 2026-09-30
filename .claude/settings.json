@@ -1,0 +1,27 @@
+{
+	"permissions": {
+		"allow": [
+			"Bash(node .claude/skills/executar-flow/scripts/flow.mjs:*)",
+			"Bash(python3 .claude/skills/plano-operacional-rastreavel/scripts/validar_plano.py:*)",
+			"WebSearch",
+			"WebFetch",
+			"Write(.handoff/**)",
+			"Edit(.handoff/**)",
+			"Write(out/**)",
+			"Edit(out/**)"
+		]
+	},
+	"hooks": {
+		"PreToolUse": [
+			{
+				"matcher": "Write|Edit|MultiEdit",
+				"hooks": [
+					{
+						"type": "command",
+						"command": "node \"$CLAUDE_PROJECT_DIR/.claude/hooks/auto-approve-handoff.js\""
+					}
+				]
+			}
+		]
+	}
+}

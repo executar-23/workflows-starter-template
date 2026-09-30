@@ -9,363 +9,799 @@
     "AGENT_PROMPT_CONTRACT · WORKFLOW_DEPENDENCY_GRAPH"
   ],
   "phases": [
-    { "id": "fase-01", "number": "01", "name": "Estratégia" },
-    { "id": "fase-02", "number": "02", "name": "Pesquisa" },
-    { "id": "fase-03", "number": "03", "name": "Autoria humana" },
-    { "id": "fase-04", "number": "04", "name": "Conversão agentic" },
-    { "id": "fase-05", "number": "05", "name": "Produção visual" },
-    { "id": "fase-06", "number": "06", "name": "Produção audiovisual" },
-    { "id": "fase-07", "number": "07", "name": "Revisão e release" },
-    { "id": "fase-08", "number": "08", "name": "Tracking e analytics" }
+    {
+      "id": "fase-01",
+      "number": "01",
+      "name": "Estratégia"
+    },
+    {
+      "id": "fase-02",
+      "number": "02",
+      "name": "Pesquisa"
+    },
+    {
+      "id": "fase-03",
+      "number": "03",
+      "name": "Autoria humana"
+    },
+    {
+      "id": "fase-04",
+      "number": "04",
+      "name": "Conversão agentic"
+    },
+    {
+      "id": "fase-05",
+      "number": "05",
+      "name": "Produção visual"
+    },
+    {
+      "id": "fase-06",
+      "number": "06",
+      "name": "Produção audiovisual"
+    },
+    {
+      "id": "fase-07",
+      "number": "07",
+      "name": "Revisão e release"
+    },
+    {
+      "id": "fase-08",
+      "number": "08",
+      "name": "Tracking e analytics"
+    }
   ],
   "nodes": [
-    { "id": "N0", "kind": "start", "title": "Início", "dependsOn": [] },
-
     {
-      "id": "N1", "kind": "activity", "phase": "fase-01",
+      "id": "N0",
+      "kind": "start",
+      "title": "Início",
+      "dependsOn": []
+    },
+    {
+      "id": "N1",
+      "kind": "activity",
+      "phase": "fase-01",
       "title": "Definir pilar estratégico",
+      "executor": "human",
       "owner": "LEONARDO",
       "output": "Pilar estratégico",
-      "ids": ["A DEFINIR"],
-      "dependsOn": ["N0"]
+      "ids": [
+        "A DEFINIR"
+      ],
+      "dependsOn": [
+        "N0"
+      ]
     },
     {
-      "id": "G01", "kind": "gate", "phase": "fase-01",
+      "id": "G01",
+      "kind": "gate",
+      "phase": "fase-01",
       "title": "Pilar definido?",
       "owner": "LEONARDO",
-      "decision": "human", "event": "g01-approved",
-      "onReject": { "target": "N1", "label": "Retornar a N1" },
-      "dependsOn": ["N1"]
+      "decision": "human",
+      "event": "g01-approved",
+      "onReject": {
+        "target": "N1",
+        "label": "Retornar a N1"
+      },
+      "dependsOn": [
+        "N1"
+      ]
     },
-
     {
-      "id": "N2", "kind": "activity", "phase": "fase-02",
+      "id": "N2",
+      "kind": "activity",
+      "phase": "fase-02",
       "title": "Iniciar campanha",
+      "executor": "human",
       "owner": "LEONARDO",
-      "actions": ["Pressionar Trigger 1"],
+      "actions": [
+        "Pressionar Trigger 1"
+      ],
       "output": "RUN_ID",
-      "dependsOn": ["G01"]
+      "dependsOn": [
+        "G01"
+      ]
     },
     {
-      "id": "N3", "kind": "activity", "phase": "fase-02",
+      "id": "N3",
+      "kind": "activity",
+      "phase": "fase-02",
       "title": "Orquestrar pesquisa",
+      "executor": "agent:clp",
       "orch": "CLP",
-      "actions": ["Carregar pilar", "Aplicar schema de pesquisa", "Selecionar agente/skill", "Executar Wide Search"],
-      "ids": ["SCHEMA_ID: A DEFINIR"],
-      "dependsOn": ["N2"]
+      "actions": [
+        "Carregar pilar",
+        "Aplicar schema de pesquisa",
+        "Selecionar agente/skill",
+        "Executar Wide Search"
+      ],
+      "ids": [
+        "SCHEMA_ID: A DEFINIR"
+      ],
+      "dependsOn": [
+        "N2"
+      ]
     },
     {
-      "id": "N4", "kind": "activity", "phase": "fase-02",
+      "id": "N4",
+      "kind": "activity",
+      "phase": "fase-02",
       "title": "Executar Wide Search",
+      "executor": "agent:research",
       "agent": "Research Agent",
       "skill": "A DEFINIR",
-      "dependsOn": ["N3"]
+      "dependsOn": [
+        "N3"
+      ]
     },
     {
-      "id": "D1", "kind": "deliverable", "phase": "fase-02",
+      "id": "D1",
+      "kind": "deliverable",
+      "phase": "fase-02",
       "title": "Mapa de tópicos, argumentos e dados",
-      "ids": ["DLV-0020"],
+      "executor": "verify",
+      "ids": [
+        "DLV-0020"
+      ],
       "format": "MD",
-      "contains": ["tópicos", "argumentos", "evidências", "fontes", "dados", "gaps"],
-      "dependsOn": ["N4"]
+      "contains": [
+        "tópicos",
+        "argumentos",
+        "evidências",
+        "fontes",
+        "dados",
+        "gaps"
+      ],
+      "dependsOn": [
+        "N4"
+      ]
     },
-
     {
-      "id": "N5", "kind": "activity", "phase": "fase-03",
+      "id": "N5",
+      "kind": "activity",
+      "phase": "fase-03",
       "title": "Analisar pesquisa",
+      "executor": "human",
       "owner": "LEONARDO",
-      "dependsOn": ["D1"]
+      "dependsOn": [
+        "D1"
+      ]
     },
     {
-      "id": "N6", "kind": "activity", "phase": "fase-03",
+      "id": "N6",
+      "kind": "activity",
+      "phase": "fase-03",
       "title": "Escrever peça-mãe / DX",
+      "executor": "human",
       "owner": "LEONARDO",
-      "dependsOn": ["N5"]
+      "dependsOn": [
+        "N5"
+      ]
     },
     {
-      "id": "D2", "kind": "deliverable", "phase": "fase-03",
+      "id": "D2",
+      "kind": "deliverable",
+      "phase": "fase-03",
       "title": "Peça-mãe",
-      "ids": ["DLV-0030"],
+      "executor": "verify",
+      "ids": [
+        "DLV-0030"
+      ],
       "format": "MD",
-      "dependsOn": ["N6"]
+      "dependsOn": [
+        "N6"
+      ]
     },
-    { "id": "PG01", "kind": "parallel-split", "phase": "fase-03", "title": "Split paralelo", "dependsOn": ["D2"] },
     {
-      "id": "N7A", "kind": "activity", "phase": "fase-03",
+      "id": "PG01",
+      "kind": "parallel-split",
+      "phase": "fase-03",
+      "title": "Split paralelo",
+      "dependsOn": [
+        "D2"
+      ]
+    },
+    {
+      "id": "N7A",
+      "kind": "activity",
+      "phase": "fase-03",
       "title": "Criar storyboard",
+      "executor": "human",
       "owner": "LEONARDO",
-      "dependsOn": ["PG01"]
+      "dependsOn": [
+        "PG01"
+      ]
     },
     {
-      "id": "D3", "kind": "deliverable", "phase": "fase-03",
+      "id": "D3",
+      "kind": "deliverable",
+      "phase": "fase-03",
       "title": "Storyboard",
-      "ids": ["DLV-0040"],
-      "dependsOn": ["N7A"]
+      "executor": "verify",
+      "ids": [
+        "DLV-0040"
+      ],
+      "dependsOn": [
+        "N7A"
+      ]
     },
     {
-      "id": "N7B", "kind": "activity", "phase": "fase-03",
+      "id": "N7B",
+      "kind": "activity",
+      "phase": "fase-03",
       "title": "Extrair Quick Frameworks",
+      "executor": "human",
       "owner": "LEONARDO",
-      "dependsOn": ["PG01"]
+      "dependsOn": [
+        "PG01"
+      ]
     },
     {
-      "id": "D4", "kind": "deliverable", "phase": "fase-03",
+      "id": "D4",
+      "kind": "deliverable",
+      "phase": "fase-03",
       "title": "Quick Framework input package",
-      "ids": ["DLV-0050"],
-      "dependsOn": ["N7B"]
+      "executor": "verify",
+      "ids": [
+        "DLV-0050"
+      ],
+      "dependsOn": [
+        "N7B"
+      ]
     },
     {
-      "id": "N7C", "kind": "activity", "phase": "fase-03",
+      "id": "N7C",
+      "kind": "activity",
+      "phase": "fase-03",
       "title": "Definir assets e CTAs",
+      "executor": "human",
       "owner": "LEONARDO",
-      "dependsOn": ["PG01"]
+      "dependsOn": [
+        "PG01"
+      ]
     },
     {
-      "id": "D5", "kind": "deliverable", "phase": "fase-03",
+      "id": "D5",
+      "kind": "deliverable",
+      "phase": "fase-03",
       "title": "Asset + CTA brief",
-      "ids": ["DLV-0060"],
-      "dependsOn": ["N7C"]
+      "executor": "verify",
+      "ids": [
+        "DLV-0060"
+      ],
+      "dependsOn": [
+        "N7C"
+      ]
     },
-    { "id": "PG02", "kind": "parallel-join", "phase": "fase-03", "title": "Join paralelo", "dependsOn": ["D3", "D4", "D5"] },
     {
-      "id": "G02", "kind": "gate", "phase": "fase-03",
+      "id": "PG02",
+      "kind": "parallel-join",
+      "phase": "fase-03",
+      "title": "Join paralelo",
+      "dependsOn": [
+        "D3",
+        "D4",
+        "D5"
+      ]
+    },
+    {
+      "id": "G02",
+      "kind": "gate",
+      "phase": "fase-03",
       "title": "Pacote autoral completo?",
       "orch": "CLP",
-      "decision": "auto", "check": ["D2", "D3", "D4", "D5"],
-      "onReject": { "target": null, "label": "Apontar item faltante" },
-      "dependsOn": ["PG02"]
+      "decision": "auto",
+      "check": [
+        "D2",
+        "D3",
+        "D4",
+        "D5"
+      ],
+      "onReject": {
+        "target": null,
+        "label": "Apontar item faltante"
+      },
+      "dependsOn": [
+        "PG02"
+      ]
     },
-
     {
-      "id": "N8", "kind": "activity", "phase": "fase-04",
+      "id": "N8",
+      "kind": "activity",
+      "phase": "fase-04",
       "title": "Iniciar processamento",
+      "executor": "human",
       "owner": "LEONARDO",
-      "actions": ["Pressionar Trigger 2"],
+      "actions": [
+        "Pressionar Trigger 2"
+      ],
       "output": "Novo RUN_ID",
-      "dependsOn": ["G02"]
+      "dependsOn": [
+        "G02"
+      ]
     },
     {
-      "id": "N9", "kind": "activity", "phase": "fase-04",
+      "id": "N9",
+      "kind": "activity",
+      "phase": "fase-04",
       "title": "Coletar pacote autoral",
+      "executor": "agent:clp",
       "orch": "CLP",
-      "inputs": ["D2", "D3", "D4", "D5"],
-      "dependsOn": ["N8"]
+      "inputs": [
+        "D2",
+        "D3",
+        "D4",
+        "D5"
+      ],
+      "dependsOn": [
+        "N8"
+      ]
     },
-    { "id": "PG03", "kind": "parallel-split", "phase": "fase-04", "title": "Split paralelo de skills", "dependsOn": ["N9"] },
     {
-      "id": "S1", "kind": "subprocess", "phase": "fase-04",
+      "id": "PG03",
+      "kind": "parallel-split",
+      "phase": "fase-04",
+      "title": "Split paralelo de skills",
+      "dependsOn": [
+        "N9"
+      ]
+    },
+    {
+      "id": "S1",
+      "kind": "subprocess",
+      "phase": "fase-04",
       "title": "Skill group 1",
+      "executor": "human",
       "orch": "CLP",
-      "skills": ["PPS01", "PPS02", "PPS03"],
+      "skills": [
+        "PPS01",
+        "PPS02",
+        "PPS03"
+      ],
       "note": "Função exata: A DEFINIR",
-      "dependsOn": ["PG03"]
+      "dependsOn": [
+        "PG03"
+      ],
+      "executorNote": "Fallback humano: agente/função A DEFINIR"
     },
     {
-      "id": "S2", "kind": "subprocess", "phase": "fase-04",
+      "id": "S2",
+      "kind": "subprocess",
+      "phase": "fase-04",
       "title": "Skill group 2",
+      "executor": "human",
       "orch": "CLP",
-      "skills": ["Store Loja TDH", "Quick Frameworks"],
+      "skills": [
+        "Store Loja TDH",
+        "Quick Frameworks"
+      ],
       "note": "Função exata: A DEFINIR",
-      "dependsOn": ["PG03"]
+      "dependsOn": [
+        "PG03"
+      ],
+      "executorNote": "Fallback humano: agente/função A DEFINIR"
     },
     {
-      "id": "S3", "kind": "subprocess", "phase": "fase-04",
+      "id": "S3",
+      "kind": "subprocess",
+      "phase": "fase-04",
       "title": "Skill group 3",
+      "executor": "human",
       "orch": "CLP",
-      "skills": ["Assets + CTA", "Frank's Watching Editor"],
+      "skills": [
+        "Assets + CTA",
+        "Frank's Watching Editor"
+      ],
       "note": "Função exata: A DEFINIR",
-      "dependsOn": ["PG03"]
+      "dependsOn": [
+        "PG03"
+      ],
+      "executorNote": "Fallback humano: agente/função A DEFINIR"
     },
-    { "id": "PG04", "kind": "parallel-join", "phase": "fase-04", "title": "Join paralelo de skills", "dependsOn": ["S1", "S2", "S3"] },
     {
-      "id": "N10", "kind": "activity", "phase": "fase-04",
+      "id": "PG04",
+      "kind": "parallel-join",
+      "phase": "fase-04",
+      "title": "Join paralelo de skills",
+      "dependsOn": [
+        "S1",
+        "S2",
+        "S3"
+      ]
+    },
+    {
+      "id": "N10",
+      "kind": "activity",
+      "phase": "fase-04",
       "title": "Aplicar plano operacional rastreável",
+      "executor": "agent:plano-ops",
       "orch": "CLP",
       "skill": "Plano Operacional Rastreável",
-      "dependsOn": ["PG04"]
+      "dependsOn": [
+        "PG04"
+      ]
     },
     {
-      "id": "D6", "kind": "deliverable", "phase": "fase-04",
+      "id": "D6",
+      "kind": "deliverable",
+      "phase": "fase-04",
       "title": "CSV operacional",
-      "ids": ["DLV-0090"],
+      "executor": "verify",
+      "ids": [
+        "DLV-0090"
+      ],
       "format": "CSV",
       "contains": [
-        "campaign_id", "run_id", "task_id", "asset_id", "content_id", "cta_id",
-        "frame_id", "video_id", "platform", "format", "route", "prompt_reference",
-        "visual_identity_reference", "depends_on", "status", "duration", "evidence"
+        "campaign_id",
+        "run_id",
+        "task_id",
+        "asset_id",
+        "content_id",
+        "cta_id",
+        "frame_id",
+        "video_id",
+        "platform",
+        "format",
+        "route",
+        "prompt_reference",
+        "visual_identity_reference",
+        "depends_on",
+        "status",
+        "duration",
+        "evidence"
       ],
-      "dependsOn": ["N10"]
+      "dependsOn": [
+        "N10"
+      ]
     },
     {
-      "id": "G03", "kind": "gate", "phase": "fase-04",
+      "id": "G03",
+      "kind": "gate",
+      "phase": "fase-04",
       "title": "CSV + IDs válidos?",
       "orch": "CLP",
-      "decision": "auto", "check": ["D6"],
-      "onReject": { "target": "N10", "label": "Retornar a N10" },
-      "dependsOn": ["D6"]
+      "decision": "auto",
+      "check": [
+        "D6"
+      ],
+      "onReject": {
+        "target": "N10",
+        "label": "Retornar a N10"
+      },
+      "dependsOn": [
+        "D6"
+      ]
     },
-
     {
-      "id": "N11", "kind": "subprocess", "phase": "fase-05",
+      "id": "N11",
+      "kind": "subprocess",
+      "phase": "fase-05",
       "title": "Gerar assets visuais",
+      "executor": "human",
       "multiInstance": "Para cada Asset_ID",
       "agent": "A DEFINIR",
       "tool": "AI / React",
-      "dependsOn": ["G03"]
+      "dependsOn": [
+        "G03"
+      ],
+      "executorNote": "Fallback humano: agente/função A DEFINIR"
     },
     {
-      "id": "D7", "kind": "subdeliverable", "phase": "fase-05",
+      "id": "D7",
+      "kind": "subdeliverable",
+      "phase": "fase-05",
       "title": "Visual gerado",
+      "executor": "verify",
       "multiInstance": "Para cada Asset_ID",
       "format": "IMAGE",
-      "dependsOn": ["N11"]
+      "dependsOn": [
+        "N11"
+      ]
     },
     {
-      "id": "G04", "kind": "gate", "phase": "fase-05",
+      "id": "G04",
+      "kind": "gate",
+      "phase": "fase-05",
       "title": "Visual OK?",
       "multiInstance": "Para cada Asset_ID",
       "owner": "LEONARDO",
-      "decision": "human", "event": "g04-approved",
-      "onReject": { "target": "N11", "label": "Regenerar / corrigir" },
-      "dependsOn": ["D7"]
+      "decision": "human",
+      "event": "g04-approved",
+      "onReject": {
+        "target": "N11",
+        "label": "Regenerar / corrigir"
+      },
+      "dependsOn": [
+        "D7"
+      ]
     },
     {
-      "id": "N12", "kind": "activity", "phase": "fase-05",
+      "id": "N12",
+      "kind": "activity",
+      "phase": "fase-05",
       "title": "Registrar asset aprovado",
+      "executor": "agent:clp",
       "multiInstance": "Para cada Asset_ID",
       "orch": "CLP",
-      "actions": ["Associar Asset_ID", "Salvar com naming correto", "Upload", "Vincular rota", "Registrar evidence"],
+      "actions": [
+        "Associar Asset_ID",
+        "Salvar com naming correto",
+        "Upload",
+        "Vincular rota",
+        "Registrar evidence"
+      ],
       "evid": true,
-      "dependsOn": ["G04"]
+      "dependsOn": [
+        "G04"
+      ]
     },
     {
-      "id": "D8", "kind": "deliverable", "phase": "fase-05",
+      "id": "D8",
+      "kind": "deliverable",
+      "phase": "fase-05",
       "title": "Asset verificado",
+      "executor": "verify",
       "multiInstance": "Para cada Asset_ID",
-      "ids": ["DLV-0080"],
-      "dependsOn": ["N12"]
+      "ids": [
+        "DLV-0080"
+      ],
+      "dependsOn": [
+        "N12"
+      ]
     },
     {
-      "id": "G05", "kind": "gate", "symbol": "+", "phase": "fase-05",
+      "id": "G05",
+      "kind": "gate",
+      "symbol": "+",
+      "phase": "fase-05",
       "title": "Todos os assets visuais concluídos?",
       "orch": "CLP",
-      "decision": "auto", "check": ["D8"],
-      "onReject": { "target": "N11", "label": "Continuar asset loop" },
-      "dependsOn": ["D8"]
+      "decision": "auto",
+      "check": [
+        "D8"
+      ],
+      "onReject": {
+        "target": "N11",
+        "label": "Continuar asset loop"
+      },
+      "dependsOn": [
+        "D8"
+      ]
     },
-
     {
-      "id": "N13", "kind": "activity", "phase": "fase-06",
+      "id": "N13",
+      "kind": "activity",
+      "phase": "fase-06",
       "title": "Preparar produção de vídeo",
+      "executor": "agent:clp",
       "orch": "CLP",
-      "inputs": ["Storyboard", "Frames", "Assets", "Identidade visual", "Duração", "Formatos"],
-      "dependsOn": ["G05"]
+      "inputs": [
+        "Storyboard",
+        "Frames",
+        "Assets",
+        "Identidade visual",
+        "Duração",
+        "Formatos"
+      ],
+      "dependsOn": [
+        "G05"
+      ]
     },
     {
-      "id": "N14", "kind": "activity", "phase": "fase-06",
+      "id": "N14",
+      "kind": "activity",
+      "phase": "fase-06",
       "title": "Gerar vídeo master",
+      "executor": "human",
       "agent": "A DEFINIR",
       "tool": "A DEFINIR",
-      "dependsOn": ["N13"]
+      "dependsOn": [
+        "N13"
+      ],
+      "executorNote": "Fallback humano: agente/função A DEFINIR"
     },
     {
-      "id": "D9", "kind": "deliverable", "phase": "fase-06",
+      "id": "D9",
+      "kind": "deliverable",
+      "phase": "fase-06",
       "title": "Vídeo master",
-      "ids": ["A DEFINIR"],
+      "executor": "verify",
+      "ids": [
+        "A DEFINIR"
+      ],
       "format": "VIDEO",
-      "dependsOn": ["N14"]
+      "dependsOn": [
+        "N14"
+      ]
     },
     {
-      "id": "N15", "kind": "subprocess", "phase": "fase-06",
+      "id": "N15",
+      "kind": "subprocess",
+      "phase": "fase-06",
       "title": "Gerar derivados",
+      "executor": "human",
       "output": "Formatos multiplataforma",
-      "dependsOn": ["D9"]
+      "dependsOn": [
+        "D9"
+      ],
+      "executorNote": "Fallback humano: agente/função A DEFINIR"
     },
     {
-      "id": "D10", "kind": "deliverable", "phase": "fase-06",
+      "id": "D10",
+      "kind": "deliverable",
+      "phase": "fase-06",
       "title": "Pacote de produção",
-      "ids": ["DLV-0101", "IP-0101"],
+      "executor": "verify",
+      "ids": [
+        "DLV-0101",
+        "IP-0101"
+      ],
       "note": "IP-0101: significado A DEFINIR",
-      "dependsOn": ["N15"]
+      "dependsOn": [
+        "N15"
+      ]
     },
-
     {
-      "id": "G06", "kind": "gate", "phase": "fase-07",
+      "id": "G06",
+      "kind": "gate",
+      "phase": "fase-07",
       "title": "Peças finais OK?",
       "owner": "LEONARDO",
-      "decision": "human", "event": "g06-approved",
-      "onReject": { "target": null, "label": "Encaminhar correções" },
-      "dependsOn": ["D10"]
+      "decision": "human",
+      "event": "g06-approved",
+      "onReject": {
+        "target": null,
+        "label": "Encaminhar correções"
+      },
+      "dependsOn": [
+        "D10"
+      ]
     },
     {
-      "id": "N16", "kind": "activity", "phase": "fase-07",
+      "id": "N16",
+      "kind": "activity",
+      "phase": "fase-07",
       "title": "Preparar distribuição multiplataforma",
+      "executor": "agent:clp",
       "orch": "CLP",
-      "dependsOn": ["G06"]
+      "dependsOn": [
+        "G06"
+      ]
     },
     {
-      "id": "D11", "kind": "deliverable", "phase": "fase-07",
+      "id": "D11",
+      "kind": "deliverable",
+      "phase": "fase-07",
       "title": "Plano de distribuição",
-      "ids": ["DLV-0110"],
-      "dependsOn": ["N16"]
+      "executor": "verify",
+      "ids": [
+        "DLV-0110"
+      ],
+      "dependsOn": [
+        "N16"
+      ]
     },
     {
-      "id": "PG05", "kind": "platform-distribution", "phase": "fase-07",
+      "id": "PG05",
+      "kind": "platform-distribution",
+      "phase": "fase-07",
       "title": "Distribuição por plataforma",
-      "platforms": ["Blog", "YouTube", "Instagram", "LinkedIn", "X", "Newsletter"],
-      "dependsOn": ["D11"]
+      "executor": "agent:clp",
+      "platforms": [
+        "Blog",
+        "YouTube",
+        "Instagram",
+        "LinkedIn",
+        "X",
+        "Newsletter"
+      ],
+      "dependsOn": [
+        "D11"
+      ]
     },
     {
-      "id": "N17", "kind": "activity", "phase": "fase-07",
+      "id": "N17",
+      "kind": "activity",
+      "phase": "fase-07",
       "title": "Agendar / distribuir",
+      "executor": "agent:clp",
       "orch": "CLP",
       "auto": "A2–A4",
-      "dependsOn": ["PG05"]
+      "dependsOn": [
+        "PG05"
+      ]
     },
     {
-      "id": "D12", "kind": "deliverable", "phase": "fase-07",
+      "id": "D12",
+      "kind": "deliverable",
+      "phase": "fase-07",
       "title": "Publicações agendadas",
+      "executor": "verify",
       "doneStatus": "RELEASED",
-      "dependsOn": ["N17"]
+      "dependsOn": [
+        "N17"
+      ]
     },
-
     {
-      "id": "N18", "kind": "activity", "phase": "fase-08",
+      "id": "N18",
+      "kind": "activity",
+      "phase": "fase-08",
       "title": "Gerar formulário de acompanhamento",
+      "executor": "agent:clp",
       "orch": "CLP",
-      "dependsOn": ["D12"]
+      "dependsOn": [
+        "D12"
+      ]
     },
     {
-      "id": "D13", "kind": "deliverable", "phase": "fase-08",
+      "id": "D13",
+      "kind": "deliverable",
+      "phase": "fase-08",
       "title": "Campaign tracking form",
+      "executor": "verify",
       "format": "PRINT + DIGITAL",
-      "dependsOn": ["N18"]
+      "dependsOn": [
+        "N18"
+      ]
     },
     {
-      "id": "N19", "kind": "activity", "phase": "fase-08",
+      "id": "N19",
+      "kind": "activity",
+      "phase": "fase-08",
       "title": "Coletar analytics",
+      "executor": "agent:analytics",
       "orch": "CLP",
       "agent": "Analytics Agent",
-      "actions": ["Coletar métricas", "Relacionar IDs", "Registrar na plataforma", "Preparar envio por e-mail", "Preparar dados para workbook"],
-      "dependsOn": ["D13"]
+      "actions": [
+        "Coletar métricas",
+        "Relacionar IDs",
+        "Registrar na plataforma",
+        "Preparar envio por e-mail",
+        "Preparar dados para workbook"
+      ],
+      "dependsOn": [
+        "D13"
+      ]
     },
     {
-      "id": "D14", "kind": "deliverable", "phase": "fase-08",
+      "id": "D14",
+      "kind": "deliverable",
+      "phase": "fase-08",
       "title": "Analytics dataset",
-      "dependsOn": ["N19"]
+      "executor": "verify",
+      "dependsOn": [
+        "N19"
+      ]
     },
     {
-      "id": "N20", "kind": "activity", "phase": "fase-08",
+      "id": "N20",
+      "kind": "activity",
+      "phase": "fase-08",
       "title": "Registrar learning",
+      "executor": "agent:clp",
       "orch": "CLP",
-      "dependsOn": ["D14"]
+      "dependsOn": [
+        "D14"
+      ]
     },
     {
-      "id": "D15", "kind": "deliverable", "phase": "fase-08",
+      "id": "D15",
+      "kind": "deliverable",
+      "phase": "fase-08",
       "title": "Campaign learning record",
-      "dependsOn": ["N20"]
+      "executor": "verify",
+      "dependsOn": [
+        "N20"
+      ]
     },
-
-    { "id": "END", "kind": "end", "title": "Fim", "dependsOn": ["D15"] }
+    {
+      "id": "END",
+      "kind": "end",
+      "title": "Fim",
+      "dependsOn": [
+        "D15"
+      ]
+    }
   ]
 }

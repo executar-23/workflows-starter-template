@@ -3,6 +3,7 @@ import assets from "../.inline/assets.json";
 
 export { MyWorkflow } from "../worker/workflow";
 export { WorkflowStatusDO } from "../worker/durable-object";
+export { TaskBoardDO } from "../worker/task-board";
 
 const decode = (b64) => Uint8Array.from(atob(b64), (c) => c.charCodeAt(0));
 

@@ -1,5 +1,7 @@
 export { MyWorkflow } from "./workflow";
 export { WorkflowStatusDO } from "./durable-object";
+export { TaskBoardDO } from "./task-board";
+import { corsHeaders, handleAgentApi, handleRunApi, json } from "./agent-api";
 
 type EventBody = {
 	type: string;
@@ -7,19 +9,6 @@ type EventBody = {
 	approved?: boolean;
 	comment?: string;
 };
-
-const corsHeaders = {
-	"Access-Control-Allow-Origin": "*",
-	"Access-Control-Allow-Headers": "Content-Type, Authorization",
-	"Access-Control-Allow-Methods": "GET, POST, OPTIONS",
-};
-
-function json(data: unknown, init: ResponseInit = {}) {
-	return Response.json(data, {
-		...init,
-		headers: { ...corsHeaders, ...(init.headers ?? {}) },
-	});
-}
 
 function isAuthorized(request: Request, env: Env) {
 	const token = (env as Env & { API_TOKEN?: string }).API_TOKEN;
@@ -44,13 +33,24 @@ export default {
 					status: "GET /api/workflow/status/:id",
 					event: "POST /api/workflow/event/:id",
 					websocket: "GET /ws?instanceId=:id",
+					evidence: "POST /api/runs/:id/nodes/:node/evidence",
+					artifacts: "GET /api/runs/:id/artifacts · GET /api/artifacts/:key",
+					tasks: "GET /api/runs/:id/tasks",
+					agent: "GET /api/tasks · POST /api/tasks/:id/claim|complete · PUT /api/runs/:id/artifacts/:node/:file (Bearer AGENT_TOKEN)",
 				},
 			});
 		}
 
+		// Agentes usam AGENT_TOKEN próprio, independente do API_TOKEN da UI.
+		const agentResponse = await handleAgentApi(request, env, url);
+		if (agentResponse) return agentResponse;
+
 		if (!isAuthorized(request, env)) {
 			return json({ error: "Unauthorized" }, { status: 401 });
 		}
+
+		const runResponse = await handleRunApi(request, env, url);
+		if (runResponse) return runResponse;
 
 		if (url.pathname === "/api/workflow/start" && request.method === "POST") {
 			try {

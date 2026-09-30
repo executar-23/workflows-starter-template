@@ -5,6 +5,8 @@ export default defineConfig({
 	plugins: [
 		cloudflareTest({
 			wrangler: { configPath: "./wrangler.jsonc" },
+			// Secret de teste para as rotas dos agentes.
+			miniflare: { bindings: { AGENT_TOKEN: "test-token" } },
 		}),
 	],
 });
