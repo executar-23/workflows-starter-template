@@ -1,0 +1,1427 @@
+[
+ {
+  "id": "content",
+  "sheet": "02_BANCO_CONTEUDO",
+  "label": "Conteúdos",
+  "plural": "Conteúdos",
+  "singular": "Conteúdo",
+  "icon": "content",
+  "idField": "Content_ID",
+  "idPrefix": "CNT-RC-",
+  "titleField": "Titulo_trabalho",
+  "titleField2": "Titulo_final",
+  "subtitleField": "Rota_editorial",
+  "fields": [
+   [
+    "Content_ID",
+    "ID",
+    "id"
+   ],
+   [
+    "Titulo_trabalho",
+    "Título de trabalho",
+    "text"
+   ],
+   [
+    "Titulo_final",
+    "Título final",
+    "text"
+   ],
+   [
+    "Tipo",
+    "Tipo",
+    "select:tipoConteudo"
+   ],
+   [
+    "Rota_editorial",
+    "Rota editorial",
+    "text"
+   ],
+   [
+    "Pilar",
+    "Pilar",
+    "text"
+   ],
+   [
+    "Objetivo",
+    "Objetivo",
+    "longtext"
+   ],
+   [
+    "Audiencia",
+    "Audiência",
+    "longtext"
+   ],
+   [
+    "Pergunta_central",
+    "Pergunta central",
+    "longtext"
+   ],
+   [
+    "Tese",
+    "Tese",
+    "longtext"
+   ],
+   [
+    "CTA",
+    "CTA",
+    "text"
+   ],
+   [
+    "Prioridade",
+    "Prioridade",
+    "select:prioridade"
+   ],
+   [
+    "Status_editorial",
+    "Status editorial",
+    "select:statusEditorial"
+   ],
+   [
+    "Owner",
+    "Owner",
+    "text"
+   ],
+   [
+    "Prazo_original",
+    "Prazo original",
+    "date"
+   ],
+   [
+    "Previsao_atual",
+    "Previsão atual",
+    "date"
+   ],
+   [
+    "Proxima_acao",
+    "Próxima ação",
+    "longtext"
+   ],
+   [
+    "Bloqueio",
+    "Bloqueio",
+    "text"
+   ],
+   [
+    "N_Argumentos",
+    "# Argumentos",
+    "number"
+   ],
+   [
+    "N_Evidencias",
+    "# Evidências",
+    "number"
+   ],
+   [
+    "N_Ativos",
+    "# Ativos",
+    "number"
+   ],
+   [
+    "N_Publicacoes",
+    "# Publicações",
+    "number"
+   ]
+  ]
+ },
+ {
+  "id": "brief",
+  "sheet": "03_BRIEF_FORMULARIO",
+  "label": "Briefs",
+  "plural": "Briefs",
+  "singular": "Brief",
+  "icon": "brief",
+  "idField": null,
+  "keyField": "Content_ID",
+  "keyRef": "content",
+  "titleField": "Titulo",
+  "subtitleField": "Rota",
+  "fields": [
+   [
+    "Content_ID",
+    "Conteúdo",
+    "ref:content"
+   ],
+   [
+    "Titulo",
+    "Título",
+    "text"
+   ],
+   [
+    "Rota",
+    "Rota",
+    "text"
+   ],
+   [
+    "Objetivo",
+    "Objetivo",
+    "longtext"
+   ],
+   [
+    "Audiencia_primaria",
+    "Audiência primária",
+    "longtext"
+   ],
+   [
+    "Problema_leitor",
+    "Problema do leitor",
+    "longtext"
+   ],
+   [
+    "Pergunta_central",
+    "Pergunta central",
+    "longtext"
+   ],
+   [
+    "Promessa",
+    "Promessa",
+    "longtext"
+   ],
+   [
+    "Tese",
+    "Tese",
+    "longtext"
+   ],
+   [
+    "O_que_precisa_provar",
+    "O que precisa provar",
+    "longtext"
+   ],
+   [
+    "Nao_confundir_com",
+    "Não confundir com",
+    "longtext"
+   ],
+   [
+    "Limites_cautelas",
+    "Limites / cautelas",
+    "longtext"
+   ],
+   [
+    "CTA_principal",
+    "CTA principal",
+    "text"
+   ],
+   [
+    "Formatos_derivados",
+    "Formatos derivados desejados",
+    "text"
+   ],
+   [
+    "Owner",
+    "Owner",
+    "text"
+   ],
+   [
+    "Status_brief",
+    "Status do brief",
+    "select:statusEditorial"
+   ]
+  ]
+ },
+ {
+  "id": "arguments",
+  "sheet": "04_MAPA_ARGUMENTOS",
+  "label": "Argumentos",
+  "plural": "Argumentos",
+  "singular": "Argumento",
+  "icon": "arguments",
+  "idField": "Argument_ID",
+  "idPrefix": "ARG-RC-",
+  "titleField": "Claim",
+  "subtitleField": "Content_ID",
+  "fields": [
+   [
+    "Argument_ID",
+    "ID",
+    "id"
+   ],
+   [
+    "Content_ID",
+    "Conteúdo",
+    "ref:content"
+   ],
+   [
+    "Ordem",
+    "Ordem",
+    "number"
+   ],
+   [
+    "Secao_funcao",
+    "Seção / função",
+    "text"
+   ],
+   [
+    "Claim",
+    "Claim",
+    "longtext"
+   ],
+   [
+    "Razao_mecanismo",
+    "Razão / mecanismo",
+    "longtext"
+   ],
+   [
+    "Evidence_ID",
+    "Evidências (IDs)",
+    "text"
+   ],
+   [
+    "Exemplo",
+    "Exemplo",
+    "longtext"
+   ],
+   [
+    "Contraponto",
+    "Contraponto / objeção",
+    "longtext"
+   ],
+   [
+    "Limite_cautela",
+    "Limite / cautela",
+    "longtext"
+   ],
+   [
+    "Classe",
+    "Classe",
+    "select:classeEpistemica"
+   ],
+   [
+    "Status",
+    "Status",
+    "select:statusEditorial"
+   ],
+   [
+    "Peca_curta",
+    "Peça curta possível",
+    "text"
+   ],
+   [
+    "Visual_possivel",
+    "Visual possível",
+    "text"
+   ]
+  ]
+ },
+ {
+  "id": "evidence",
+  "sheet": "05_EVIDENCIAS_FONTES",
+  "label": "Evidências",
+  "plural": "Evidências",
+  "singular": "Evidência",
+  "icon": "evidence",
+  "idField": "Evidence_ID",
+  "idPrefix": "EVD-RC-",
+  "titleField": "Titulo",
+  "subtitleField": "Autor",
+  "fields": [
+   [
+    "Evidence_ID",
+    "ID",
+    "id"
+   ],
+   [
+    "Content_ID",
+    "Conteúdo",
+    "ref:content"
+   ],
+   [
+    "Argument_ID",
+    "Argumento",
+    "ref:arguments"
+   ],
+   [
+    "Autor",
+    "Autor",
+    "text"
+   ],
+   [
+    "Instituicao",
+    "Instituição / periódico",
+    "text"
+   ],
+   [
+    "Data",
+    "Data",
+    "text"
+   ],
+   [
+    "Titulo",
+    "Título",
+    "text"
+   ],
+   [
+    "Tipo",
+    "Tipo",
+    "select:tipoEvidencia"
+   ],
+   [
+    "URL",
+    "URL",
+    "url"
+   ],
+   [
+    "O_que_sustenta",
+    "O que sustenta",
+    "longtext"
+   ],
+   [
+    "Classe",
+    "Classe",
+    "select:classeEpistemica"
+   ],
+   [
+    "Status",
+    "Status",
+    "select:statusEditorial"
+   ],
+   [
+    "Notas",
+    "Notas",
+    "longtext"
+   ]
+  ]
+ },
+ {
+  "id": "production",
+  "sheet": "06_PRODUCAO_TEXTO",
+  "label": "Produção de texto",
+  "plural": "Textos",
+  "singular": "Texto",
+  "icon": "production",
+  "idField": null,
+  "keyField": "Content_ID",
+  "keyRef": "content",
+  "titleField": "Titulo",
+  "subtitleField": "Status",
+  "fields": [
+   [
+    "Content_ID",
+    "Conteúdo",
+    "ref:content"
+   ],
+   [
+    "Titulo",
+    "Título",
+    "text"
+   ],
+   [
+    "Status",
+    "Status",
+    "select:statusEditorial"
+   ],
+   [
+    "Resumo_lead",
+    "Resumo / lead",
+    "longtext"
+   ],
+   [
+    "Outline",
+    "Outline",
+    "longtext"
+   ],
+   [
+    "Introducao",
+    "Introdução",
+    "longtext"
+   ],
+   [
+    "Dev1",
+    "Desenvolvimento 1",
+    "longtext"
+   ],
+   [
+    "Dev2",
+    "Desenvolvimento 2",
+    "longtext"
+   ],
+   [
+    "Dev3",
+    "Desenvolvimento 3",
+    "longtext"
+   ],
+   [
+    "Conclusao",
+    "Conclusão",
+    "longtext"
+   ],
+   [
+    "Chars_titulo",
+    "Chars título",
+    "number"
+   ],
+   [
+    "Chars_corpo",
+    "Chars corpo",
+    "number"
+   ],
+   [
+    "Palavras_corpo",
+    "Palavras corpo",
+    "number"
+   ],
+   [
+    "Leitura_min",
+    "Leitura (min)",
+    "number"
+   ],
+   [
+    "Claims",
+    "Claims",
+    "number"
+   ],
+   [
+    "Claims_evid",
+    "Claims c/ evidência",
+    "number"
+   ],
+   [
+    "Cobertura_pct",
+    "Cobertura %",
+    "number"
+   ]
+  ]
+ },
+ {
+  "id": "assets",
+  "sheet": "07_ATIVOS_DERIVADOS",
+  "label": "Ativos derivados",
+  "plural": "Ativos",
+  "singular": "Ativo",
+  "icon": "assets",
+  "idField": "Asset_ID",
+  "idPrefix": "AST-RC-",
+  "titleField": "Titulo_hook",
+  "subtitleField": "Canal",
+  "fields": [
+   [
+    "Asset_ID",
+    "ID",
+    "id"
+   ],
+   [
+    "Content_ID",
+    "Conteúdo",
+    "ref:content"
+   ],
+   [
+    "Canal",
+    "Canal",
+    "select:canal"
+   ],
+   [
+    "Formato",
+    "Formato",
+    "select:formatoAtivo"
+   ],
+   [
+    "Titulo_hook",
+    "Título / Hook",
+    "text"
+   ],
+   [
+    "Ideia_central",
+    "Ideia central",
+    "longtext"
+   ],
+   [
+    "Estrutura",
+    "Estrutura / roteiro",
+    "longtext"
+   ],
+   [
+    "CTA",
+    "CTA",
+    "text"
+   ],
+   [
+    "Visual_broll",
+    "Visual / B-roll",
+    "longtext"
+   ],
+   [
+    "Status",
+    "Status",
+    "select:statusVisual"
+   ],
+   [
+    "Owner",
+    "Owner",
+    "text"
+   ],
+   [
+    "Prazo",
+    "Prazo",
+    "date"
+   ],
+   [
+    "Link_producao",
+    "Link produção",
+    "url"
+   ],
+   [
+    "Link_publicado",
+    "Link publicado",
+    "url"
+   ]
+  ]
+ },
+ {
+  "id": "visuals",
+  "sheet": "08_INFOGRAFICOS_DRIVE",
+  "label": "Infográficos",
+  "plural": "Infográficos",
+  "singular": "Infográfico",
+  "icon": "visuals",
+  "idField": "Visual_ID",
+  "idPrefix": "VIS-RC-",
+  "titleField": "Nome",
+  "subtitleField": "Tipo",
+  "fields": [
+   [
+    "Visual_ID",
+    "ID",
+    "id"
+   ],
+   [
+    "Content_ID",
+    "Conteúdo",
+    "ref:content"
+   ],
+   [
+    "Asset_ID",
+    "Ativo",
+    "ref:assets"
+   ],
+   [
+    "Tipo",
+    "Tipo",
+    "text"
+   ],
+   [
+    "Nome",
+    "Nome",
+    "text"
+   ],
+   [
+    "Funcao_visual",
+    "Função visual",
+    "longtext"
+   ],
+   [
+    "Brief_visual",
+    "Brief visual",
+    "longtext"
+   ],
+   [
+    "Status",
+    "Status",
+    "select:statusVisual"
+   ],
+   [
+    "Owner",
+    "Owner",
+    "text"
+   ],
+   [
+    "Prazo",
+    "Prazo",
+    "date"
+   ],
+   [
+    "Link_drive",
+    "Link Drive",
+    "url"
+   ],
+   [
+    "Fonte_direitos",
+    "Fonte / direitos",
+    "text"
+   ],
+   [
+    "Notas",
+    "Notas",
+    "longtext"
+   ]
+  ]
+ },
+ {
+  "id": "ytlong",
+  "sheet": "09_YOUTUBE_LONGO",
+  "label": "YouTube longo",
+  "plural": "Vídeos longos",
+  "singular": "Vídeo longo",
+  "icon": "ytlong",
+  "idField": null,
+  "keyField": "Asset_ID",
+  "keyRef": "assets",
+  "titleField": "Titulo",
+  "subtitleField": "Status",
+  "fields": [
+   [
+    "Asset_ID",
+    "Ativo",
+    "ref:assets"
+   ],
+   [
+    "Content_ID",
+    "Conteúdo",
+    "ref:content"
+   ],
+   [
+    "Titulo",
+    "Título",
+    "text"
+   ],
+   [
+    "Hook",
+    "Hook",
+    "longtext"
+   ],
+   [
+    "Promessa",
+    "Promessa",
+    "longtext"
+   ],
+   [
+    "Roteiro",
+    "Roteiro / capítulos",
+    "longtext"
+   ],
+   [
+    "Shotlist",
+    "Shot list / B-roll",
+    "longtext"
+   ],
+   [
+    "CTA",
+    "CTA",
+    "text"
+   ],
+   [
+    "Status",
+    "Status",
+    "select:statusVisual"
+   ],
+   [
+    "Palavras",
+    "Palavras",
+    "number"
+   ],
+   [
+    "Duracao_min",
+    "Duração (min)",
+    "number"
+   ],
+   [
+    "Link_projeto",
+    "Link projeto",
+    "url"
+   ]
+  ]
+ },
+ {
+  "id": "shorts",
+  "sheet": "10_SHORTS_REELS",
+  "label": "Shorts & Reels",
+  "plural": "Shorts / Reels",
+  "singular": "Short / Reel",
+  "icon": "shorts",
+  "idField": null,
+  "keyField": "Asset_ID",
+  "keyRef": "assets",
+  "titleField": "Hook",
+  "subtitleField": "Canal",
+  "fields": [
+   [
+    "Asset_ID",
+    "Ativo",
+    "ref:assets"
+   ],
+   [
+    "Content_ID",
+    "Conteúdo",
+    "ref:content"
+   ],
+   [
+    "Canal",
+    "Canal",
+    "select:canal"
+   ],
+   [
+    "Hook",
+    "Hook",
+    "text"
+   ],
+   [
+    "Tensao",
+    "Tensão",
+    "longtext"
+   ],
+   [
+    "Ideia_central",
+    "Ideia central",
+    "longtext"
+   ],
+   [
+    "Exemplo",
+    "Exemplo",
+    "longtext"
+   ],
+   [
+    "Visual_shotlist",
+    "Visual / shot list",
+    "longtext"
+   ],
+   [
+    "Fechamento_cta",
+    "Fechamento / CTA",
+    "longtext"
+   ],
+   [
+    "Status",
+    "Status",
+    "select:statusVisual"
+   ],
+   [
+    "Palavras",
+    "Palavras",
+    "number"
+   ],
+   [
+    "Duracao_seg",
+    "Duração (seg)",
+    "number"
+   ],
+   [
+    "Chars",
+    "Chars",
+    "number"
+   ],
+   [
+    "Link_producao",
+    "Link produção",
+    "url"
+   ]
+  ]
+ },
+ {
+  "id": "social",
+  "sheet": "11_SOCIAL_CROSSPLATFORM",
+  "label": "Social cross-platform",
+  "plural": "Posts sociais",
+  "singular": "Post social",
+  "icon": "social",
+  "idField": null,
+  "keyField": "Asset_ID",
+  "keyRef": "assets",
+  "titleField": "Hook_titulo",
+  "subtitleField": "Canal",
+  "fields": [
+   [
+    "Asset_ID",
+    "Ativo",
+    "ref:assets"
+   ],
+   [
+    "Content_ID",
+    "Conteúdo",
+    "ref:content"
+   ],
+   [
+    "Canal",
+    "Canal",
+    "select:canal"
+   ],
+   [
+    "Formato",
+    "Formato",
+    "select:formatoAtivo"
+   ],
+   [
+    "Hook_titulo",
+    "Hook / título",
+    "text"
+   ],
+   [
+    "Copy",
+    "Copy",
+    "longtext"
+   ],
+   [
+    "CTA",
+    "CTA",
+    "text"
+   ],
+   [
+    "Chars",
+    "Chars",
+    "number"
+   ],
+   [
+    "Palavras",
+    "Palavras",
+    "number"
+   ],
+   [
+    "Status",
+    "Status",
+    "select:statusVisual"
+   ],
+   [
+    "Link",
+    "Link",
+    "url"
+   ]
+  ]
+ },
+ {
+  "id": "newsletter",
+  "sheet": "12_NEWSLETTER",
+  "label": "Newsletter",
+  "plural": "E-mails",
+  "singular": "E-mail",
+  "icon": "newsletter",
+  "idField": null,
+  "keyField": "Asset_ID",
+  "keyRef": "assets",
+  "titleField": "Assunto",
+  "subtitleField": "Status",
+  "fields": [
+   [
+    "Asset_ID",
+    "Ativo",
+    "ref:assets"
+   ],
+   [
+    "Content_ID",
+    "Conteúdo",
+    "ref:content"
+   ],
+   [
+    "Assunto",
+    "Assunto",
+    "text"
+   ],
+   [
+    "Preheader",
+    "Preheader",
+    "text"
+   ],
+   [
+    "Abertura",
+    "Abertura",
+    "longtext"
+   ],
+   [
+    "Corpo_descoberta",
+    "Corpo / descoberta",
+    "longtext"
+   ],
+   [
+    "Leitura_aprofundada",
+    "Leitura aprofundada",
+    "longtext"
+   ],
+   [
+    "Proxima_questao_cta",
+    "Próxima questão / CTA",
+    "longtext"
+   ],
+   [
+    "Status",
+    "Status",
+    "select:statusVisual"
+   ],
+   [
+    "Chars",
+    "Chars",
+    "number"
+   ],
+   [
+    "Palavras",
+    "Palavras",
+    "number"
+   ],
+   [
+    "Link",
+    "Link",
+    "url"
+   ]
+  ]
+ },
+ {
+  "id": "seo",
+  "sheet": "13_SEO_METADADOS",
+  "label": "SEO & metadados",
+  "plural": "Metadados SEO",
+  "singular": "Metadado SEO",
+  "icon": "seo",
+  "idField": null,
+  "keyField": "Content_ID",
+  "keyRef": "content",
+  "titleField": "SEO_Title",
+  "subtitleField": "Slug",
+  "fields": [
+   [
+    "Content_ID",
+    "Conteúdo",
+    "ref:content"
+   ],
+   [
+    "Slug",
+    "Slug",
+    "text"
+   ],
+   [
+    "SEO_Title",
+    "SEO Title",
+    "text"
+   ],
+   [
+    "Chars_title",
+    "Chars title",
+    "number"
+   ],
+   [
+    "Meta_description",
+    "Meta description",
+    "longtext"
+   ],
+   [
+    "Chars_meta",
+    "Chars meta",
+    "number"
+   ],
+   [
+    "Keyword_principal",
+    "Keyword / entidade principal",
+    "text"
+   ],
+   [
+    "Links_entrada",
+    "Links internos de entrada",
+    "text"
+   ],
+   [
+    "Links_saida",
+    "Links internos de saída",
+    "text"
+   ],
+   [
+    "Status",
+    "Status",
+    "select:statusEditorial"
+   ]
+  ]
+ },
+ {
+  "id": "calendar",
+  "sheet": "14_CALENDARIO_PUBLICACAO",
+  "label": "Calendário",
+  "plural": "Publicações",
+  "singular": "Publicação",
+  "icon": "calendar",
+  "idField": "Publication_ID",
+  "idPrefix": "PUB-RC-",
+  "titleField": "Peca",
+  "subtitleField": "Canal",
+  "fields": [
+   [
+    "Publication_ID",
+    "ID",
+    "id"
+   ],
+   [
+    "Content_ID",
+    "Conteúdo",
+    "ref:content"
+   ],
+   [
+    "Asset_ID",
+    "Ativo",
+    "ref:assets"
+   ],
+   [
+    "Canal",
+    "Canal",
+    "select:canal"
+   ],
+   [
+    "Peca",
+    "Peça",
+    "text"
+   ],
+   [
+    "Prazo_original",
+    "Prazo original",
+    "date"
+   ],
+   [
+    "Previsao_atual",
+    "Previsão atual",
+    "date"
+   ],
+   [
+    "Status",
+    "Status",
+    "select:statusEditorial"
+   ],
+   [
+    "Owner",
+    "Owner",
+    "text"
+   ],
+   [
+    "Publicado_em",
+    "Publicado em",
+    "date"
+   ],
+   [
+    "URL_final",
+    "URL final",
+    "url"
+   ],
+   [
+    "Notas",
+    "Notas",
+    "longtext"
+   ]
+  ]
+ },
+ {
+  "id": "distribution",
+  "sheet": "15_DISTRIBUICAO",
+  "label": "Distribuição",
+  "plural": "Distribuições",
+  "singular": "Distribuição",
+  "icon": "distribution",
+  "idField": "Dist_ID",
+  "idPrefix": "DIS-RC-",
+  "titleField": "Acao",
+  "subtitleField": "Canal",
+  "fields": [
+   [
+    "Dist_ID",
+    "ID",
+    "id"
+   ],
+   [
+    "Publication_ID",
+    "Publicação",
+    "ref:calendar"
+   ],
+   [
+    "Content_ID",
+    "Conteúdo",
+    "ref:content"
+   ],
+   [
+    "Canal",
+    "Canal",
+    "select:canal"
+   ],
+   [
+    "Tipo",
+    "Tipo",
+    "select:tipoDistribuicao"
+   ],
+   [
+    "Acao",
+    "Ação",
+    "longtext"
+   ],
+   [
+    "Audiencia_segmento",
+    "Audiência / segmento",
+    "text"
+   ],
+   [
+    "Data",
+    "Data",
+    "date"
+   ],
+   [
+    "Owner",
+    "Owner",
+    "text"
+   ],
+   [
+    "Status",
+    "Status",
+    "select:statusEditorial"
+   ],
+   [
+    "Resultado_aprendizado",
+    "Resultado / aprendizado",
+    "longtext"
+   ]
+  ]
+ },
+ {
+  "id": "performance",
+  "sheet": "16_PERFORMANCE",
+  "label": "Performance",
+  "plural": "Medições",
+  "singular": "Medição",
+  "icon": "performance",
+  "idField": "Perf_ID",
+  "idPrefix": "PRF-RC-",
+  "titleField": "Canal",
+  "subtitleField": "Data_medicao",
+  "fields": [
+   [
+    "Perf_ID",
+    "ID",
+    "id"
+   ],
+   [
+    "Publication_ID",
+    "Publicação",
+    "ref:calendar"
+   ],
+   [
+    "Content_ID",
+    "Conteúdo",
+    "ref:content"
+   ],
+   [
+    "Canal",
+    "Canal",
+    "select:canal"
+   ],
+   [
+    "Impressoes",
+    "Impressões",
+    "number"
+   ],
+   [
+    "Alcance",
+    "Alcance",
+    "number"
+   ],
+   [
+    "Views",
+    "Views",
+    "number"
+   ],
+   [
+    "Retencao_pct",
+    "Retenção %",
+    "number"
+   ],
+   [
+    "CTR_pct",
+    "CTR %",
+    "number"
+   ],
+   [
+    "Engajamento_pct",
+    "Engajamento %",
+    "number"
+   ],
+   [
+    "Conversoes",
+    "Conversões",
+    "number"
+   ],
+   [
+    "Data_medicao",
+    "Data medição",
+    "date"
+   ],
+   [
+    "Aprendizado",
+    "Aprendizado",
+    "longtext"
+   ],
+   [
+    "Decisao_proxima_acao",
+    "Decisão / próxima ação",
+    "longtext"
+   ]
+  ]
+ },
+ {
+  "id": "backlog",
+  "sheet": "17_BACKLOG_IDEIAS",
+  "label": "Backlog de ideias",
+  "plural": "Ideias",
+  "singular": "Ideia",
+  "icon": "backlog",
+  "idField": "Idea_ID",
+  "idPrefix": "IDE-RC-",
+  "titleField": "Ideia",
+  "subtitleField": "Rota_possivel",
+  "fields": [
+   [
+    "Idea_ID",
+    "ID",
+    "id"
+   ],
+   [
+    "Ideia",
+    "Ideia / pergunta",
+    "text"
+   ],
+   [
+    "Origem",
+    "Origem",
+    "text"
+   ],
+   [
+    "Rota_possivel",
+    "Rota possível",
+    "text"
+   ],
+   [
+    "Oportunidade",
+    "Oportunidade",
+    "longtext"
+   ],
+   [
+    "Prioridade",
+    "Prioridade",
+    "select:prioridade"
+   ],
+   [
+    "Status",
+    "Status",
+    "select:statusEditorial"
+   ],
+   [
+    "Data_captura",
+    "Data captura",
+    "date"
+   ],
+   [
+    "Proxima_acao",
+    "Próxima ação",
+    "longtext"
+   ],
+   [
+    "Notas",
+    "Notas",
+    "longtext"
+   ]
+  ]
+ },
+ {
+  "id": "taxonomy",
+  "sheet": "18_TAXONOMIA",
+  "label": "Taxonomia",
+  "plural": "Rotas / pilares",
+  "singular": "Rota / pilar",
+  "icon": "taxonomy",
+  "idField": "Taxonomy_ID",
+  "idPrefix": "TAX-RC-",
+  "titleField": "Rota_pilar",
+  "subtitleField": "Funcao",
+  "fields": [
+   [
+    "Taxonomy_ID",
+    "ID",
+    "id"
+   ],
+   [
+    "Rota_pilar",
+    "Rota / Pilar",
+    "text"
+   ],
+   [
+    "Funcao",
+    "Função",
+    "text"
+   ],
+   [
+    "Pergunta_central",
+    "Pergunta central",
+    "longtext"
+   ],
+   [
+    "Slug",
+    "Slug",
+    "text"
+   ],
+   [
+    "Inclui",
+    "Inclui",
+    "longtext"
+   ],
+   [
+    "Nao_confundir",
+    "Não confundir com",
+    "longtext"
+   ],
+   [
+    "Notas",
+    "Notas",
+    "longtext"
+   ]
+  ]
+ },
+ {
+  "id": "decisions",
+  "sheet": "20_LOG_DECISOES",
+  "label": "Log de decisões",
+  "plural": "Decisões",
+  "singular": "Decisão",
+  "icon": "decisions",
+  "idField": "Decision_ID",
+  "idPrefix": "DEC-RC-",
+  "titleField": "Decisao_necessaria",
+  "subtitleField": "Status",
+  "fields": [
+   [
+    "Decision_ID",
+    "ID",
+    "id"
+   ],
+   [
+    "Content_ID",
+    "Conteúdo",
+    "ref:content"
+   ],
+   [
+    "Decisao_necessaria",
+    "Decisão necessária",
+    "longtext"
+   ],
+   [
+    "Decisao_tomada",
+    "Decisão tomada",
+    "longtext"
+   ],
+   [
+    "Owner",
+    "Owner",
+    "text"
+   ],
+   [
+    "Status",
+    "Status",
+    "select:statusDecisao"
+   ],
+   [
+    "Data",
+    "Data",
+    "date"
+   ],
+   [
+    "Evidencia_link",
+    "Evidência / link",
+    "text"
+   ],
+   [
+    "Impacto",
+    "Impacto",
+    "longtext"
+   ],
+   [
+    "Proxima_revisao",
+    "Próxima revisão",
+    "date"
+   ]
+  ]
+ }
+]

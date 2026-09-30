@@ -230,7 +230,7 @@ export function StepActions({
 	};
 
 	const base = `rounded-full font-semibold transition disabled:opacity-40 ${
-		compact ? "px-3 py-2 text-[11px] sm:px-2.5 sm:py-1" : "px-3.5 py-2 text-xs sm:py-1.5"
+		compact ? "min-h-9 px-3 py-2 text-[11px] sm:min-h-0 sm:px-2.5 sm:py-1" : "px-3.5 py-2 text-xs sm:py-1.5"
 	}`;
 
 	if (awaiting.mode === "evidence") {

@@ -157,12 +157,22 @@ function App() {
 	const current = state.currentStep ? NODE_BY_ID.get(state.currentStep) : null;
 
 	return (
-		<div className="min-h-screen bg-white text-ink">
+		<div
+			className={`min-h-screen bg-white text-ink ${awaitingNode ? "pb-52 sm:pb-0" : ""}`}
+		>
 			<header className="flex flex-col gap-5 px-4 pb-5 pt-6 sm:px-6 sm:pt-8">
 				<div className="flex flex-col gap-1">
-					<span className="text-[11px] font-bold uppercase tracking-[0.2em] text-ink-2">
-						{WORKFLOW.program}
-					</span>
+					<div className="flex items-center justify-between gap-3">
+						<span className="text-[11px] font-bold uppercase tracking-[0.2em] text-ink-2">
+							{WORKFLOW.program}
+						</span>
+						<a
+							href="/admin"
+							className="no-print inline-flex min-h-9 items-center rounded-full px-3 text-xs font-semibold ring-1 ring-ink/25 hover:bg-muted"
+						>
+							CMS · Hub Editorial →
+						</a>
+					</div>
 					<h1 className="text-[28px] font-bold leading-[1.05] tracking-[-0.02em] sm:text-[44px]">
 						{WORKFLOW.title}
 					</h1>
@@ -265,7 +275,7 @@ function App() {
 					/>
 					<button
 						onClick={() => window.dispatchEvent(new Event("executar:json"))}
-						className="rounded-full px-3 py-2 text-xs font-semibold text-ink-2 ring-1 ring-ink/20 hover:text-ink sm:hidden"
+						className="min-h-9 rounded-full px-3 py-2 text-xs font-semibold text-ink-2 ring-1 ring-ink/20 hover:text-ink sm:hidden"
 					>
 						JSON
 					</button>
@@ -308,7 +318,7 @@ function App() {
 				</div>
 			)}
 
-			<main className={awaitingNode ? "pb-44 sm:pb-0" : ""}>
+			<main>
 				{view === "flow" && <FlowChart run={run} />}
 				{view === "kanban" && <KanbanView run={run} />}
 				{view === "list" && <ListView run={run} />}

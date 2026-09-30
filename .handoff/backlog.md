@@ -33,3 +33,17 @@
 - [ ] #20 Registrar no plano/README que o campo manual de Asset_IDs saiu do start (`src/App.tsx`) e que os assets vêm do D6 via G03 (`worker/workflow.ts:414-415`, padrão `asset-1`), ou restaurá-lo para runs sem plano, porque a mudança ficou fora do change list da Phase 4.
 - [ ] #21 Em casa multi-instância (N11→D8), `useRunData` guarda só a tarefa mais recente por nó (`src/hooks/useRunData.ts:62-65`): avaliar agrupar por `nodeId+item` para o TaskPanel mostrar o estado de cada asset.
 - [🔄] #22 Corrigir a indentação do bloco `ExecutorBadge`/`NodeBadges`/`TaskPanel` em `src/components/ListView.tsx:84-88` (um tab a menos que os irmãos); o `task.md` da Phase 4 dava como corrigida, mas a mudança não entrou em `bbc84e3`. Só cosmético.
+
+> Origem: /verify Phase 5 (2026-09-30) — UI mobile first
+
+- [🔄] #23 O banner fixo cobre o fim da página no celular: o `pb-44` (176 px) está no `<main>` (`src/App.tsx:311`), mas o `<Legend />` vem depois (`:317`). O banner mede 204 px no modo evidência a 390×844 e pode chegar a 60vh, cobrindo cerca de 170 px do footer ao rolar até o fim. Mover o padding para o container raiz, depois do Legend, e dimensioná-lo pela altura real do banner (ResizeObserver → variável CSS).
+- [🔄] #24 Alvos de toque abaixo da meta de 36 px da Phase 5 no celular:
+  - "Concluir casa" com 33 px (`src/components/Execution.tsx:150`) e StepActions compact com cerca de 33 px (`src/components/Taxonomy.tsx:233`);
+  - botão JSON com 32 px (`src/App.tsx:266-271`);
+  - abas do `Segmented` com 24 px (`src/components/KanbanView.tsx:116`);
+  - "Copiar"/"✕" do drawer com 24 px (`src/components/JsonDrawer.tsx:140`, `:147`);
+  - "Iniciar run"/"Novo run" com 28 px.
+
+  Usar `min-h-9 sm:min-h-0`.
+- [🔄] #25 No modo compact, o rótulo "PGxx · join" fica à direita do losango (`src/components/FlowChart.tsx:279`) e o trilho direito entra pelo vértice direito, riscando o texto: pôr o rótulo do join à esquerda.
+- [🔄] #26 No modo compact, o wrapper do bloco paralelo (`src/components/FlowChart.tsx:410`) não é `w-full`, então os cards dos ramos do PG01 ficam com 188 px, enquanto os do PG03 e os demais ficam com 300 px: adicionar `w-full` no modo compact para a largura ficar consistente.

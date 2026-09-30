@@ -40,6 +40,10 @@
 			{
 				"name": "TASK_BOARD",
 				"class_name": "TaskBoardDO"
+			},
+			{
+				"name": "HUB_STORE",
+				"class_name": "HubStoreDO"
 			}
 		]
 	},
@@ -55,6 +59,10 @@
 		{
 			"tag": "v2",
 			"new_sqlite_classes": ["TaskBoardDO"]
+		},
+		{
+			"tag": "v3",
+			"new_sqlite_classes": ["HubStoreDO"]
 		}
 	],
 	/**

@@ -15,6 +15,7 @@
 		"moduleDetection": "force",
 		"noEmit": true,
 		"jsx": "react-jsx",
+		"paths": { "~/*": ["./admin/*"] },
 
 		/* Linting */
 		"strict": true,
@@ -24,5 +25,5 @@
 		"noFallthroughCasesInSwitch": true,
 		"noUncheckedSideEffectImports": true
 	},
-	"include": ["src", "shared"]
+	"include": ["src", "shared", "admin"]
 }

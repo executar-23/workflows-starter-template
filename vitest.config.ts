@@ -6,7 +6,7 @@ export default defineConfig({
 		cloudflareTest({
 			wrangler: { configPath: "./wrangler.jsonc" },
 			// Secret de teste para as rotas dos agentes.
-			miniflare: { bindings: { AGENT_TOKEN: "test-token" } },
+			miniflare: { bindings: { AGENT_TOKEN: "test-token", ADMIN_TOKEN: "test-admin" } },
 		}),
 	],
 });

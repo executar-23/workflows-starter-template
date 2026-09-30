@@ -135,14 +135,14 @@ export function JsonDrawer({ currentStep }: { currentStep: string | null }) {
 					<span className="flex-1" />
 					<button
 						onClick={copy}
-						className="rounded-full px-3 py-1 text-xs font-semibold ring-1 ring-ink/25 hover:bg-muted"
+						className="min-h-9 rounded-full px-3 py-2 text-xs font-semibold ring-1 ring-ink/25 hover:bg-muted sm:min-h-0 sm:py-1"
 					>
 						{copied ? "Copiado" : "Copiar"}
 					</button>
 					<button
 						onClick={() => setOpen(false)}
 						aria-label="Fechar JSON"
-						className="rounded-full px-2.5 py-1 text-xs font-semibold ring-1 ring-ink/25 hover:bg-muted"
+						className="min-h-9 min-w-9 rounded-full px-2.5 py-2 text-xs font-semibold ring-1 ring-ink/25 hover:bg-muted sm:min-h-0 sm:min-w-0 sm:py-1"
 					>
 						✕
 					</button>

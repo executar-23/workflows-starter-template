@@ -276,7 +276,9 @@ export function FlowChart({ run }: { run: RunView }) {
 						/>
 						<span
 							className={`absolute top-1/2 -translate-y-1/2 whitespace-nowrap font-mono text-[10px] text-ink-2 ${
-								compact ? "left-[calc(100%+14px)]" : "right-[calc(100%+14px)]"
+								compact && node.kind === "parallel-split"
+									? "left-[calc(100%+14px)]"
+									: "right-[calc(100%+14px)]"
 							}`}
 						>
 							{node.id} · {node.kind === "parallel-split" ? "split" : "join"}
@@ -407,7 +409,10 @@ export function FlowChart({ run }: { run: RunView }) {
 				.map((branch) => renderItems(branch, true).filter(Boolean))
 				.filter((nodes) => nodes.length > 0);
 			return (
-				<div key={item.split.id} className="flex flex-col items-center gap-10">
+				<div
+					key={item.split.id}
+					className={`flex flex-col items-center gap-10 ${compact ? "w-full" : ""}`}
+				>
 					{renderNode(item.split)}
 					{branches.length > 0 && (
 						<div

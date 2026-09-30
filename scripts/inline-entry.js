@@ -4,6 +4,7 @@ import assets from "../.inline/assets.json";
 export { MyWorkflow } from "../worker/workflow";
 export { WorkflowStatusDO } from "../worker/durable-object";
 export { TaskBoardDO } from "../worker/task-board";
+export { HubStoreDO } from "../worker/hub-store";
 
 const decode = (b64) => Uint8Array.from(atob(b64), (c) => c.charCodeAt(0));
 
@@ -14,7 +15,13 @@ export default {
 			return api.fetch(request, env);
 		}
 		if (request.method === "GET" || request.method === "HEAD") {
-			const key = pathname === "/" ? "/index.html" : pathname;
+			// /admin e subrotas → CMS (segunda entrada do Vite).
+			const key =
+				pathname === "/"
+					? "/index.html"
+					: pathname === "/admin" || (pathname.startsWith("/admin/") && !pathname.includes("."))
+						? "/admin/index.html"
+						: pathname;
 			// SPA fallback for unknown, non-file paths
 			const asset = assets[key] ?? (key.includes(".") ? null : assets["/index.html"]);
 			if (asset) {

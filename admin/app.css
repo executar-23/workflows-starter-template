@@ -1,0 +1,658 @@
+@import "tailwindcss";
+
+@import "tw-animate-css";
+@plugin "@tailwindcss/typography";
+
+@custom-variant dark (&:is(.dark *));
+
+@font-face {
+  font-family: "DM Sans";
+  src: url("/fonts/dm-sans/DMSans-Regular.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "DM Sans";
+  src: url("/fonts/dm-sans/DMSans-Medium.ttf") format("truetype");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "DM Sans";
+  src: url("/fonts/dm-sans/DMSans-SemiBold.ttf") format("truetype");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "DM Sans";
+  src: url("/fonts/dm-sans/DMSans-Bold.ttf") format("truetype");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  /* Design tokens from DESIGN-HANDOFF-001 (hex -> oklch) */
+  --background: oklch(1 0 0); /* color-bg-canvas #FFFFFF */
+  --foreground: oklch(0.232 0.004 286.1); /* color-text-primary #1D1D1F */
+  --card: oklch(1 0 0); /* color-surface-primary #FFFFFF */
+  --card-foreground: oklch(0.232 0.004 286.1);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.232 0.004 286.1);
+  --primary: oklch(0.554 0.185 256.05); /* color-accent #0A6FDB */
+  --primary-foreground: oklch(0.985 0 0);
+  --secondary: oklch(0.971 0.003 286.35); /* color-bg-subtle #F5F5F7 */
+  --secondary-foreground: oklch(0.232 0.004 286.1);
+  --muted: oklch(0.971 0.003 286.35); /* color-bg-subtle #F5F5F7 */
+  --muted-foreground: oklch(0.54 0.008 286.14); /* color-text-secondary #6E6E73 */
+  --accent: oklch(0.971 0.003 286.35);
+  --accent-foreground: oklch(0.232 0.004 286.1);
+  --destructive: oklch(0.577 0.245 27.325);
+  --border: oklch(0.865 0.007 286.26); /* color-border-subtle #D2D2D7 */
+  --input: oklch(0.865 0.007 286.26);
+  --ring: oklch(0.554 0.185 256.05); /* color-focus #0A6FDB */
+
+  /* Chart palette (ADR-04): semantic layer over the 3 families + neutral; never new hues. */
+  --chart-1: var(--color-brand-default);
+  --chart-2: var(--color-attention-default);
+  --chart-3: var(--color-critical-default);
+  --chart-4: var(--brand-500);
+  --chart-5: var(--muted-foreground);
+  /* Extra-gray text (captions, axis ticks, timestamps). AA only on card/background/popover;
+     on muted/secondary surfaces use --muted-foreground. */
+  --muted-foreground-subtle: oklch(0.56 0.008 286.14);
+
+  --sidebar: oklch(0.985 0 0);
+  --sidebar-foreground: oklch(0.145 0 0);
+  --sidebar-primary: oklch(0.205 0 0);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.97 0 0);
+  --sidebar-accent-foreground: oklch(0.205 0 0);
+  --sidebar-border: oklch(0.922 0 0);
+  --sidebar-ring: oklch(0.708 0 0);
+
+  --radius: 8px;
+
+  --shadow-2xs: 0 1px 3px 0px hsl(0 0% 0% / 0.05);
+  --shadow-xs: 0 1px 3px 0px hsl(0 0% 0% / 0.05);
+  --shadow-sm:
+    0 1px 3px 0px hsl(0 0% 0% / 0.1), 0 1px 2px -1px hsl(0 0% 0% / 0.1);
+  --shadow: 0 1px 3px 0px hsl(0 0% 0% / 0.1), 0 1px 2px -1px hsl(0 0% 0% / 0.1);
+  --shadow-md:
+    0 1px 3px 0px hsl(0 0% 0% / 0.1), 0 2px 4px -1px hsl(0 0% 0% / 0.1);
+  --shadow-lg:
+    0 1px 3px 0px hsl(0 0% 0% / 0.1), 0 4px 6px -1px hsl(0 0% 0% / 0.1);
+  --shadow-xl:
+    0 1px 3px 0px hsl(0 0% 0% / 0.1), 0 8px 10px -1px hsl(0 0% 0% / 0.1);
+  --shadow-2xl: 0 1px 3px 0px hsl(0 0% 0% / 0.25);
+
+  --font-dm-sans: "DM Sans", sans-serif;
+  --font-inter:
+    -apple-system, BlinkMacSystemFont, "Segoe UI",
+    sans-serif; /* font-family-ui, DESIGN-HANDOFF-001 */
+
+  --font-sans:
+    var(--font-dm-sans), var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-serif: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
+  --font-mono:
+    ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
+    "Courier New", monospace;
+
+  /* StyleGlide provides a better abstraction for fonts */
+  --display-family: var(--font-sans);
+  --text-family: var(--font-inter);
+  --display-weight: 600;
+  --text-weight: 400;
+
+  /* ===== DS-CALLOUT-001 / PAL-ANNEX-01 ===== */
+  /* Layer 1 — primitives: the only place with concrete colour values.
+     Step 600 of each scale is the handoff hex (#304E83, #8A5A00, #A33A32). */
+  --brand-50: oklch(0.975 0.011 261.01);
+  --brand-100: oklch(0.948 0.021 261.01);
+  --brand-200: oklch(0.900 0.038 261.01);
+  --brand-300: oklch(0.830 0.059 261.01);
+  --brand-400: oklch(0.720 0.081 261.01);
+  --brand-500: oklch(0.574 0.093 261.01);
+  --brand-600: oklch(0.428 0.095 261.01);
+  --brand-700: oklch(0.368 0.091 261.01);
+  --brand-800: oklch(0.308 0.081 261.01);
+  --brand-900: oklch(0.248 0.069 261.01);
+  --brand-950: oklch(0.198 0.057 261.01);
+
+  --attention-50: oklch(0.975 0.013 73.30);
+  --attention-100: oklch(0.948 0.024 73.30);
+  --attention-200: oklch(0.900 0.043 73.30);
+  --attention-300: oklch(0.830 0.067 73.30);
+  --attention-400: oklch(0.720 0.092 73.30);
+  --attention-500: oklch(0.614 0.105 73.30);
+  --attention-600: oklch(0.508 0.108 73.30);
+  --attention-700: oklch(0.448 0.095 73.30);
+  --attention-800: oklch(0.388 0.082 73.30);
+  --attention-900: oklch(0.328 0.070 73.30);
+  --attention-950: oklch(0.278 0.059 73.30);
+
+  --critical-50: oklch(0.975 0.012 27.67);
+  --critical-100: oklch(0.948 0.026 27.67);
+  --critical-200: oklch(0.900 0.051 27.67);
+  --critical-300: oklch(0.830 0.087 27.67);
+  --critical-400: oklch(0.720 0.120 27.67);
+  --critical-500: oklch(0.608 0.136 27.67);
+  --critical-600: oklch(0.496 0.141 27.67);
+  --critical-700: oklch(0.436 0.134 27.67);
+  --critical-800: oklch(0.376 0.120 27.67);
+  --critical-900: oklch(0.316 0.101 27.67);
+  --critical-950: oklch(0.266 0.084 27.67);
+
+  /* Layer 2 — semantic roles per family (subtle/soft/default/strong/on-strong/on-default) */
+  --color-brand-subtle: var(--brand-100);
+  --color-brand-soft: var(--brand-300);
+  --color-brand-default: var(--brand-600);
+  --color-brand-strong: var(--brand-900);
+  --color-brand-on-strong: oklch(1 0 0);
+  --color-brand-on-default: oklch(1 0 0);
+  --color-attention-subtle: var(--attention-100);
+  --color-attention-soft: var(--attention-300);
+  --color-attention-default: var(--attention-600);
+  --color-attention-strong: var(--attention-900);
+  --color-attention-on-strong: oklch(1 0 0);
+  --color-attention-on-default: oklch(1 0 0);
+  --color-critical-subtle: var(--critical-100);
+  --color-critical-soft: var(--critical-300);
+  --color-critical-default: var(--critical-600);
+  --color-critical-strong: var(--critical-900);
+  --color-critical-on-strong: oklch(1 0 0);
+  --color-critical-on-default: oklch(1 0 0);
+
+  /* Plain text system (ADR-05 / ADR-BLOG-ASCII-001 + annex A). Surface, border and
+     text come from the reference capture; accent aliases the site primary (ADR-03). */
+  --plain-surface: #f8f8f8;
+  --plain-border: #ebebeb;
+  --plain-text: #000000;
+  --plain-accent: var(--primary);
+  --plain-accent-soft: var(--color-brand-subtle);
+  --plain-radius-desktop: 28px;
+  --plain-radius-mobile: 22px;
+  --plain-font:
+    ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
+    monospace;
+  --plain-caption-font: var(--text-family);
+  --plain-font-size: clamp(0.875rem, 1.6vw, 1.125rem);
+  --plain-font-size-sm: 0.875rem;
+  --plain-font-size-lg: 1.125rem;
+  --plain-font-size-fixed: 1rem;
+  --plain-line-height-diagram: 1.45;
+  --plain-line-height-panel: 1.5;
+  --plain-line-height-compact: 1.3;
+  --plain-line-height-comfortable: 1.7;
+  --plain-header-padding: 20px 28px 8px;
+  --plain-body-padding: 20px 28px 30px;
+  --plain-header-padding-mobile: 18px 20px 6px;
+  --plain-body-padding-mobile: 18px 20px 24px;
+  --plain-muted: var(--muted-foreground);
+  /* Tables (ADR-05 §15, STORE-WIREFRAMES reference): separated gray cells. */
+  --table-surface: var(--plain-surface);
+  --table-head-surface: var(--plain-border);
+  --table-gap: 3px;
+  --table-text: var(--plain-text);
+  --table-link: var(--primary);
+  --table-cell-padding: 12px 16px;
+  --table-radius: 2px;
+  --table-font-size: 1rem;
+  --table-head-weight: 500;
+  --table-selected: var(--brand-50);
+
+  /* Layer 3 — callout component tokens (handoff §5) */
+  --callout-accent-blue: var(--color-brand-default);
+  --callout-accent-amber: var(--color-attention-default);
+  --callout-accent-red: var(--color-critical-default);
+  --callout-text-strong: var(--foreground);
+  --callout-text-default: var(--muted-foreground);
+  --callout-border-width: 1px;
+  /* Geometry derives from the site's control tokens (Button, --radius, --spacing).
+     Handoff pixels were measured on a 3x raster (1170px = 390pt): 56/32/32 -> ~18/11/11. */
+  --callout-height-sm: calc(var(--spacing) * 9); /* = Button default (h-9) */
+  --callout-height-md: calc(var(--spacing) * 10); /* = Button lg / CTA (h-10) */
+  --callout-height-lg: calc(var(--spacing) * 12);
+  --callout-radius-sm: calc(var(--radius) - 2px); /* radius-md, = Button */
+  --callout-radius-md: var(--radius); /* radius-lg */
+  --callout-radius-lg: calc(var(--radius) * 2 - 4px); /* radius-xl, ~32/3 */
+  --callout-padding-sm-x: calc(var(--spacing) * 3);
+  --callout-padding-sm-y: calc(var(--spacing) * 1.75); /* (36 - 2 border - 20 line) / 2 */
+  --callout-padding-md-x: calc(var(--spacing) * 3);
+  --callout-padding-md-y: calc(var(--spacing) * 1.75); /* (40 - 2 - 24) / 2 */
+  --callout-padding-lg-x: calc(var(--spacing) * 4);
+  --callout-padding-lg-y: calc(var(--spacing) * 2.25); /* (48 - 2 - 28) / 2 */
+  --callout-gap-sm: calc(var(--spacing) * 1.5);
+  --callout-gap-md: calc(var(--spacing) * 2); /* = Button gap-2 */
+  --callout-gap-lg: calc(var(--spacing) * 2.5);
+  --callout-glyph-sm: calc(var(--spacing) * 4); /* = Button svg size-4 */
+  --callout-glyph-md: calc(var(--spacing) * 4.5);
+  --callout-glyph-lg: calc(var(--spacing) * 5);
+  /* Full anatomy (header / body / footer) — DS-CALLOUT-001 v1.2, Material X reference */
+  --callout-card-radius: calc(var(--radius) * 2 - 4px); /* radius-xl */
+  --callout-card-shadow: var(--shadow-md);
+  --callout-header-height: calc(var(--spacing) * 11);
+  --callout-header-padding-x: calc(var(--spacing) * 4);
+  --callout-body-padding: calc(var(--spacing) * 5);
+  --callout-body-padding-wide: calc(var(--spacing) * 6);
+  --callout-body-gap: calc(var(--spacing) * 5);
+  --callout-emblem-size: calc(var(--spacing) * 14);
+  --callout-emblem-size-narrow: calc(var(--spacing) * 11);
+  --callout-emblem-glyph: calc(var(--spacing) * 7);
+  --callout-emblem-glyph-narrow: calc(var(--spacing) * 5.5);
+  --callout-emblem-border: 1.5px;
+  --callout-footer-padding-y: calc(var(--spacing) * 3);
+  --callout-footer-padding-x: calc(var(--spacing) * 4);
+  --callout-footer-gap: calc(var(--spacing) * 3);
+  --callout-header-family: var(--display-family);
+  --callout-header-weight: 500;
+  --callout-font-family: var(--text-family);
+  --callout-label-family: var(--text-family);
+  --callout-message-family: var(--font-mono);
+  --callout-body-family: var(--text-family);
+  --callout-label-weight: 700;
+  --callout-message-weight: 400;
+  --callout-body-weight: 400;
+  --callout-motion-fast: 120ms;
+  --callout-motion-default: 180ms;
+  --callout-easing: cubic-bezier(0.2, 0, 0, 1);
+  --callout-focus-width: 2px;
+  --callout-focus-offset: 2px;
+  --callout-width: 100%;
+  --callout-max-width: 100%;
+}
+
+.dark {
+  /* Design tokens from DESIGN-HANDOFF-001 v2 dark palette (hex -> oklch) */
+  --background: oklch(0.227 0.004 286.09); /* color-bg-canvas #1c1c1e */
+  --foreground: oklch(0.971 0.003 286.35); /* color-text-primary #f5f5f7 */
+  --card: oklch(0.294 0.004 286.18); /* color-bg-elevated #2c2c2e */
+  --card-foreground: oklch(0.971 0.003 286.35);
+  --popover: oklch(0.294 0.004 286.18);
+  --popover-foreground: oklch(0.971 0.003 286.35);
+  --primary: oklch(0.705 0.159 252.35); /* color-accent #4da3ff */
+  --primary-foreground: oklch(0.227 0.004 286.09);
+  --secondary: oklch(0.261 0.004 286.14); /* color-bg-subtle #242426 */
+  --secondary-foreground: oklch(0.971 0.003 286.35);
+  --muted: oklch(0.261 0.004 286.14);
+  --muted-foreground: oklch(0.781 0.008 286.2); /* color-text-secondary #b7b7bd */
+  --accent: oklch(0.261 0.004 286.14);
+  --accent-foreground: oklch(0.971 0.003 286.35);
+  --destructive: oklch(0.704 0.191 22.216);
+  --border: oklch(0.349 0.003 286.22); /* color-border-subtle #3a3a3c */
+  --input: oklch(0.349 0.003 286.22);
+  --ring: oklch(0.705 0.159 252.35); /* color-focus #64b0ff ≈ accent */
+
+  --chart-1: var(--color-brand-default);
+  --chart-2: var(--color-attention-default);
+  --chart-3: var(--color-critical-default);
+  --chart-4: var(--brand-500);
+  --chart-5: var(--muted-foreground);
+  --muted-foreground-subtle: oklch(0.7 0.008 286.2);
+
+  --sidebar: oklch(0.205 0 0);
+  --sidebar-foreground: oklch(0.985 0 0);
+  --sidebar-primary: oklch(0.488 0.243 264.376);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.269 0 0);
+  --sidebar-accent-foreground: oklch(0.985 0 0);
+  --sidebar-border: oklch(1 0 0 / 10%);
+  --sidebar-ring: oklch(0.556 0 0);
+
+  /* PROVISIONAL — plain surface on the dark canvas (no dark spec in ADR-BLOG-ASCII-001). */
+  --plain-surface: var(--card);
+  --plain-border: var(--border);
+  --plain-text: var(--foreground);
+  --table-head-surface: var(--muted);
+
+  /* PROVISIONAL — no dark spec in DS-CALLOUT-001; same families, roles inverted
+     for a dark canvas. Replace when a dark theme spec exists. */
+  --color-brand-subtle: var(--brand-950);
+  --color-brand-soft: var(--brand-800);
+  --color-brand-default: var(--brand-300);
+  --color-brand-strong: var(--brand-700);
+  --color-brand-on-default: var(--brand-950);
+  --color-attention-subtle: var(--attention-950);
+  --color-attention-soft: var(--attention-800);
+  --color-attention-default: var(--attention-300);
+  --color-attention-strong: var(--attention-700);
+  --color-attention-on-default: var(--attention-950);
+  --color-critical-subtle: var(--critical-950);
+  --color-critical-soft: var(--critical-800);
+  --color-critical-default: var(--critical-300);
+  --color-critical-strong: var(--critical-700);
+  --color-critical-on-default: var(--critical-950);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted-foreground-subtle: var(--muted-foreground-subtle);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+
+  --radius-xs: calc(var(--radius) - 4px);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 2 - 4px);
+  --radius-2xl: calc(var(--radius) * 2);
+  --radius-3xl: calc(var(--radius) * 3);
+  --radius-4xl: calc(var(--radius) * 4);
+
+  --shadow-2xs: var(--shadow-2xs);
+  --shadow-xs: var(--shadow-xs);
+  --shadow-sm: var(--shadow-sm);
+  --shadow: var(--shadow);
+  --shadow-md: var(--shadow-md);
+  --shadow-lg: var(--shadow-lg);
+  --shadow-xl: var(--shadow-xl);
+  --shadow-2xl: var(--shadow-2xl);
+
+  --breakpoint-sm: 640px;
+  --breakpoint-md: 768px;
+  --breakpoint-lg: 1024px;
+  --breakpoint-xl: 1280px;
+  --breakpoint-2xl: 1400px; /* default is 1536px */
+
+  --font-sans: var(--font-sans);
+  --font-serif: var(--font-serif);
+  --font-mono: var(--font-mono);
+
+  --font-display: var(--display-family);
+  --font-text: var(--text-family);
+  --font-weight-display: var(--display-weight);
+  --font-weight-text: var(--text-weight);
+
+  --animate-accordion-down: accordion-down 0.2s ease-out;
+  --animate-accordion-up: accordion-up 0.2s ease-out;
+
+  @keyframes accordion-down {
+    from {
+      height: 0;
+    }
+    to {
+      height: var(--radix-accordion-content-height);
+    }
+  }
+  @keyframes accordion-up {
+    from {
+      height: var(--radix-accordion-content-height);
+    }
+    to {
+      height: 0;
+    }
+  }
+}
+
+@utility container {
+  margin-inline: auto;
+  padding-inline: 1.5rem;
+  @media (width >= 1400px) {
+    max-width: 1220px;
+  }
+}
+
+@layer utilities {
+  body,
+  .font-text {
+    font-family: var(--font-text);
+    font-weight: var(--text-weight);
+  }
+  h1,
+  h2,
+  .font-display {
+    font-family: var(--font-display);
+    font-weight: var(--display-weight);
+    -webkit-font-feature-settings:
+      "ss02" on,
+      "ss03" on,
+      "ss04" on;
+    -moz-font-feature-settings:
+      "ss02" on,
+      "ss03" on,
+      "ss04" on;
+    -ms-font-feature-settings:
+      "ss02" on,
+      "ss03" on,
+      "ss04" on;
+    font-feature-settings:
+      "ss02" on,
+      "ss03" on,
+      "ss04" on; /* Enables the special `a` character and other characters for DM Sans */
+  }
+  .font-mono {
+    font-family: var(--font-mono), monospace;
+  }
+}
+
+@layer components {
+  button {
+    cursor: pointer;
+  }
+  [class*="border"] {
+    @apply border-border;
+  }
+}
+
+/* Editorial drop cap (DESIGN-HANDOFF-001) — applied to .prose, the article
+   body container in src/components/blocks/blog-post.tsx, so no markup or
+   component changes are needed. */
+.prose > p:first-of-type::first-letter,
+.prose .lead::first-letter,
+.prose h2 + p::first-letter {
+  float: left;
+  font-family: var(--font-display);
+  font-size: 5.2em;
+  line-height: 0.78;
+  font-weight: 700;
+  padding: 0.03em 0.12em 0 0;
+  color: var(--foreground);
+}
+
+/* Operational reports (ADR-05) read as documents: no editorial drop cap. */
+.prose[data-report] > p:first-of-type::first-letter,
+.prose[data-report] h2 + p::first-letter {
+  float: none;
+  font-family: inherit;
+  font-size: inherit;
+  line-height: inherit;
+  margin: 0;
+  padding: 0;
+  color: inherit;
+  font-weight: inherit;
+}
+
+@media print {
+  .prose > p:first-of-type::first-letter,
+  .prose .lead::first-letter,
+  .prose h2 + p::first-letter {
+    font-size: 4.2em;
+  }
+}
+
+html,
+body {
+  scroll-behavior: smooth;
+}
+body {
+  position: relative;
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: var(--color-gray-200, currentColor);
+  }
+}
+
+/* DS-CALLOUT-001 — family and tone wiring (layer 4). Variants never map to a
+   colour directly: the primitive sets data-family and data-tone only. */
+[data-callout] {
+  --callout-surface: var(--card);
+  --callout-border: var(--border);
+  --callout-divider: var(--border);
+  --callout-heading: var(--callout-text-strong);
+  --callout-body: var(--callout-text-default);
+  --callout-emblem-surface: var(--card);
+  --callout-emblem-ring: var(--border);
+  --callout-shadow: var(--callout-card-shadow);
+}
+[data-callout][data-family="brand"] {
+  --callout-icon: var(--color-brand-default);
+  --callout-link: var(--color-brand-default);
+  --callout-title: var(--color-brand-default);
+  --callout-surface-emphasis: var(--color-brand-subtle);
+  --callout-border-emphasis: var(--color-brand-soft);
+  --callout-header-surface: var(--color-brand-subtle);
+  --callout-header-surface-emphasis: color-mix(in oklch, var(--color-brand-subtle), var(--color-brand-soft) 25%);
+  --callout-header-text: var(--color-brand-default);
+  --callout-action-surface: var(--color-brand-default);
+  --callout-action-text: var(--color-brand-on-default);
+}
+[data-callout][data-family="attention"] {
+  --callout-icon: var(--color-attention-default);
+  --callout-link: var(--color-attention-default);
+  --callout-title: var(--color-attention-default);
+  --callout-surface-emphasis: var(--color-attention-subtle);
+  --callout-border-emphasis: var(--color-attention-soft);
+  --callout-header-surface: var(--color-attention-subtle);
+  --callout-header-surface-emphasis: color-mix(in oklch, var(--color-attention-subtle), var(--color-attention-soft) 25%);
+  --callout-header-text: var(--color-attention-default);
+  --callout-action-surface: var(--color-attention-default);
+  --callout-action-text: var(--color-attention-on-default);
+}
+[data-callout][data-family="critical"] {
+  --callout-icon: var(--color-critical-default);
+  --callout-link: var(--color-critical-default);
+  --callout-title: var(--color-critical-default);
+  --callout-surface-emphasis: var(--color-critical-subtle);
+  --callout-border-emphasis: var(--color-critical-soft);
+  --callout-header-surface: var(--color-critical-subtle);
+  --callout-header-surface-emphasis: color-mix(in oklch, var(--color-critical-subtle), var(--color-critical-soft) 25%);
+  --callout-header-text: var(--color-critical-default);
+  --callout-action-surface: var(--color-critical-default);
+  --callout-action-text: var(--color-critical-on-default);
+}
+[data-callout][data-tone="tinted"] {
+  --callout-surface: var(--callout-surface-emphasis);
+  --callout-border: var(--callout-border-emphasis);
+  --callout-divider: var(--callout-border-emphasis);
+  --callout-header-surface: var(--callout-header-surface-emphasis);
+  --callout-heading: var(--foreground);
+  --callout-body: var(--foreground);
+  --callout-shadow: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  [data-callout],
+  [data-callout] * {
+    transition: none !important;
+    animation: none !important;
+  }
+}
+
+/* Canonical table (ADR-05 §15): every Table component and every .prose table. */
+.ds-table,
+.prose table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: var(--table-gap);
+  margin-inline: calc(var(--table-gap) * -1);
+  font-size: var(--table-font-size);
+  color: var(--table-text);
+}
+.ds-table :is(th, td),
+.prose table :is(th, td) {
+  padding: var(--table-cell-padding);
+  border: 0;
+  border-radius: var(--table-radius);
+  text-align: left;
+  vertical-align: top;
+  line-height: 1.35;
+  color: var(--table-text);
+}
+.ds-table th,
+.prose table th {
+  background: var(--table-head-surface);
+  font-family: var(--text-family);
+  font-weight: var(--table-head-weight);
+  text-transform: uppercase;
+  vertical-align: middle;
+}
+.ds-table td,
+.prose table td {
+  background: var(--table-surface);
+}
+.ds-table tr[data-state="selected"] td {
+  background: var(--table-selected);
+}
+.ds-table :is(th, td) code,
+.prose table :is(th, td) code {
+  font-family: var(--plain-font);
+  font-size: 0.95em;
+  font-weight: 400;
+  background: none;
+  padding: 0;
+}
+.prose table :is(th, td) code::before,
+.prose table :is(th, td) code::after {
+  content: none;
+}
+.ds-table a,
+.prose table a {
+  color: var(--table-link);
+  text-decoration: none;
+}
+.ds-table a:hover,
+.prose table a:hover {
+  text-decoration: underline;
+}
+.prose thead,
+.prose tbody tr {
+  border: 0;
+}

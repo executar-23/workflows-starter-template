@@ -1,6 +1,8 @@
 export { MyWorkflow } from "./workflow";
 export { WorkflowStatusDO } from "./durable-object";
 export { TaskBoardDO } from "./task-board";
+export { HubStoreDO } from "./hub-store";
+import { handleHubApi } from "./hub-api";
 import { corsHeaders, handleAgentApi, handleRunApi, json } from "./agent-api";
 
 type EventBody = {
@@ -40,6 +42,10 @@ export default {
 				},
 			});
 		}
+
+		// CMS (Hub Editorial): sessão de administrador própria (ADMIN_TOKEN).
+		const hubResponse = await handleHubApi(request, env, url);
+		if (hubResponse) return hubResponse;
 
 		// Agentes usam AGENT_TOKEN próprio, independente do API_TOKEN da UI.
 		const agentResponse = await handleAgentApi(request, env, url);
