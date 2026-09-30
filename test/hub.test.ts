@@ -1,4 +1,5 @@
 import { env, SELF } from "cloudflare:test";
+import { handleHubApi } from "../worker/hub-api";
 import { describe, it, expect, beforeAll } from "vitest";
 
 // CMS (Hub Editorial) migrado: API compatível com admin/lib/hub/use-hub-store.ts.
@@ -28,7 +29,7 @@ describe("sessão de administrador", () => {
 	it("token errado → 401; sem cookie → 401; cookie válido → me", async () => {
 		expect((await login("errado")).status).toBe(401);
 		expect((await SELF.fetch("https://x/api/hub")).status).toBe(401);
-		expect(cookie).toMatch(/^rc_admin=admin\.\d+\./);
+		expect(cookie).toMatch(/^rc_admin=admin\.\d+\.\d+\./);
 		const me = await SELF.fetch("https://x/api/auth/me", authed());
 		expect(await me.json()).toEqual({ success: true, result: { email: "admin" } });
 	});
@@ -44,6 +45,33 @@ describe("sessão de administrador", () => {
 		expect(header).toContain("HttpOnly");
 		expect(header).toContain("Secure");
 		expect(header).toContain("SameSite=Strict");
+	});
+});
+
+describe("sessão: 503 sem secret e revogação no logout", () => {
+	it("sem ADMIN_TOKEN o login responde 503 e os dados ficam fechados", async () => {
+		const noSecret = { ...env, ADMIN_TOKEN: undefined } as unknown as Env;
+		const req = (path: string, init?: RequestInit) => new Request(`https://x${path}`, init);
+		const login = await handleHubApi(
+			req("/api/auth/login", { method: "POST", body: JSON.stringify({ token: "x" }) }),
+			noSecret,
+			new URL("https://x/api/auth/login"),
+		);
+		expect(login?.status).toBe(503);
+		const hub = await handleHubApi(req("/api/hub", { headers: { Cookie: cookie } }), noSecret, new URL("https://x/api/hub"));
+		expect(hub?.status).toBe(401);
+	});
+
+	it("logout revoga o cookie mesmo que ele seja reapresentado", async () => {
+		const res = await login("test-admin");
+		const temp = (res.headers.get("Set-Cookie") ?? "").split(";")[0];
+		expect((await SELF.fetch("https://x/api/auth/me", { headers: { Cookie: temp } })).status).toBe(200);
+		await SELF.fetch("https://x/api/auth/logout", { method: "POST", headers: { Cookie: temp } });
+		expect((await SELF.fetch("https://x/api/auth/me", { headers: { Cookie: temp } })).status).toBe(401);
+		// sessão nova volta a funcionar (o cookie global dos outros testes é renovado)
+		const again = await login("test-admin");
+		cookie = (again.headers.get("Set-Cookie") ?? "").split(";")[0];
+		expect((await SELF.fetch("https://x/api/auth/me", { headers: { Cookie: cookie } })).status).toBe(200);
 	});
 });
 

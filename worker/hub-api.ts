@@ -1,5 +1,5 @@
 import { corsHeaders } from "./agent-api";
-import { CodeConflictError, isModuleId, type HubFields } from "./hub-store";
+import { isModuleId, type HubFields } from "./hub-store";
 
 // API do CMS (Hub Editorial), compatível com admin/lib/hub/use-hub-store.ts.
 // Sessão de administrador: cookie rc_admin assinado (HMAC-SHA256 com ADMIN_TOKEN).
@@ -53,9 +53,10 @@ function safeEqual(a: string, b: string) {
 	return crypto.subtle.timingSafeEqual(x, y);
 }
 
-async function sessionCookie(secret: string) {
+// Cookie: admin.<exp>.<época>.<HMAC>; a época vem do HubStoreDO (logout revoga).
+async function sessionCookie(secret: string, epoch: number) {
 	const exp = Math.floor(Date.now() / 1000) + SESSION_TTL_S;
-	const payload = `${ACTOR}.${exp}`;
+	const payload = `${ACTOR}.${exp}.${epoch}`;
 	return `${payload}.${await hmac(secret, payload)}`;
 }
 
@@ -72,9 +73,10 @@ async function isAdmin(request: Request, env: Env) {
 	const secret = adminToken(env);
 	const value = readCookie(request, COOKIE);
 	if (!secret || !value) return false;
-	const [actor, exp, sig] = value.split(".");
-	if (!actor || !exp || !sig || Number(exp) < Date.now() / 1000) return false;
-	return safeEqual(sig, await hmac(secret, `${actor}.${exp}`));
+	const [actor, exp, epoch, sig] = value.split(".");
+	if (!actor || !exp || !epoch || !sig || Number(exp) < Date.now() / 1000) return false;
+	if (!safeEqual(sig, await hmac(secret, `${actor}.${exp}.${epoch}`))) return false;
+	return Number(epoch) === (await store(env).sessionEpoch());
 }
 
 const setCookie = (value: string, maxAge: number) =>
@@ -97,7 +99,7 @@ async function guarded(fn: () => Promise<Response>) {
 	try {
 		return await fn();
 	} catch (error) {
-		if (error instanceof CodeConflictError || /UNIQUE constraint failed/i.test(String(error))) {
+		if (/UNIQUE constraint failed/i.test(String(error))) {
 			return fail(409, "Code already in use");
 		}
 		throw error;
@@ -127,12 +129,15 @@ export async function handleHubApi(
 		if (!secret) return fail(503, "ADMIN_TOKEN não configurado no Worker");
 		const body = (await request.json().catch(() => ({}))) as Json;
 		if (!safeEqual(String(body.token ?? ""), secret)) return fail(401, "Token inválido");
+		const epoch = await store(env).sessionEpoch();
 		return ok(
 			{ email: ACTOR },
-			{ headers: { "Set-Cookie": setCookie(await sessionCookie(secret), SESSION_TTL_S) } },
+			{ headers: { "Set-Cookie": setCookie(await sessionCookie(secret, epoch), SESSION_TTL_S) } },
 		);
 	}
 	if (path === "/api/auth/logout" && method === "POST") {
+		// Só uma sessão válida revoga todas (evita logout forçado por terceiros).
+		if (await isAdmin(request, env)) await store(env).bumpSessionEpoch();
 		return ok({ loggedOut: true }, { headers: { "Set-Cookie": setCookie("", 0) } });
 	}
 	if (!(await isAdmin(request, env))) return fail(401, "Login de administrador necessário");
@@ -184,7 +189,10 @@ export async function handleHubApi(
 		if (method === "PUT") {
 			const body = (await request.json().catch(() => null)) as { fields?: unknown } | null;
 			if (!validFields(body?.fields)) return fail(400, "fields inválido");
-			return guarded(async () => ok(await hub.upsert(ACTOR, moduleId, id, body!.fields as HubFields)));
+			return guarded(async () => {
+				const result = await hub.upsert(ACTOR, moduleId, id, body!.fields as HubFields);
+				return result.ok ? ok(result.record) : fail(409, result.conflict);
+			});
 		}
 		if (method === "DELETE") return ok({ deleted: await hub.remove(ACTOR, moduleId, id) });
 		if (method === "GET") {

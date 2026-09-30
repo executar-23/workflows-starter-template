@@ -138,7 +138,7 @@ export function HubShell() {
 					</Button>
 					<Button
 						variant="ghost"
-						size="icon-sm"
+						size="icon"
 						className="md:hidden"
 						onClick={() => setNavOpen(false)}
 						aria-label="Fechar menu"
@@ -251,17 +251,18 @@ export function HubShell() {
 						<h1 className="truncate text-base font-semibold">{title}</h1>
 					</div>
 					<div className="flex shrink-0 items-center gap-1.5 md:gap-2">
-						<Button variant="outline" size="sm" onClick={exportAll} aria-label="Exportar JSON"><Download /> <span className="hidden sm:inline">Exportar JSON</span></Button>
+						<Button variant="outline" size="sm" className="h-9" onClick={exportAll} aria-label="Exportar JSON"><Download /> <span className="hidden sm:inline">Exportar JSON</span></Button>
 						{mod && (
 							<Button
 								variant="outline"
 								size="sm"
+								className="h-9"
 								onClick={() => download(`${mod.sheet}.csv`, "text/csv", toCSV(store.data[mod.id] ?? [], mod.fields))}
 							>
 								<Download /> <span className="hidden sm:inline">CSV</span>
 							</Button>
 						)}
-						<Button variant="outline" size="sm" onClick={() => fileRef.current?.click()} aria-label="Importar"><Upload /> <span className="hidden sm:inline">Importar</span></Button>
+						<Button variant="outline" size="sm" className="h-9" onClick={() => fileRef.current?.click()} aria-label="Importar"><Upload /> <span className="hidden sm:inline">Importar</span></Button>
 						<input ref={fileRef} type="file" accept="application/json" className="hidden" onChange={importJSON} />
 					</div>
 				</header>

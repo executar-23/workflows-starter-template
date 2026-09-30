@@ -25,7 +25,8 @@ const SEED = seedJson as unknown as {
 	seed: Record<string, HubFields[]>;
 };
 
-export class CodeConflictError extends Error {}
+// Conflito de código volta como resultado: exceções perdem a classe no RPC do DO.
+export type UpsertResult = { ok: true; record: HubRecord } | { ok: false; conflict: string };
 
 type Row = { module: string; id: string; data: string };
 const toRecord = (r: Row): HubRecord => ({ _id: r.id, ...JSON.parse(r.data) });
@@ -147,13 +148,13 @@ export class HubStoreDO extends DurableObject {
 	}
 
 	// Cria ou substitui (idempotente; último a gravar vence).
-	async upsert(actor: string, module: string, id: string, fields: HubFields): Promise<HubRecord> {
+	async upsert(actor: string, module: string, id: string, fields: HubFields): Promise<UpsertResult> {
 		const code = codeOf(module, fields);
 		if (code) {
 			const clash = this.sql
 				.exec<{ id: string }>("SELECT id FROM records WHERE module = ? AND code = ? AND id <> ?", module, code, id)
 				.toArray()[0];
-			if (clash) throw new CodeConflictError(`Código ${code} já usado em ${module}`);
+			if (clash) return { ok: false, conflict: `Código ${code} já usado em ${module}` };
 		}
 		this.ctx.storage.transactionSync(() => {
 			this.sql.exec(
@@ -167,7 +168,7 @@ export class HubStoreDO extends DurableObject {
 			);
 			this.audit(actor, "upsert", module, id, code ?? undefined);
 		});
-		return { _id: id, ...fields };
+		return { ok: true, record: { _id: id, ...fields } };
 	}
 
 	async remove(actor: string, module: string, id: string): Promise<boolean> {
@@ -175,7 +176,7 @@ export class HubStoreDO extends DurableObject {
 		this.ctx.storage.transactionSync(() => {
 			const res = this.sql.exec("DELETE FROM records WHERE module = ? AND id = ?", module, id);
 			deleted = res.rowsWritten > 0;
-			this.audit(actor, "delete", module, id);
+			if (deleted) this.audit(actor, "delete", module, id);
 		});
 		return deleted;
 	}
@@ -239,6 +240,24 @@ export class HubStoreDO extends DurableObject {
 			this.audit(actor, "import", null, null, `${count} registros`);
 		});
 		return count;
+	}
+
+	// Revogação de sessões: o logout incrementa a época; cookies antigos deixam de valer.
+	async sessionEpoch(): Promise<number> {
+		const row = this.sql
+			.exec<{ value: string }>("SELECT value FROM meta WHERE key = 'session_epoch'")
+			.toArray()[0];
+		return row ? Number(row.value) : 0;
+	}
+
+	async bumpSessionEpoch(): Promise<number> {
+		const next = (await this.sessionEpoch()) + 1;
+		this.sql.exec(
+			"INSERT INTO meta (key, value) VALUES ('session_epoch', ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value",
+			String(next),
+		);
+		this.audit("admin", "logout", null, null, `época ${next}`);
+		return next;
 	}
 
 	async auditTail(limit = 50) {

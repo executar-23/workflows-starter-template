@@ -238,7 +238,7 @@ function App() {
 						{instanceId ? (
 							<button
 								onClick={() => setInstanceId(null)}
-								className="rounded-full px-4 py-1.5 text-xs font-semibold ring-1 ring-ink hover:bg-muted"
+								className="min-h-9 rounded-full px-4 py-1.5 text-xs font-semibold ring-1 ring-ink hover:bg-muted"
 							>
 								Novo run
 							</button>
@@ -246,7 +246,7 @@ function App() {
 							<button
 								onClick={start}
 								disabled={isStarting}
-								className="rounded-full bg-ink px-4 py-1.5 text-xs font-semibold text-white hover:bg-neutral-700 disabled:opacity-50"
+								className="min-h-9 rounded-full bg-ink px-4 py-1.5 text-xs font-semibold text-white hover:bg-neutral-700 disabled:opacity-50"
 							>
 								{isStarting ? "Iniciando…" : "Iniciar run"}
 							</button>
