@@ -1,14 +1,6 @@
 import { DurableObject } from "cloudflare:workers";
+import { TRACKED_STEPS } from "./workflow";
 
-/**
- * WorkflowStatusDO - Durable Object for managing workflow state and WebSocket connections
- *
- * Responsibilities:
- * - Accept and manage WebSocket connections using hibernation API
- * - Track step statuses for a workflow instance
- * - Broadcast updates to all connected clients
- * - Provide RPC method for workflow to update step status
- */
 export class WorkflowStatusDO extends DurableObject {
 	private stepStatuses: Map<string, string>;
 	private currentStep: string | null;
@@ -16,12 +8,10 @@ export class WorkflowStatusDO extends DurableObject {
 
 	constructor(ctx: DurableObjectState, env: Env) {
 		super(ctx, env);
-
 		this.stepStatuses = new Map();
 		this.currentStep = null;
 		this.workflowStatus = "running";
 
-		// Load state from durable storage to survive hibernation/eviction
 		ctx.blockConcurrencyWhile(async () => {
 			const storedStatuses =
 				await ctx.storage.get<Record<string, string>>("stepStatuses");
@@ -33,13 +23,7 @@ export class WorkflowStatusDO extends DurableObject {
 			if (storedStatuses) {
 				this.stepStatuses = new Map(Object.entries(storedStatuses));
 			} else {
-				const steps = [
-					"process data",
-					"wait 2 seconds",
-					"wait for approval",
-					"final",
-				];
-				steps.forEach((s) => this.stepStatuses.set(s, "pending"));
+				TRACKED_STEPS.forEach((s) => this.stepStatuses.set(s, "pending"));
 			}
 
 			this.currentStep = storedCurrent ?? null;
@@ -51,28 +35,22 @@ export class WorkflowStatusDO extends DurableObject {
 		if (request.headers.get("Upgrade") === "websocket") {
 			const pair = new WebSocketPair();
 			const [client, server] = Object.values(pair);
-
-			// Use hibernation API - acceptWebSocket allows the DO to hibernate
 			this.ctx.acceptWebSocket(server);
-
-			// Send current state immediately upon connection
 			server.send(JSON.stringify(this.getStateMessage()));
-
 			return new Response(null, { status: 101, webSocket: client });
 		}
-
 		return new Response("Expected WebSocket", { status: 400 });
 	}
 
-	/**
-	 * RPC method called by the workflow to update step status
-	 * This is called via stub.updateStep() from the workflow
-	 */
 	async updateStep(stepName: string, status: string): Promise<void> {
 		this.stepStatuses.set(stepName, status);
 
-		if (status === "running" || status === "waiting") {
+		if (status === "running" || status === "waiting" || status === "error") {
 			this.currentStep = stepName;
+		}
+
+		if (status === "error") {
+			this.workflowStatus = "error";
 		}
 
 		const allCompleted = Array.from(this.stepStatuses.values()).every(
@@ -83,28 +61,23 @@ export class WorkflowStatusDO extends DurableObject {
 			this.currentStep = null;
 		}
 
-		await this.ctx.storage.put(
-			"stepStatuses",
-			Object.fromEntries(this.stepStatuses),
-		);
-		await this.ctx.storage.put("currentStep", this.currentStep);
-		await this.ctx.storage.put("workflowStatus", this.workflowStatus);
-
+		await this.persist();
 		this.broadcast(this.getStateMessage());
 	}
 
-	/**
-	 * WebSocket message handler (hibernation API)
-	 * Called when a client sends a message
-	 */
+	async setWorkflowStatus(
+		status: "running" | "completed" | "error",
+	): Promise<void> {
+		this.workflowStatus = status;
+		if (status === "completed") this.currentStep = null;
+		await this.persist();
+		this.broadcast(this.getStateMessage());
+	}
+
 	async webSocketMessage(ws: WebSocket, _message: string): Promise<void> {
 		ws.send(JSON.stringify(this.getStateMessage()));
 	}
 
-	/**
-	 * WebSocket close handler (hibernation API)
-	 * Called when a client closes the connection
-	 */
 	async webSocketClose(
 		ws: WebSocket,
 		code: number,
@@ -114,25 +87,26 @@ export class WorkflowStatusDO extends DurableObject {
 		ws.close(code, reason);
 	}
 
-	/**
-	 * Broadcast a message to all connected WebSocket clients
-	 */
-	private broadcast(message: object): void {
-		const sockets = this.ctx.getWebSockets();
-		const json = JSON.stringify(message);
+	private async persist(): Promise<void> {
+		await this.ctx.storage.put(
+			"stepStatuses",
+			Object.fromEntries(this.stepStatuses),
+		);
+		await this.ctx.storage.put("currentStep", this.currentStep);
+		await this.ctx.storage.put("workflowStatus", this.workflowStatus);
+	}
 
-		for (const socket of sockets) {
+	private broadcast(message: object): void {
+		const json = JSON.stringify(message);
+		for (const socket of this.ctx.getWebSockets()) {
 			try {
 				socket.send(json);
 			} catch {
-				// Ignore errors for disconnected sockets
+				// Ignore stale sockets.
 			}
 		}
 	}
 
-	/**
-	 * Get the current state as a message object
-	 */
 	private getStateMessage(): object {
 		return {
 			type: "workflow_update",

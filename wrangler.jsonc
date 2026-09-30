@@ -4,7 +4,7 @@
  */
 {
 	"$schema": "node_modules/wrangler/config-schema.json",
-	"name": "workflows-starter-template",
+	"name": "programa-executar-workflow",
 	"main": "worker/index.ts",
 	"compatibility_date": "2025-10-08",
 	"assets": {
@@ -21,7 +21,7 @@
 	 */
 	"workflows": [
 		{
-			"name": "my-workflow",
+			"name": "programa-executar-editorial",
 			"binding": "MY_WORKFLOW",
 			"class_name": "MyWorkflow"
 		}
@@ -49,5 +49,6 @@
 			"new_sqlite_classes": ["WorkflowStatusDO"]
 		}
 	],
+	"workers_dev": true,
 	"upload_source_maps": true
 }
