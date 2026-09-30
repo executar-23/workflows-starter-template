@@ -1,4 +1,4 @@
-import { WORKFLOW_STEPS } from "../types";
+import { WORKFLOW_CONFIG, WORKFLOW_STEPS } from "../types";
 import type { JSX } from "react";
 
 interface CodeDisplayProps {
@@ -8,31 +8,9 @@ interface CodeDisplayProps {
 	isStarting: boolean;
 }
 
-// The workflow code to display (simplified for illustration)
-const WORKFLOW_CODE = `export class MyWorkflow extends WorkflowEntrypoint<Env> {
-  async run(event: WorkflowEvent, step: WorkflowStep) {
-    // Step 1: Process some data
-    const result = await step.do('process data', async () => {
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      return { processed: true, timestamp: Date.now() };
-    });
+// Root workflow schema rendered by the existing React viewer
+const WORKFLOW_CODE = JSON.stringify(WORKFLOW_CONFIG, null, 2);
 
-    // Step 2: Wait 2 seconds
-    await step.sleep('wait 2 seconds', '2 seconds');
-
-    // Step 3: Wait for user approval
-    const approval = await step.waitForEvent('wait for approval', {
-      type: 'user-approval',
-      timeout: '60 minutes'
-    });
-
-    // Step 4: Final step
-    await step.do('final', async () => {
-      console.log('Results:', { result, approval: approval.payload });
-      await new Promise(resolve => setTimeout(resolve, 1000));
-    });
-  }
-}`;
 
 // Simple syntax highlighting
 function highlightSyntax(line: string): JSX.Element {
@@ -113,7 +91,7 @@ export function CodeDisplay({
 					</div>
 					<div className="flex-1 text-center">
 						<span className="text-xs text-neutral-500 dark:text-neutral-400 font-medium">
-							workflow.ts
+							workflow.json
 						</span>
 					</div>
 					<button
