@@ -1,39 +1,90 @@
-# Cloudflare Workflows Starter Template
+# Programa EXECUTAR — Cloudflare Workflows
 
-[![Deploy to Cloudflare](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/cloudflare/templates/tree/main/workflows-starter-template)
+Implementação do workflow editorial do Programa EXECUTAR sobre o template oficial de Cloudflare Workflows, com execução durável, gates humanos, atualização em tempo real por WebSocket e API HTTP pública.
 
-<!-- dash-content-start -->
+## Deploy
 
-A real-time, interactive demonstration of [Cloudflare Workflows](https://developers.cloudflare.com/workflows) with live updates via WebSockets and Durable Objects. This template showcases durable multi-step workflows with time-based delays, event-driven pauses, and real-time status visualization.
+Após merge para `main`, use:
 
-<!-- dash-content-end -->
+https://deploy.workers.cloudflare.com/?url=https://github.com/executar-23/workflows-starter-template
 
-![Cloudflare Workflows Starter Template](assets/template-screenshot.png)
-
-## Getting Started
-
-### Installation
+Ou via Wrangler:
 
 ```bash
 npm install
-```
-
-### Development
-
-```bash
-npm run dev
-```
-
-Visit `http://localhost:5173` to see the interactive demo.
-
-### Deployment
-
-```bash
 npm run deploy
 ```
 
-## Learn More
+O `wrangler.jsonc` está configurado com `workers_dev: true`. Depois do deploy, a URL pública será informada pelo Wrangler no formato `https://programa-executar-workflow.<subdomain>.workers.dev`.
 
-- [Cloudflare Workflows Documentation](https://developers.cloudflare.com/workflows)
-- [Durable Objects Documentation](https://developers.cloudflare.com/durable-objects)
-- [Workers Documentation](https://developers.cloudflare.com/workers)
+## API
+
+### Health
+
+```http
+GET /api/health
+```
+
+### Iniciar workflow
+
+```http
+POST /api/workflow/start
+Content-Type: application/json
+
+{
+  "campaignId": "campanha-001",
+  "strategicPillar": "pilar editorial"
+}
+```
+
+### Status
+
+```http
+GET /api/workflow/status/:instanceId
+```
+
+### Enviar evento/gate
+
+```http
+POST /api/workflow/event/:instanceId
+Content-Type: application/json
+
+{
+  "type": "g01-approved",
+  "payload": {
+    "approved": true,
+    "comment": "Aprovado"
+  }
+}
+```
+
+Eventos esperados: `g01-approved`, `author-package-ready`, `g02-approved`, `g03-approved`, `g04-approved`, `g05-approved`, `g06-approved`.
+
+### WebSocket
+
+```text
+/ws?instanceId=:instanceId
+```
+
+## Segurança
+
+A API funciona publicamente por padrão. Para exigir autenticação, configure o secret `API_TOKEN`:
+
+```bash
+npx wrangler secret put API_TOKEN
+```
+
+Depois envie `Authorization: Bearer <token>` nas rotas da API.
+
+## Estrutura do workflow
+
+O fluxo implementa as 8 fases do mapa XMind enviado:
+
+1. Estratégia
+2. Pesquisa
+3. Autoria Humana
+4. Conversão Agentic
+5. Produção Visual
+6. Produção Audiovisual
+7. Revisão e Release
+8. Tracking e Analytics
