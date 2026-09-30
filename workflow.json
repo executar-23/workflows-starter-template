@@ -1,0 +1,277 @@
+{
+  "id": "programa-executar-editorial",
+  "name": "LINHA DE PRODUÇÃO EDITORIAL: Programa EXECUTAR",
+  "version": 1,
+  "source": "LINHA DE PRODUÇÃO EDITORIAL- Programa EXECUTAR.xmind",
+  "phases": [
+    {
+      "id": "fase-01",
+      "name": "FASE 01: ESTRATÉGIA",
+      "groups": [
+        {
+          "name": "Definir Pilar Estratégico",
+          "steps": [
+            {
+              "id": "f01-diretriz",
+              "name": "Estabelecer diretriz temática",
+              "type": "task"
+            },
+            {
+              "id": "g01",
+              "name": "Validar pilar estratégico (G01)",
+              "type": "gate",
+              "eventType": "g01-approved"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "fase-02",
+      "name": "FASE 02: PESQUISA",
+      "groups": [
+        {
+          "name": "Iniciar Campanha e Orquestrar Pesquisa",
+          "steps": [
+            {
+              "id": "f02-trigger-1",
+              "name": "Acionar Trigger 1 (Leonardo)",
+              "type": "task"
+            },
+            {
+              "id": "f02-wide-search",
+              "name": "Executar Wide Search (CLP)",
+              "type": "task"
+            }
+          ]
+        },
+        {
+          "name": "Gerar Mapa de Tópicos (DLV-0020)",
+          "steps": [
+            {
+              "id": "dlv-0020",
+              "name": "Estruturar dados e evidências em MD",
+              "type": "deliverable",
+              "deliverable": "DLV-0020"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "fase-03",
+      "name": "FASE 03: AUTORIA HUMANA",
+      "groups": [
+        {
+          "name": "Criar Peça-Mãe e Derivados Iniciais",
+          "steps": [
+            {
+              "id": "dlv-0030",
+              "name": "Analisar pesquisa e escrever Peça-Mãe (DLV-0030)",
+              "type": "deliverable",
+              "deliverable": "DLV-0030",
+              "eventType": "author-package-ready"
+            },
+            {
+              "id": "dlv-0040",
+              "name": "Criar Storyboard (DLV-0040)",
+              "type": "deliverable",
+              "deliverable": "DLV-0040"
+            },
+            {
+              "id": "dlv-0050",
+              "name": "Extrair Quick Frameworks (DLV-0050)",
+              "type": "deliverable",
+              "deliverable": "DLV-0050"
+            },
+            {
+              "id": "dlv-0060",
+              "name": "Definir Assets e CTAs (DLV-0060)",
+              "type": "deliverable",
+              "deliverable": "DLV-0060"
+            }
+          ]
+        },
+        {
+          "name": "Validar Pacote Autoral (G02)",
+          "steps": [
+            {
+              "id": "g02",
+              "name": "Verificar completude D2, D3, D4 e D5",
+              "type": "gate",
+              "eventType": "g02-approved"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "fase-04",
+      "name": "FASE 04: CONVERSÃO AGENTIC",
+      "groups": [
+        {
+          "name": "Processamento e Rastreabilidade",
+          "steps": [
+            {
+              "id": "f04-trigger-2",
+              "name": "Acionar Trigger 2 e Coletar Pacote",
+              "type": "task"
+            },
+            {
+              "id": "f04-parallel",
+              "name": "Executar Parallel Skills (PPS/Store/Editor)",
+              "type": "parallel",
+              "branches": [
+                "PPS",
+                "Store",
+                "Editor"
+              ]
+            },
+            {
+              "id": "dlv-0090",
+              "name": "Gerar CSV Operacional (DLV-0090)",
+              "type": "deliverable",
+              "deliverable": "DLV-0090"
+            }
+          ]
+        },
+        {
+          "name": "Validar IDs e Rastreabilidade (G03)",
+          "steps": [
+            {
+              "id": "g03",
+              "name": "Auditar integridade do CSV",
+              "type": "gate",
+              "eventType": "g03-approved"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "fase-05",
+      "name": "FASE 05: PRODUÇÃO VISUAL",
+      "groups": [
+        {
+          "name": "Geração de Assets Visuais",
+          "steps": [
+            {
+              "id": "f05-assets",
+              "name": "Gerar Visual para cada Asset_ID",
+              "type": "task"
+            },
+            {
+              "id": "g04",
+              "name": "Validar Visual (G04)",
+              "type": "gate",
+              "eventType": "g04-approved"
+            }
+          ]
+        },
+        {
+          "name": "Finalização de Assets",
+          "steps": [
+            {
+              "id": "dlv-0080",
+              "name": "Registrar e Upload de Asset Aprovado (DLV-0080)",
+              "type": "deliverable",
+              "deliverable": "DLV-0080"
+            },
+            {
+              "id": "g05",
+              "name": "Verificar conclusão de todos os assets (G05)",
+              "type": "gate",
+              "eventType": "g05-approved"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "fase-06",
+      "name": "FASE 06: PRODUÇÃO AUDIOVISUAL",
+      "groups": [
+        {
+          "name": "Produção de Vídeo",
+          "steps": [
+            {
+              "id": "f06-preparar",
+              "name": "Preparar Produção de Vídeo",
+              "type": "task"
+            },
+            {
+              "id": "f06-master",
+              "name": "Gerar Vídeo Master e Derivados",
+              "type": "task"
+            }
+          ]
+        },
+        {
+          "name": "Consolidar Pacote de Produção (DLV-0101)",
+          "steps": [
+            {
+              "id": "dlv-0101",
+              "name": "Finalizar conjunto de peças IP-0101",
+              "type": "deliverable",
+              "deliverable": "DLV-0101"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "fase-07",
+      "name": "FASE 07: REVISÃO E RELEASE",
+      "groups": [
+        {
+          "name": "Aprovação e Distribuição",
+          "steps": [
+            {
+              "id": "g06",
+              "name": "Validar Peças Finais (G06)",
+              "type": "gate",
+              "eventType": "g06-approved"
+            },
+            {
+              "id": "dlv-0110",
+              "name": "Preparar Plano de Distribuição (DLV-0110)",
+              "type": "deliverable",
+              "deliverable": "DLV-0110"
+            },
+            {
+              "id": "f07-agendar",
+              "name": "Executar Agendamento Multiplataforma",
+              "type": "task"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "fase-08",
+      "name": "FASE 08: TRACKING E ANALYTICS",
+      "groups": [
+        {
+          "name": "Monitoramento de Campanha",
+          "steps": [
+            {
+              "id": "f08-form",
+              "name": "Gerar Formulário de Acompanhamento",
+              "type": "task"
+            },
+            {
+              "id": "f08-analytics",
+              "name": "Coletar Analytics e Métricas",
+              "type": "task"
+            },
+            {
+              "id": "f08-learning",
+              "name": "Registrar Learning Record e Encerrar",
+              "type": "task"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
