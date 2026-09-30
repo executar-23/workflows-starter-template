@@ -66,6 +66,7 @@ function buildSequence(startId: string, stopId?: string): Item[] {
 const SEQUENCE = buildSequence(WORKFLOW.nodes[0].id);
 const LOOP_GATES = WORKFLOW.nodes.filter((n) => n.onReject?.target);
 const INDEX = new Map(WORKFLOW.nodes.map((n, i) => [n.id, i]));
+const RAIL = 10; // distância dos trilhos de split/join às bordas (modo compacto)
 
 type Geometry = {
 	width: number;
@@ -78,6 +79,10 @@ export function FlowChart({ run }: { run: RunView }) {
 	const container = useRef<HTMLDivElement>(null);
 	const scroller = useRef<HTMLDivElement>(null);
 	const elements = useRef(new Map<string, HTMLElement>());
+	// Mobile first: abaixo de 640 px os ramos paralelos empilham em coluna única.
+	const [compact, setCompact] = useState(
+		() => typeof window !== "undefined" && window.innerWidth < 640,
+	);
 	const [geo, setGeo] = useState<Geometry>({
 		width: 0,
 		height: 0,
@@ -122,6 +127,21 @@ export function FlowChart({ run }: { run: RunView }) {
 				for (const dep of node.dependsOn) {
 					const s = box(dep);
 					if (!s) continue;
+					const source = NODE_BY_ID.get(dep)!;
+					if (compact && source.kind === "parallel-split") {
+						// Trilho esquerdo: split → cabeça de cada ramo empilhado.
+						edges.push({
+							d: `M${s.l} ${s.cy} H${RAIL} V${t.cy} H${t.l}`,
+							muted,
+						});
+						continue;
+					}
+					if (compact && node.kind === "parallel-join") {
+						// Trilho direito: cauda de cada ramo → join.
+						const x = root.clientWidth - RAIL;
+						edges.push({ d: `M${s.r} ${s.cy} H${x} V${t.cy} H${t.r}`, muted });
+						continue;
+					}
 					if (Math.abs(s.cx - t.cx) < 1) {
 						edges.push({ d: `M${s.cx} ${s.b} V${t.t}`, muted });
 					} else {
@@ -148,13 +168,15 @@ export function FlowChart({ run }: { run: RunView }) {
 				const right = Math.max(
 					...WORKFLOW.nodes.slice(from, to + 1).map((n) => box(n.id)?.r ?? 0),
 				);
-				const x = right + 28 + lane * 16;
+				const x = compact
+					? root.clientWidth - RAIL - 6 - lane * 7
+					: right + 28 + lane * 16;
 				return [
 					{
 						d: `M${g.r} ${g.cy} H${x} V${tg.cy} H${tg.r + 2}`,
 						x: g.r + 8,
 						y: g.cy + 15,
-						label: `NÃO → ${gate.onReject!.label}`,
+						label: compact ? "" : `NÃO → ${gate.onReject!.label}`,
 					},
 				];
 			});
@@ -174,7 +196,17 @@ export function FlowChart({ run }: { run: RunView }) {
 		document.fonts?.ready.then(measure);
 		return () => observer.disconnect();
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [run.statuses, run.details, run.showAll, run.instanceId]);
+	}, [run.statuses, run.details, run.showAll, run.instanceId, compact]);
+
+	useLayoutEffect(() => {
+		const el = scroller.current;
+		if (!el) return;
+		const update = () => setCompact(el.clientWidth < 640);
+		update();
+		const observer = new ResizeObserver(update);
+		observer.observe(el);
+		return () => observer.disconnect();
+	}, []);
 
 	// Acompanha a casa atual: rola até ela a cada OK.
 	const liveId = WORKFLOW.nodes.find((n) => isLive(run, n.id))?.id;
@@ -189,7 +221,16 @@ export function FlowChart({ run }: { run: RunView }) {
 	useLayoutEffect(() => {
 		const el = scroller.current;
 		if (el) el.scrollLeft = (el.scrollWidth - el.clientWidth) / 2;
-	}, []);
+	}, [compact]);
+
+	const cardWidth = (inBranch: boolean, node: WorkflowNode) =>
+		compact
+			? "w-[min(300px,calc(100%-44px))]"
+			: inBranch
+				? "w-[200px]"
+				: node.kind === "platform-distribution"
+					? "w-[340px]"
+					: "w-[280px]";
 
 	const renderNode = (node: WorkflowNode, inBranch = false): ReactNode => {
 		if (!isRevealed(run, node)) return null;
@@ -233,13 +274,66 @@ export function FlowChart({ run }: { run: RunView }) {
 							mark="+"
 							size={30}
 						/>
-						<span className="absolute right-[calc(100%+14px)] top-1/2 -translate-y-1/2 whitespace-nowrap font-mono text-[10px] text-ink-2">
+						<span
+							className={`absolute top-1/2 -translate-y-1/2 whitespace-nowrap font-mono text-[10px] text-ink-2 ${
+								compact ? "left-[calc(100%+14px)]" : "right-[calc(100%+14px)]"
+							}`}
+						>
 							{node.id} · {node.kind === "parallel-split" ? "split" : "join"}
 						</span>
 					</div>
 				);
 
 			case "gate":
+				if (compact) {
+					// Celular: losango + rótulo empilhados; o bloco inteiro é o nó.
+					return (
+						<div
+							key={node.id}
+							ref={register(node.id)}
+							id={`node-${node.id}`}
+							className={`flex w-[min(300px,calc(100%-44px))] flex-col items-center gap-2 bg-white py-1 transition duration-300 ${fade}`}
+						>
+							<Diamond
+								refFn={() => {}}
+								id={`${node.id}-shape`}
+								mark={node.symbol ?? "×"}
+								size={36}
+								active={live}
+							/>
+							<div className="flex flex-wrap items-center justify-center gap-1.5">
+								{live && (
+									<span className="rounded-full bg-ink px-1.5 py-[1px] text-[9.5px] font-bold tracking-[0.15em] text-white">
+										▶ AGORA
+									</span>
+								)}
+								<span className="font-mono text-[10.5px] font-semibold">
+									{node.id}
+								</span>
+								<ExecutorBadge node={node} />
+								<StatusTag label={label} />
+							</div>
+							<div className="text-center text-[13px] font-semibold leading-snug">
+								{node.title}
+							</div>
+							<NodeBadges node={node} />
+							{node.onReject && (
+								<div className="text-[10.5px] font-medium text-ink-2">
+									SIM ↓ · NÃO → {node.onReject.label}
+								</div>
+							)}
+							{run.details[node.id] && (
+								<div className="text-center text-[10.5px] font-medium">
+									↳ {run.details[node.id]}
+								</div>
+							)}
+							<div className="w-full">
+								<TaskPanel node={node} run={run} />
+							</div>
+							<StepActions node={node} run={run} compact />
+						</div>
+					);
+				}
 				return (
 					<div
 						className={`relative transition duration-300 ${fade}`}
@@ -296,13 +390,7 @@ export function FlowChart({ run }: { run: RunView }) {
 						key={node.id}
 						ref={register(node.id)}
 						id={`node-${node.id}`}
-						className={
-							inBranch
-								? "w-[200px]"
-								: node.kind === "platform-distribution"
-									? "w-[340px]"
-									: "w-[280px]"
-						}
+						className={cardWidth(inBranch, node)}
 					>
 						<NodeCard node={node} run={run} badgeLimit={inBranch ? 3 : 4} />
 					</div>
@@ -322,9 +410,23 @@ export function FlowChart({ run }: { run: RunView }) {
 				<div key={item.split.id} className="flex flex-col items-center gap-10">
 					{renderNode(item.split)}
 					{branches.length > 0 && (
-						<div className="flex items-start justify-center gap-6">
+						<div
+							className={
+								compact
+									? "flex w-full flex-col items-center gap-10"
+									: "flex items-start justify-center gap-6"
+							}
+						>
 							{branches.map((nodes, i) => (
-								<div key={i} className="flex flex-col items-center gap-10">
+								<div
+									key={i}
+									className="flex w-full flex-col items-center gap-10"
+								>
+									{compact && (
+										<span className="-mb-7 rounded-full bg-muted px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-ink-2">
+											Ramo paralelo {i + 1}/{item.branches.length}
+										</span>
+									)}
 									{nodes}
 								</div>
 							))}
@@ -368,7 +470,7 @@ export function FlowChart({ run }: { run: RunView }) {
 		blocks.push(
 			<div
 				key="locked"
-				className="flex w-[360px] flex-col gap-2 rounded-[22px] border border-dashed border-ink/30 px-4 py-3"
+				className="flex w-full max-w-[360px] flex-col gap-2 rounded-[22px] border border-dashed border-ink/30 px-4 py-3"
 			>
 				<span className="text-[10.5px] font-bold uppercase tracking-wider text-ink-2">
 					Bloqueado · abre a cada OK
@@ -389,7 +491,9 @@ export function FlowChart({ run }: { run: RunView }) {
 		<div ref={scroller} className="print-flat overflow-x-auto">
 			<div
 				ref={container}
-				className="relative mx-auto flex w-full min-w-[720px] max-w-[900px] flex-col items-center gap-10 px-6 pb-16 pt-6"
+				className={`relative mx-auto flex w-full max-w-[900px] flex-col items-center gap-10 pb-16 pt-6 ${
+					compact ? "px-3" : "min-w-[720px] px-6"
+				}`}
 			>
 				<svg
 					className="pointer-events-none absolute left-0 top-0"

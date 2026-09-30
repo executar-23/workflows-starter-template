@@ -27,3 +27,9 @@
 - [🔄] #17 Nos 4 agentes (`.claude/agents/*.md:11`), escrever os comandos por extenso (`node .claude/skills/executar-flow/scripts/flow.mjs show …`) em vez de `F=…`/`$F`: o shell não persiste entre chamadas Bash e `$F` não casa com o allow de `.claude/settings.json`, travando o modo headless/Routine.
 - [🔄] #18 Endurecer o parse do `flow.mjs` (`:35-48`, `:181-187`): flag sem valor vira `"true"` (`--gap` vazio envia GAP "true"), valores iniciados por `--` não passam e `--evidence` repetido quebra com `TypeError`; incluir `--agent` no passo `complete` do protocolo para `by` coincidir com `claimedBy`.
 - [🔄] #19 No `clp-orchestrator.md:37`, separar PG05 (sem entregável) de N17 → D12 · pacote de agendamento, para o guia por casa refletir o destino real de upload (hoje só o prompt indica D12).
+
+> Origem: /verify Phase 4 (2026-09-30) — UI da execução real
+
+- [ ] #20 Registrar no plano/README que o campo manual de Asset_IDs saiu do start (`src/App.tsx`) e que os assets vêm do D6 via G03 (`worker/workflow.ts:414-415`, padrão `asset-1`), ou restaurá-lo para runs sem plano, porque a mudança ficou fora do change list da Phase 4.
+- [ ] #21 Em casa multi-instância (N11→D8), `useRunData` guarda só a tarefa mais recente por nó (`src/hooks/useRunData.ts:62-65`): avaliar agrupar por `nodeId+item` para o TaskPanel mostrar o estado de cada asset.
+- [🔄] #22 Corrigir a indentação do bloco `ExecutorBadge`/`NodeBadges`/`TaskPanel` em `src/components/ListView.tsx:84-88` (um tab a menos que os irmãos); o `task.md` da Phase 4 dava como corrigida, mas a mudança não entrou em `bbc84e3`. Só cosmético.

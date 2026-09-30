@@ -72,6 +72,13 @@ export function JsonDrawer({ currentStep }: { currentStep: string | null }) {
 		}
 	}, [open]);
 
+	// Celular: a toolbar abre o drawer (a aba lateral fica escondida).
+	useEffect(() => {
+		const toggle = () => setOpen((v) => !v);
+		window.addEventListener("executar:json", toggle);
+		return () => window.removeEventListener("executar:json", toggle);
+	}, []);
+
 	useEffect(() => {
 		if (!open) return;
 		const onKey = (e: KeyboardEvent) => e.key === "Escape" && setOpen(false);
@@ -95,7 +102,7 @@ export function JsonDrawer({ currentStep }: { currentStep: string | null }) {
 	return (
 		<div
 			className={`no-print fixed inset-y-0 right-0 z-40 flex transition-transform duration-300 ${
-				open ? "translate-x-0" : "translate-x-[min(560px,88vw)]"
+				open ? "translate-x-0" : "translate-x-full sm:translate-x-[min(560px,88vw)]"
 			}`}
 		>
 			{/* Aba de abrir/fechar */}
@@ -103,7 +110,7 @@ export function JsonDrawer({ currentStep }: { currentStep: string | null }) {
 				onClick={() => setOpen((v) => !v)}
 				aria-expanded={open}
 				aria-controls="json-panel"
-				className="mb-6 mt-auto flex h-fit items-center gap-2 rounded-l-xl bg-ink px-2 py-4 text-[11px] font-semibold tracking-wider text-white shadow-lg [writing-mode:vertical-rl]"
+				className="mb-6 mt-auto hidden h-fit sm:flex items-center gap-2 rounded-l-xl bg-ink px-2 py-4 text-[11px] font-semibold tracking-wider text-white shadow-lg [writing-mode:vertical-rl]"
 			>
 				<span aria-hidden className="rotate-90">
 					{open ? "▾" : "▴"}
@@ -113,7 +120,7 @@ export function JsonDrawer({ currentStep }: { currentStep: string | null }) {
 
 			<aside
 				id="json-panel"
-				className="flex h-full w-[min(560px,88vw)] flex-col bg-white shadow-2xl ring-1 ring-ink/15"
+				className="flex h-full w-screen flex-col sm:w-[min(560px,88vw)] bg-white shadow-2xl ring-1 ring-ink/15"
 			>
 				<header className="flex items-center gap-2 border-b border-ink/10 px-4 py-3">
 					<span className="font-mono text-xs font-semibold">workflow.json</span>

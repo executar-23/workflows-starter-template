@@ -59,7 +59,13 @@ function App() {
 	const [campaignId, setCampaignId] = useState("");
 	const [planId, setPlanId] = useState("");
 	const [plans, setPlans] = useState<
-		{ planId: string; campaign: string; periodo: string | null; tasks: number; bound: string[] }[]
+		{
+			planId: string;
+			campaign: string;
+			periodo: string | null;
+			tasks: number;
+			bound: string[];
+		}[]
 	>([]);
 	const [runStatus, setRunStatus] = useState<string>();
 	const [isStarting, setIsStarting] = useState(false);
@@ -169,7 +175,10 @@ function App() {
 							<span className="truncate font-mono">
 								{state.meta.campaignId ?? "—"}
 								{state.meta.planId && (
-									<span className="text-ink-2"> · plano {state.meta.planId}</span>
+									<span className="text-ink-2">
+										{" "}
+										· plano {state.meta.planId}
+									</span>
 								)}
 							</span>
 						) : (
@@ -196,7 +205,8 @@ function App() {
 								{plans.map((p) => (
 									<option key={p.planId} value={p.planId}>
 										{p.campaign}
-										{p.periodo ? ` · ${p.periodo}` : ""} · {p.tasks} TSK · {p.bound.length} casas
+										{p.periodo ? ` · ${p.periodo}` : ""} · {p.tasks} TSK ·{" "}
+										{p.bound.length} casas
 									</option>
 								))}
 							</select>
@@ -244,7 +254,7 @@ function App() {
 							["list", "Lista"],
 						]}
 					/>
-					<span className="flex-1" />
+					<span className="hidden flex-1 sm:block" />
 					<Segmented
 						value={showAll ? "all" : "step"}
 						onChange={(v) => setShowAll(v === "all")}
@@ -254,8 +264,14 @@ function App() {
 						]}
 					/>
 					<button
+						onClick={() => window.dispatchEvent(new Event("executar:json"))}
+						className="rounded-full px-3 py-2 text-xs font-semibold text-ink-2 ring-1 ring-ink/20 hover:text-ink sm:hidden"
+					>
+						JSON
+					</button>
+					<button
 						onClick={() => window.print()}
-						className="rounded-full px-3 py-1 text-xs font-semibold text-ink-2 ring-1 ring-ink/20 hover:text-ink"
+						className="hidden rounded-full px-3 py-1 text-xs font-semibold text-ink-2 ring-1 ring-ink/20 hover:text-ink sm:inline-flex"
 					>
 						Imprimir A4
 					</button>
@@ -264,8 +280,9 @@ function App() {
 
 			{/* Próxima casa (WIP = 1): sempre visível enquanto o fluxo rola. */}
 			{awaitingNode && state.awaiting && (
-				<div className="no-print sticky top-0 z-30 bg-white/90 px-4 py-2 backdrop-blur sm:px-6">
-					<div className="flex flex-col gap-2 rounded-[22px] bg-muted px-4 py-3 ring-2 ring-ink sm:flex-row sm:items-center">
+				// Celular: ação fixa no rodapé, ao alcance do polegar; desktop: sticky no topo.
+				<div className="no-print fixed inset-x-0 bottom-0 z-30 bg-white/95 px-3 pb-[max(0.5rem,env(safe-area-inset-bottom))] pt-2 shadow-[0_-8px_24px_rgba(0,0,0,0.08)] backdrop-blur sm:sticky sm:bottom-auto sm:top-0 sm:bg-white/90 sm:px-6 sm:py-2 sm:shadow-none">
+					<div className="flex max-h-[60vh] flex-col gap-2 overflow-y-auto rounded-[22px] bg-muted px-4 py-3 ring-2 ring-ink sm:max-h-none sm:flex-row sm:items-center sm:overflow-visible">
 						<div className="flex-1 text-sm">
 							<span className="mr-2 text-[11px] font-bold tracking-wider">
 								{
@@ -291,7 +308,7 @@ function App() {
 				</div>
 			)}
 
-			<main>
+			<main className={awaitingNode ? "pb-44 sm:pb-0" : ""}>
 				{view === "flow" && <FlowChart run={run} />}
 				{view === "kanban" && <KanbanView run={run} />}
 				{view === "list" && <ListView run={run} />}

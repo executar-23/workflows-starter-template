@@ -52,11 +52,11 @@ export function KanbanView({ run }: { run: RunView }) {
 				/>
 			</div>
 			<div className="print-flat overflow-x-auto px-4 pb-8 sm:px-6">
-				<div className="flex min-w-max items-start gap-4">
+				<div className="flex min-w-max snap-x snap-mandatory items-start gap-4">
 					{columns.map((col) => (
 						<section
 							key={col.key}
-							className="flex w-[272px] shrink-0 flex-col gap-3 rounded-[22px] bg-muted p-3"
+							className="flex w-[85vw] shrink-0 snap-start flex-col gap-3 rounded-[22px] bg-muted p-3 sm:w-[272px]"
 						>
 							<header className="flex items-center justify-between gap-2 px-1">
 								{col.header}

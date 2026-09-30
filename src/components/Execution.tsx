@@ -147,7 +147,7 @@ export function EvidenceForm({
 				<button
 					disabled={empty || state === "sending"}
 					onClick={submit}
-					className="rounded-full bg-ink px-3 py-1 text-[11px] font-semibold text-white hover:bg-neutral-700 disabled:opacity-40"
+					className="rounded-full bg-ink px-4 py-2 text-[11px] font-semibold text-white hover:bg-neutral-700 disabled:opacity-40 sm:px-3 sm:py-1"
 				>
 					{state === "sending" ? "Enviando…" : "Concluir casa"}
 				</button>

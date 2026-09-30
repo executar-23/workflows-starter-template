@@ -82,10 +82,10 @@ export function ListView({ run }: { run: RunView }) {
 												</span>
 											</div>
 											<div className="flex flex-wrap items-center gap-1">
-											<ExecutorBadge node={node} />
-											<NodeBadges node={node} limit={12} />
-										</div>
-										<TaskPanel node={node} run={run} />
+												<ExecutorBadge node={node} />
+												<NodeBadges node={node} limit={12} />
+											</div>
+											<TaskPanel node={node} run={run} />
 											{node.platforms && (
 												<div className="flex flex-wrap gap-1">
 													{node.platforms.map((p) => (
