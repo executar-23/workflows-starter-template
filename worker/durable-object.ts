@@ -1,20 +1,25 @@
 import { DurableObject } from "cloudflare:workers";
-import { TRACKED_STEPS } from "./workflow";
+import { TRACKED_NODES } from "./workflow";
 
 export class WorkflowStatusDO extends DurableObject {
 	private stepStatuses: Map<string, string>;
+	private stepDetails: Map<string, string>;
+	private meta: Record<string, string> = {};
 	private currentStep: string | null;
 	private workflowStatus: "running" | "completed" | "error";
 
 	constructor(ctx: DurableObjectState, env: Env) {
 		super(ctx, env);
 		this.stepStatuses = new Map();
+		this.stepDetails = new Map();
 		this.currentStep = null;
 		this.workflowStatus = "running";
 
 		ctx.blockConcurrencyWhile(async () => {
 			const storedStatuses =
 				await ctx.storage.get<Record<string, string>>("stepStatuses");
+			const storedDetails =
+				await ctx.storage.get<Record<string, string>>("stepDetails");
 			const storedCurrent = await ctx.storage.get<string | null>("currentStep");
 			const storedWorkflowStatus = await ctx.storage.get<
 				"running" | "completed" | "error"
@@ -23,9 +28,11 @@ export class WorkflowStatusDO extends DurableObject {
 			if (storedStatuses) {
 				this.stepStatuses = new Map(Object.entries(storedStatuses));
 			} else {
-				TRACKED_STEPS.forEach((s) => this.stepStatuses.set(s, "pending"));
+				TRACKED_NODES.forEach((s) => this.stepStatuses.set(s, "pending"));
 			}
 
+			this.stepDetails = new Map(Object.entries(storedDetails ?? {}));
+			this.meta = (await ctx.storage.get<Record<string, string>>("meta")) ?? {};
 			this.currentStep = storedCurrent ?? null;
 			this.workflowStatus = storedWorkflowStatus ?? "running";
 		});
@@ -42,8 +49,14 @@ export class WorkflowStatusDO extends DurableObject {
 		return new Response("Expected WebSocket", { status: 400 });
 	}
 
-	async updateStep(stepName: string, status: string): Promise<void> {
+	async updateStep(
+		stepName: string,
+		status: string,
+		detail?: string,
+	): Promise<void> {
 		this.stepStatuses.set(stepName, status);
+		if (detail) this.stepDetails.set(stepName, detail);
+		else this.stepDetails.delete(stepName);
 
 		if (status === "running" || status === "waiting" || status === "error") {
 			this.currentStep = stepName;
@@ -51,6 +64,8 @@ export class WorkflowStatusDO extends DurableObject {
 
 		if (status === "error") {
 			this.workflowStatus = "error";
+		} else if (this.workflowStatus === "error") {
+			this.workflowStatus = "running";
 		}
 
 		const allCompleted = Array.from(this.stepStatuses.values()).every(
@@ -62,6 +77,12 @@ export class WorkflowStatusDO extends DurableObject {
 		}
 
 		await this.persist();
+		this.broadcast(this.getStateMessage());
+	}
+
+	async setMeta(meta: Record<string, string>): Promise<void> {
+		this.meta = meta;
+		await this.ctx.storage.put("meta", meta);
 		this.broadcast(this.getStateMessage());
 	}
 
@@ -92,6 +113,10 @@ export class WorkflowStatusDO extends DurableObject {
 			"stepStatuses",
 			Object.fromEntries(this.stepStatuses),
 		);
+		await this.ctx.storage.put(
+			"stepDetails",
+			Object.fromEntries(this.stepDetails),
+		);
 		await this.ctx.storage.put("currentStep", this.currentStep);
 		await this.ctx.storage.put("workflowStatus", this.workflowStatus);
 	}
@@ -112,6 +137,8 @@ export class WorkflowStatusDO extends DurableObject {
 			type: "workflow_update",
 			currentStep: this.currentStep,
 			stepStatuses: Object.fromEntries(this.stepStatuses),
+			stepDetails: Object.fromEntries(this.stepDetails),
+			meta: this.meta,
 			workflowStatus: this.workflowStatus,
 			timestamp: Date.now(),
 		};

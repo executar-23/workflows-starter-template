@@ -33,7 +33,7 @@ Content-Type: application/json
 
 {
   "campaignId": "campanha-001",
-  "strategicPillar": "pilar editorial"
+  "assetIds": ["A1", "A2"]
 }
 ```
 
@@ -58,7 +58,11 @@ Content-Type: application/json
 }
 ```
 
-Eventos esperados: `g01-approved`, `author-package-ready`, `g02-approved`, `g03-approved`, `g04-approved`, `g05-approved`, `g06-approved`.
+Gates humanos (owner LEONARDO) e seus eventos: `g01-approved` (G01 · Pilar definido?), `g04-approved` (G04 · Visual OK?, um por Asset_ID) e `g06-approved` (G06 · Peças finais OK?). Envie `approved: false` para reprovar: o workflow executa o loop de retrabalho definido em `onReject`.
+
+Os gates G02, G03 e G05 são automáticos (ORCH: CLP) e verificam os predecessores listados em `check`.
+
+`POST /api/workflow/start` aceita `campaignId` e `assetIds` (lista de Asset_IDs para o subprocesso multi-instância N11 → D8).
 
 ### WebSocket
 
@@ -95,3 +99,11 @@ O fluxo implementa as 8 fases do mapa XMind enviado:
 em que esse endpoint não está disponível (ex.: proxy que injeta credenciais),
 use `npm run deploy:inline`, que embute a UI no próprio Worker
 (`wrangler.inline.jsonc`).
+
+## Schema (`workflow.json` v2)
+
+Grafo de dependências do AGENT_PROMPT_CONTRACT: cada nó tem `kind` (forma BPMN), `phase` e `dependsOn` (única fonte de posição e setas). Owner, orch, agent, skill, tool, format e ids são metadados exibidos como badges. `shared/schema.ts` tipa o JSON para Worker e UI.
+
+## UI
+
+Três modos (Fluxograma, Kanban, Lista), aba recolhível com o `workflow.json` e legenda. O run fica na URL (`?run=<id>`) para retomar um gate depois.

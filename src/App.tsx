@@ -1,121 +1,261 @@
-import { useState, useEffect } from "react";
-import { WorkflowDiagram } from "./components/WorkflowDiagram";
-import { CodeDisplay } from "./components/CodeDisplay";
-import { BackgroundDots } from "./components/BackgroundDots";
+import { useEffect, useState } from "react";
+import type { ReactNode } from "react";
+import { NODE_BY_ID, WORKFLOW } from "../shared/schema";
+import { FlowChart } from "./components/FlowChart";
+import { JsonDrawer } from "./components/JsonDrawer";
+import { KanbanView, Segmented } from "./components/KanbanView";
+import { Legend } from "./components/Legend";
+import { ListView } from "./components/ListView";
+import type { RunView } from "./components/NodeCard";
+import { GateActions } from "./components/Taxonomy";
 import { useWorkflowWebSocket } from "./hooks/useWorkflowWebSocket";
-import { WORKFLOW_CONFIG, WORKFLOW_STEPS } from "./types";
+import type { ViewMode } from "./types";
+
+const RUN_KEY = "executar.run";
+const VIEW_KEY = "executar.view";
+
+const read = (key: string) => {
+	try {
+		return localStorage.getItem(key);
+	} catch {
+		return null;
+	}
+};
+const write = (key: string, value: string | null) => {
+	try {
+		if (value === null) localStorage.removeItem(key);
+		else localStorage.setItem(key, value);
+	} catch {
+		// Preferência opcional.
+	}
+};
+
+// O run fica na URL (?run=) para retomar um gate dias depois.
+function initialRun() {
+	return new URLSearchParams(window.location.search).get("run") ?? read(RUN_KEY);
+}
+
+const PLATFORM_STATUS: Record<string, string> = {
+	queued: "READY",
+	running: "IN PROGRESS",
+	waiting: "REVIEW",
+	waitingForPause: "IN PROGRESS",
+	paused: "BLOCKED",
+	complete: "RELEASED",
+	errored: "BLOCKED",
+	terminated: "BLOCKED",
+	unknown: "—",
+};
 
 function App() {
-	const [instanceId, setInstanceId] = useState<string | null>(null);
+	const [instanceId, setInstanceId] = useState<string | null>(initialRun);
+	const [view, setView] = useState<ViewMode>(
+		() => (read(VIEW_KEY) as ViewMode) || "flow",
+	);
+	const [campaignId, setCampaignId] = useState("");
+	const [assetIds, setAssetIds] = useState("");
+	const [runStatus, setRunStatus] = useState<string>();
 	const [isStarting, setIsStarting] = useState(false);
-	const workflowState = useWorkflowWebSocket(instanceId);
+	const state = useWorkflowWebSocket(instanceId);
+
+	useEffect(() => write(VIEW_KEY, view), [view]);
 
 	useEffect(() => {
-		if (workflowState.workflowStatus === "completed") {
-			const timer = setTimeout(() => {
-				setInstanceId(null);
-			}, 1500);
-			return () => clearTimeout(timer);
-		}
-	}, [workflowState.workflowStatus]);
+		write(RUN_KEY, instanceId);
+		const url = new URL(window.location.href);
+		if (instanceId) url.searchParams.set("run", instanceId);
+		else url.searchParams.delete("run");
+		window.history.replaceState(null, "", url);
+		setRunStatus(undefined);
+		if (!instanceId) return;
 
-	useEffect(() => {
-		if (
-			workflowState.workflowStatus === "running" &&
-			workflowState.currentStep
-		) {
-			setIsStarting(false);
-		}
-	}, [workflowState.workflowStatus, workflowState.currentStep]);
+		// Status oficial da instância no Cloudflare Workflows.
+		let alive = true;
+		const poll = async () => {
+			try {
+				const res = await fetch(`/api/workflow/status/${instanceId}`);
+				if (!res.ok) return;
+				const data = await res.json();
+				if (alive) setRunStatus(data.status?.status ?? "unknown");
+			} catch {
+				// Mantém último status conhecido.
+			}
+		};
+		poll();
+		const timer = setInterval(poll, 15_000);
+		return () => {
+			alive = false;
+			clearInterval(timer);
+		};
+	}, [instanceId, state.workflowStatus, state.currentStep]);
 
-	const handleStartWorkflow = async () => {
+	const start = async () => {
 		setIsStarting(true);
-
 		try {
 			const response = await fetch("/api/workflow/start", {
 				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({
+					...(campaignId.trim() ? { campaignId: campaignId.trim() } : {}),
+					assetIds: assetIds
+						.split(",")
+						.map((s) => s.trim())
+						.filter(Boolean),
+				}),
 			});
-
-			if (!response.ok) {
-				throw new Error("Failed to start workflow");
-			}
-
+			if (!response.ok) throw new Error("start failed");
 			const data = await response.json();
 			setInstanceId(data.instanceId);
 		} catch {
-			alert("Failed to start workflow. Please try again.");
+			alert("Não foi possível iniciar o workflow. Tente novamente.");
+		} finally {
 			setIsStarting(false);
 		}
 	};
 
+	const run: RunView = {
+		statuses: state.stepStatuses,
+		details: state.stepDetails,
+		instanceId,
+	};
+
+	const waitingGates = Object.entries(state.stepStatuses)
+		.filter(([, s]) => s === "waiting")
+		.map(([id]) => NODE_BY_ID.get(id))
+		.filter((n) => n?.decision === "human");
+
+	const current = state.currentStep ? NODE_BY_ID.get(state.currentStep) : null;
+
 	return (
-		<div className="min-h-screen bg-neutral-50/30 dark:bg-neutral-950 flex flex-col relative">
-			{/* Background dots across entire page */}
-			<div className="absolute inset-0 text-neutral-200/50 dark:text-neutral-700/40 overflow-hidden">
-				<BackgroundDots />
-			</div>
+		<div className="min-h-screen bg-white text-ink">
+			<header className="flex flex-col gap-5 px-4 pb-5 pt-6 sm:px-6 sm:pt-8">
+				<div className="flex flex-col gap-1">
+					<span className="text-[11px] font-bold uppercase tracking-[0.2em] text-ink-2">
+						{WORKFLOW.program}
+					</span>
+					<h1 className="text-[28px] font-bold leading-[1.05] tracking-[-0.02em] sm:text-[44px]">
+						{WORKFLOW.title}
+					</h1>
+					<p className="text-sm text-ink-2 sm:text-base">{WORKFLOW.subtitle}</p>
+				</div>
 
-			{/* Minimal Integrated Header */}
-			<header className="px-6 pt-6 pb-4 relative z-10">
-				<div className="flex items-center justify-between">
-					<div className="flex items-center gap-3">
-						<svg
-							role="img"
-							viewBox="0 0 460 271.2"
-							aria-hidden="true"
-							className="h-5 w-auto opacity-90"
-						>
-							<path
-								fill="#FBAD41"
-								d="M328.6,125.6c-0.8,0-1.5,0.6-1.8,1.4l-4.8,16.7c-2.1,7.2-1.3,13.8,2.2,18.7c3.2,4.5,8.6,7.1,15.1,7.4l26.2,1.6c0.8,0,1.5,0.4,1.9,1c0.4,0.6,0.5,1.5,0.3,2.2c-0.4,1.2-1.6,2.1-2.9,2.2l-27.3,1.6c-14.8,0.7-30.7,12.6-36.3,27.2l-2,5.1c-0.4,1,0.3,2,1.4,2h93.8c1.1,0,2.1-0.7,2.4-1.8c1.6-5.8,2.5-11.9,2.5-18.2c0-37-30.2-67.2-67.3-67.2C330.9,125.5,329.7,125.5,328.6,125.6z"
+				<dl className="grid grid-cols-1 gap-2 rounded-[22px] px-4 py-3 text-xs ring-1 ring-hairline/70 sm:grid-cols-[1fr_1fr_1fr_auto] sm:items-center sm:gap-4">
+					<Field label="CMP">
+						{instanceId ? (
+							<span className="font-mono">{state.meta.campaignId ?? "—"}</span>
+						) : (
+							<input
+								value={campaignId}
+								onChange={(e) => setCampaignId(e.target.value)}
+								placeholder="campaign_id (opcional)"
+								className="no-print w-full min-w-0 border-b border-ink/25 bg-transparent py-0.5 font-mono outline-none focus:border-ink"
 							/>
-							<path
-								fill="#F6821F"
-								d="M292.8,204.4c2.1-7.2,1.3-13.8-2.2-18.7c-3.2-4.5-8.6-7.1-15.1-7.4l-123.1-1.6c-0.8,0-1.5-0.4-1.9-1s-0.5-1.4-0.3-2.2c0.4-1.2,1.6-2.1,2.9-2.2l124.2-1.6c14.7-0.7,30.7-12.6,36.3-27.2l7.1-18.5c0.3-0.8,0.4-1.6,0.2-2.4c-8-36.2-40.3-63.2-78.9-63.2c-35.6,0-65.8,23-76.6,54.9c-7-5.2-15.9-8-25.5-7.1c-17.1,1.7-30.8,15.4-32.5,32.5c-0.4,4.4-0.1,8.7,0.9,12.7c-27.9,0.8-50.2,23.6-50.2,51.7c0,2.5,0.2,5,0.5,7.5c0.2,1.2,1.2,2.1,2.4,2.1h227.2c1.3,0,2.5-0.9,2.9-2.2L292.8,204.4z"
+						)}
+					</Field>
+					<Field label="RUN">
+						{instanceId ? (
+							<span className="truncate font-mono" title={instanceId}>
+								{instanceId}
+							</span>
+						) : (
+							<input
+								value={assetIds}
+								onChange={(e) => setAssetIds(e.target.value)}
+								placeholder="Asset_IDs: A1, A2 (opcional)"
+								className="no-print w-full min-w-0 border-b border-ink/25 bg-transparent py-0.5 font-mono outline-none focus:border-ink"
 							/>
-						</svg>
-						<div className="w-px h-4 bg-neutral-300/50 dark:bg-neutral-600/50" />
-						<h1 className="text-sm font-medium text-neutral-600 dark:text-neutral-400">
-							{WORKFLOW_CONFIG.name}
-						</h1>
+						)}
+					</Field>
+					<Field label="STATUS">
+						<span className="font-semibold">
+							{instanceId
+								? `${PLATFORM_STATUS[runStatus ?? "unknown"] ?? runStatus}${
+										current ? ` · ${current.id}` : ""
+									}`
+								: "NOT STARTED"}
+						</span>
+						{instanceId && !state.wsConnected && (
+							<span className="ml-2 text-ink-2">(reconectando…)</span>
+						)}
+					</Field>
+					<div className="no-print flex gap-2">
+						{instanceId ? (
+							<button
+								onClick={() => setInstanceId(null)}
+								className="rounded-full px-4 py-1.5 text-xs font-semibold ring-1 ring-ink hover:bg-muted"
+							>
+								Novo run
+							</button>
+						) : (
+							<button
+								onClick={start}
+								disabled={isStarting}
+								className="rounded-full bg-ink px-4 py-1.5 text-xs font-semibold text-white hover:bg-neutral-700 disabled:opacity-50"
+							>
+								{isStarting ? "Iniciando…" : "Iniciar run"}
+							</button>
+						)}
 					</div>
+				</dl>
 
-					<a
-						href="https://developers.cloudflare.com/workflows"
-						target="_blank"
-						rel="noopener noreferrer"
-						className="text-xs font-medium text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-200 transition-colors"
+				{waitingGates.map(
+					(gate) =>
+						gate && (
+							<div
+								key={gate.id}
+								className="no-print flex flex-col gap-2 rounded-[22px] bg-muted px-4 py-3 ring-2 ring-ink sm:flex-row sm:items-center"
+							>
+								<div className="flex-1 text-sm">
+									<span className="mr-2 text-[11px] font-bold tracking-wider">
+										◷ AGUARDANDO DECISÃO
+									</span>
+									<span className="font-mono font-semibold">{gate.id}</span> ·{" "}
+									<span className="font-semibold">{gate.title}</span>
+									{state.stepDetails[gate.id] && (
+										<span className="text-ink-2"> · {state.stepDetails[gate.id]}</span>
+									)}
+								</div>
+								<GateActions node={gate} instanceId={instanceId} />
+							</div>
+						),
+				)}
+
+				<div className="no-print flex flex-wrap items-center justify-between gap-3">
+					<Segmented
+						value={view}
+						onChange={setView}
+						options={[
+							["flow", "Fluxograma"],
+							["kanban", "Kanban"],
+							["list", "Lista"],
+						]}
+					/>
+					<button
+						onClick={() => window.print()}
+						className="rounded-full px-3 py-1 text-xs font-semibold text-ink-2 ring-1 ring-ink/20 hover:text-ink"
 					>
-						Documentation →
-					</a>
+						Imprimir A4
+					</button>
 				</div>
 			</header>
 
-			{/* Main content - unified canvas */}
-			<main className="flex-1 flex flex-col lg:flex-row overflow-hidden relative z-10">
-				{/* Left side - Code (responsive width) */}
-				<div className="w-full lg:w-[60%] overflow-hidden px-6 pb-6">
-					<CodeDisplay
-						currentStep={workflowState.currentStep}
-						workflowStatus={workflowState.workflowStatus}
-						onStartWorkflow={handleStartWorkflow}
-						isStarting={isStarting}
-					/>
-				</div>
-
-				{/* Right side - Diagram (responsive width) */}
-				<div className="flex-1 overflow-hidden px-6 lg:pl-8 lg:pr-6 pb-6">
-					<WorkflowDiagram
-						steps={WORKFLOW_STEPS}
-						stepStatuses={workflowState.stepStatuses}
-						currentStep={workflowState.currentStep}
-						instanceId={instanceId}
-						workflowStatus={workflowState.workflowStatus}
-						onStartWorkflow={handleStartWorkflow}
-						isStarting={isStarting}
-					/>
-				</div>
+			<main>
+				{view === "flow" && <FlowChart run={run} />}
+				{view === "kanban" && <KanbanView run={run} />}
+				{view === "list" && <ListView run={run} />}
 			</main>
+
+			<Legend />
+			<JsonDrawer currentStep={state.currentStep} />
+		</div>
+	);
+}
+
+function Field({ label, children }: { label: string; children: ReactNode }) {
+	return (
+		<div className="flex min-w-0 items-center gap-2">
+			<dt className="text-[10px] font-bold tracking-wider text-ink-2">{label}:</dt>
+			<dd className="flex min-w-0 flex-1 items-center">{children}</dd>
 		</div>
 	);
 }

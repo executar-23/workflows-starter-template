@@ -1,10 +1,5 @@
 import { useEffect, useReducer } from "react";
-import type {
-	WorkflowState,
-	WorkflowUpdateMessage,
-	StepStatus,
-} from "../types";
-import { WORKFLOW_STEPS } from "../types";
+import type { WorkflowState, WorkflowUpdateMessage } from "../types";
 
 type Action =
 	| { type: "CONNECTED" }
@@ -13,11 +8,10 @@ type Action =
 	| { type: "RESET" };
 
 const initialState: WorkflowState = {
-	instanceId: null,
 	currentStep: null,
-	stepStatuses: Object.fromEntries(
-		WORKFLOW_STEPS.map((step) => [step.name, "pending" as StepStatus]),
-	),
+	stepStatuses: {},
+	stepDetails: {},
+	meta: {},
 	workflowStatus: "idle",
 	wsConnected: false,
 };
@@ -26,21 +20,19 @@ function workflowReducer(state: WorkflowState, action: Action): WorkflowState {
 	switch (action.type) {
 		case "CONNECTED":
 			return { ...state, wsConnected: true };
-
 		case "DISCONNECTED":
 			return { ...state, wsConnected: false };
-
 		case "UPDATE":
 			return {
 				...state,
 				currentStep: action.payload.currentStep,
 				stepStatuses: action.payload.stepStatuses,
+				stepDetails: action.payload.stepDetails ?? {},
+				meta: action.payload.meta ?? {},
 				workflowStatus: action.payload.workflowStatus,
 			};
-
 		case "RESET":
-			return { ...initialState };
-
+			return initialState;
 		default:
 			return state;
 	}
@@ -50,43 +42,48 @@ export function useWorkflowWebSocket(instanceId: string | null): WorkflowState {
 	const [state, dispatch] = useReducer(workflowReducer, initialState);
 
 	useEffect(() => {
-		if (!instanceId) {
-			dispatch({ type: "RESET" });
-			return;
-		}
+		dispatch({ type: "RESET" });
+		if (!instanceId) return;
 
-		// Determine WebSocket protocol based on current location
 		const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
 		const wsUrl = `${protocol}//${window.location.host}/ws?instanceId=${instanceId}`;
+		let ws: WebSocket | null = null;
+		let retry: ReturnType<typeof setTimeout> | undefined;
+		let closed = false;
 
-		const ws = new WebSocket(wsUrl);
-
-		ws.onopen = () => {
-			dispatch({ type: "CONNECTED" });
-		};
-
-		ws.onclose = () => {
-			dispatch({ type: "DISCONNECTED" });
-		};
-
-		ws.onerror = () => {
-			// Connection errors handled by onclose
-		};
-
-		ws.onmessage = (event) => {
-			try {
-				const data = JSON.parse(event.data);
-
-				if (data.type === "workflow_update") {
-					dispatch({ type: "UPDATE", payload: data });
+		// Runs podem ficar dias aguardando um gate: reconecta ao perder a conexão.
+		const connect = (attempt = 0) => {
+			ws = new WebSocket(wsUrl);
+			ws.onopen = () => {
+				attempt = 0;
+				dispatch({ type: "CONNECTED" });
+			};
+			ws.onclose = () => {
+				dispatch({ type: "DISCONNECTED" });
+				if (!closed) {
+					retry = setTimeout(
+						() => connect(attempt + 1),
+						Math.min(30_000, 1000 * 2 ** attempt),
+					);
 				}
-			} catch {
-				// Ignore malformed messages
-			}
+			};
+			ws.onmessage = (event) => {
+				try {
+					const data = JSON.parse(event.data);
+					if (data.type === "workflow_update") {
+						dispatch({ type: "UPDATE", payload: data });
+					}
+				} catch {
+					// Ignore malformed messages
+				}
+			};
 		};
+		connect();
 
 		return () => {
-			ws.close();
+			closed = true;
+			clearTimeout(retry);
+			ws?.close();
 		};
 	}, [instanceId]);
 
