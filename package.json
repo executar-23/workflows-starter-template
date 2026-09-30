@@ -47,6 +47,7 @@
 		"cf-typegen": "wrangler types",
 		"check": "tsc && wrangler deploy --dry-run",
 		"deploy": "npm run build && wrangler deploy",
+		"agent:token": "bash scripts/sync-agent-token.sh",
 		"deploy:inline": "npm run build && node scripts/build-inline-assets.mjs && wrangler deploy -c wrangler.inline.jsonc",
 		"dev": "vite",
 		"lint": "eslint .",

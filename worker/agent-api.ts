@@ -164,7 +164,17 @@ export async function handleAgentApi(
 	}
 
 	if (path === "/api/plans" && request.method === "POST") {
-		const body = (await request.json().catch(() => ({}))) as Json;
+		const MAX_PLAN_BYTES = 2 * 1024 * 1024;
+		const raw = await request.text();
+		if (new TextEncoder().encode(raw).byteLength > MAX_PLAN_BYTES) {
+			return json({ error: "Plano acima de 2 MB" }, { status: 413 });
+		}
+		let body: Json = {};
+		try {
+			body = JSON.parse(raw) as Json;
+		} catch {
+			return json({ error: "JSON inválido" }, { status: 400 });
+		}
 		const campaign = String(body.campaign ?? "").trim();
 		const internalMd = String(body.internalMd ?? "");
 		const linearCsv = String(body.linearCsv ?? "");
@@ -308,7 +318,18 @@ export async function handleRunApi(
 	if (planMatch && request.method === "GET") {
 		const plan = await board(env).getPlan(decodeURIComponent(planMatch[1]));
 		if (!plan) return json({ error: "Plano não encontrado" }, { status: 404 });
-		return json({ plan, ...bindTasks(plan.tasks) });
+		const { bindings, warnings } = bindTasks(plan.tasks);
+		// Prompts completos só para agentes autenticados.
+		const token = (env as Env & { AGENT_TOKEN?: string }).AGENT_TOKEN;
+		const isAgent = Boolean(token) && sameToken(request.headers.get("Authorization") ?? "", `Bearer ${token}`);
+		if (isAgent) return json({ plan, bindings, warnings });
+		return json({
+			plan: { ...plan, tasks: plan.tasks.map(({ prompt: _p, ...t }) => t) },
+			bindings: Object.fromEntries(
+				Object.entries(bindings).map(([node, b]) => [node, { tarefa_id: b.tarefa_id }]),
+			),
+			warnings,
+		});
 	}
 
 	const listMatch = path.match(/^\/api\/runs\/([^/]+)\/(artifacts|tasks)$/);

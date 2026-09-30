@@ -129,6 +129,34 @@ describe("API de planos", () => {
 });
 
 describe("endurecimento da fila", () => {
+	it("GET /api/plans/:id sem token omite prompts (backlog #14)", async () => {
+		const res = await SELF.fetch("https://x/api/plans", {
+			method: "POST",
+			headers: auth,
+			body: JSON.stringify({ campaign: "cmp-plan", internalMd: "# plano", linearCsv: VALID, judgeReport: JUDGE }),
+		});
+		const { planId } = (await res.json()) as { planId: string };
+		const open = (await (await SELF.fetch(`https://x/api/plans/${planId}`)).json()) as {
+			plan: { tasks: Record<string, unknown>[] };
+			bindings: Record<string, Record<string, unknown>>;
+		};
+		expect(open.plan.tasks[0]).not.toHaveProperty("prompt");
+		expect(open.bindings.N4).toEqual({ tarefa_id: "TSK-0001" });
+		const withToken = (await (
+			await SELF.fetch(`https://x/api/plans/${planId}`, { headers: auth })
+		).json()) as { plan: { tasks: Record<string, unknown>[] } };
+		expect(withToken.plan.tasks[0]).toHaveProperty("prompt");
+	});
+
+	it("start com planId não-string responde 400 (backlog #11)", async () => {
+		const res = await SELF.fetch("https://x/api/workflow/start", {
+			method: "POST",
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify({ planId: 42 }),
+		});
+		expect(res.status).toBe(400);
+	});
+
 	it("agente não conclui tarefa humana (backlog #3)", async () => {
 		const board = env.TASK_BOARD.get(env.TASK_BOARD.idFromName("global"));
 		const taskId = `run-h~done-n1-${Date.now()}`;

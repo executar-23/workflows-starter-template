@@ -1,4 +1,5 @@
 import { WorkflowEntrypoint } from "cloudflare:workers";
+import { NonRetryableError } from "cloudflare:workflows";
 import type { WorkflowEvent, WorkflowStep } from "cloudflare:workers";
 import {
 	WORKFLOW,
@@ -470,7 +471,7 @@ export class MyWorkflow extends WorkflowEntrypoint<Env, WorkflowParams> {
 				const plan = await env.TASK_BOARD.get(env.TASK_BOARD.idFromName("global")).getPlan(
 					params.planId!,
 				);
-				if (!plan) throw new Error(`Plano ${params.planId} não encontrado`);
+				if (!plan) throw new NonRetryableError(`Plano ${params.planId} não encontrado`);
 				return { bindings: bindTasks(plan.tasks).bindings, files: Object.values(plan.files) };
 			});
 			planBindings = loaded.bindings;

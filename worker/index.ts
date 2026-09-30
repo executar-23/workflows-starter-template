@@ -63,6 +63,9 @@ export default {
 				delete body.instanceId;
 
 				// Plano upstream (skill plano-operacional-rastreavel) opcional.
+				if (body.planId !== undefined && typeof body.planId !== "string") {
+					return json({ error: "planId deve ser string" }, { status: 400 });
+				}
 				if (typeof body.planId === "string" && body.planId) {
 					const board = env.TASK_BOARD.get(env.TASK_BOARD.idFromName("global"));
 					const plan = await board.getPlan(body.planId);

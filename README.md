@@ -114,3 +114,16 @@ Grafo de dependências do AGENT_PROMPT_CONTRACT: cada nó tem `kind` (forma BPMN
 ## UI
 
 Três modos (Fluxograma, Kanban, Lista), aba recolhível com o `workflow.json` e legenda. O run fica na URL (`?run=<id>`) para retomar um gate depois.
+
+## Operar os agentes (execução real)
+
+1. **Token (uma vez):** defina `EXECUTAR_AGENT_TOKEN` (valor aleatório com 24 ou mais caracteres) e `EXECUTAR_URL` como variáveis do ambiente Claude Code (cloud: menu do ambiente → Edit → variáveis; local: `export`). Numa sessão nova, rode `npm run agent:token` para gravar o mesmo valor como secret `AGENT_TOKEN` do Worker.
+2. **Teste:** `node .claude/skills/executar-flow/scripts/flow.mjs whoami` deve responder `✓`.
+3. **Plano do mês (opcional):** peça ao `plano-ops-agent` para gerar o plano a partir do intake. Ele roda o juiz e envia; use o `planId` ao iniciar o run.
+4. **Executar:**
+   - Casas humanas: entregue a evidência pela UI.
+   - Casas de agente: dê OK na UI e rode `/executar-flow`, ou mantenha `/loop 10m /executar-flow` ativo.
+   - Sem sessão: a Routine cloud "EXECUTAR · fila de agentes" processa a fila de hora em hora ("Run now" para disparar na hora).
+   - Headless local: `claude -p "/executar-flow" --permission-mode acceptEdits`.
+
+As rotas dos agentes (`/api/tasks*`, `PUT /api/runs/:id/artifacts/*`, `POST /api/plans`) exigem `Authorization: Bearer <AGENT_TOKEN>`. Sem o secret configurado, elas respondem 503.
