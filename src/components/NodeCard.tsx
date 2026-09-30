@@ -5,6 +5,8 @@ import {
 	type WorkflowNode,
 } from "../../shared/schema";
 import { isLive, isMuted } from "../progress";
+import type { RunArtifact, RunTask } from "../hooks/useRunData";
+import { ExecutorBadge, TaskPanel } from "./Execution";
 import { KIND_LABEL } from "../taxonomy";
 import {
 	NodeBadges,
@@ -20,6 +22,8 @@ export interface RunView {
 	instanceId: string | null;
 	awaiting: Awaiting | null;
 	showAll: boolean;
+	tasks: Record<string, RunTask>;
+	artifacts: Record<string, RunArtifact[]>;
 }
 
 export function NodeCard({
@@ -68,7 +72,7 @@ export function NodeCard({
 			)}
 
 			<div className="flex flex-col gap-1.5 p-3">
-				<div className="flex items-center gap-1.5">
+				<div className="flex flex-wrap items-center gap-1.5">
 					{!isDeliverable && (
 						<>
 							<ShapeGlyph kind={node.kind} symbol={node.symbol} size={16} />
@@ -78,6 +82,7 @@ export function NodeCard({
 						</>
 					)}
 					<span className="flex-1" />
+					<ExecutorBadge node={node} />
 					<StatusTag label={label} />
 				</div>
 
@@ -111,6 +116,8 @@ export function NodeCard({
 				{detail && (
 					<div className="text-[10.5px] font-medium text-ink">↳ {detail}</div>
 				)}
+
+				<TaskPanel node={node} run={run} />
 
 				<StepActions node={node} run={run} compact />
 			</div>

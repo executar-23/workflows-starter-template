@@ -15,6 +15,7 @@ import {
 } from "../../shared/schema";
 import { NodeCard, type RunView } from "./NodeCard";
 import { NodeBadges, PhasePill, StatusTag, StepActions } from "./Taxonomy";
+import { ExecutorBadge, TaskPanel } from "./Execution";
 import {
 	isLive,
 	isMuted,
@@ -258,6 +259,7 @@ export function FlowChart({ run }: { run: RunView }) {
 										▶ AGORA
 									</span>
 								)}
+								<ExecutorBadge node={node} />
 								<StatusTag label={label} />
 								<span className="font-mono text-[10.5px] font-semibold text-ink">
 									{node.id}
@@ -267,6 +269,9 @@ export function FlowChart({ run }: { run: RunView }) {
 								{node.title}
 							</div>
 							<NodeBadges node={node} />
+							<div className="w-full text-left">
+								<TaskPanel node={node} run={run} />
+							</div>
 							{run.details[node.id] && (
 								<div className="text-[10.5px] font-medium">
 									↳ {run.details[node.id]}

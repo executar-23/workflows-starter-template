@@ -9,6 +9,7 @@ import { ListView } from "./components/ListView";
 import type { RunView } from "./components/NodeCard";
 import { StepActions } from "./components/Taxonomy";
 import { useWorkflowWebSocket } from "./hooks/useWorkflowWebSocket";
+import { useRunData } from "./hooks/useRunData";
 import type { ViewMode } from "./types";
 
 const RUN_KEY = "executar.run";
@@ -56,7 +57,10 @@ function App() {
 		() => (read(VIEW_KEY) as ViewMode) || "flow",
 	);
 	const [campaignId, setCampaignId] = useState("");
-	const [assetIds, setAssetIds] = useState("");
+	const [planId, setPlanId] = useState("");
+	const [plans, setPlans] = useState<
+		{ planId: string; campaign: string; periodo: string | null; tasks: number; bound: string[] }[]
+	>([]);
 	const [runStatus, setRunStatus] = useState<string>();
 	const [isStarting, setIsStarting] = useState(false);
 	const [showAll, setShowAll] = useState(() => read(ALL_KEY) === "1");
@@ -102,10 +106,7 @@ function App() {
 				headers: { "Content-Type": "application/json" },
 				body: JSON.stringify({
 					...(campaignId.trim() ? { campaignId: campaignId.trim() } : {}),
-					assetIds: assetIds
-						.split(",")
-						.map((s) => s.trim())
-						.filter(Boolean),
+					...(planId ? { planId } : {}),
 				}),
 			});
 			if (!response.ok) throw new Error("start failed");
@@ -118,12 +119,29 @@ function App() {
 		}
 	};
 
+	// Planos upstream disponíveis (skill plano-operacional-rastreavel).
+	useEffect(() => {
+		if (instanceId) return;
+		fetch("/api/plans")
+			.then((r) => (r.ok ? r.json() : { plans: [] }))
+			.then((d) => setPlans(d.plans ?? []))
+			.catch(() => setPlans([]));
+	}, [instanceId]);
+
+	const runData = useRunData(
+		instanceId,
+		`${JSON.stringify(state.stepStatuses)}|${state.awaiting?.eventType ?? ""}`,
+		state.awaiting?.mode === "agent",
+	);
+
 	const run: RunView = {
 		statuses: state.stepStatuses,
 		details: state.stepDetails,
 		instanceId,
 		awaiting: state.awaiting,
 		showAll,
+		tasks: runData.tasks,
+		artifacts: runData.artifacts,
 	};
 
 	const awaitingNode = state.awaiting
@@ -148,7 +166,12 @@ function App() {
 				<dl className="grid grid-cols-1 gap-2 rounded-[22px] px-4 py-3 text-xs ring-1 ring-hairline/70 sm:grid-cols-[1fr_1fr_1fr_auto] sm:items-center sm:gap-4">
 					<Field label="CMP">
 						{instanceId ? (
-							<span className="font-mono">{state.meta.campaignId ?? "—"}</span>
+							<span className="truncate font-mono">
+								{state.meta.campaignId ?? "—"}
+								{state.meta.planId && (
+									<span className="text-ink-2"> · plano {state.meta.planId}</span>
+								)}
+							</span>
 						) : (
 							<input
 								value={campaignId}
@@ -158,18 +181,25 @@ function App() {
 							/>
 						)}
 					</Field>
-					<Field label="RUN">
+					<Field label={instanceId ? "RUN" : "PLANO"}>
 						{instanceId ? (
 							<span className="truncate font-mono" title={instanceId}>
 								{instanceId}
 							</span>
 						) : (
-							<input
-								value={assetIds}
-								onChange={(e) => setAssetIds(e.target.value)}
-								placeholder="Asset_IDs: A1, A2 (opcional)"
+							<select
+								value={planId}
+								onChange={(e) => setPlanId(e.target.value)}
 								className="no-print w-full min-w-0 border-b border-ink/25 bg-transparent py-0.5 font-mono outline-none focus:border-ink"
-							/>
+							>
+								<option value="">Sem plano upstream</option>
+								{plans.map((p) => (
+									<option key={p.planId} value={p.planId}>
+										{p.campaign}
+										{p.periodo ? ` · ${p.periodo}` : ""} · {p.tasks} TSK · {p.bound.length} casas
+									</option>
+								))}
+							</select>
 						)}
 					</Field>
 					<Field label="STATUS">
@@ -238,9 +268,14 @@ function App() {
 					<div className="flex flex-col gap-2 rounded-[22px] bg-muted px-4 py-3 ring-2 ring-ink sm:flex-row sm:items-center">
 						<div className="flex-1 text-sm">
 							<span className="mr-2 text-[11px] font-bold tracking-wider">
-								{state.awaiting.mode === "ok"
-									? "▷ PRÓXIMA CASA"
-									: "◷ AGUARDANDO DECISÃO"}
+								{
+									{
+										ok: "▷ PRÓXIMA CASA",
+										decision: "◷ AGUARDANDO DECISÃO",
+										evidence: "✎ ENTREGA HUMANA",
+										agent: "◐ COM AGENTE",
+									}[state.awaiting.mode]
+								}
 							</span>
 							<span className="font-mono font-semibold">{awaitingNode.id}</span>{" "}
 							· <span className="font-semibold">{awaitingNode.title}</span>

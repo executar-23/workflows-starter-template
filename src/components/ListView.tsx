@@ -9,6 +9,7 @@ import {
 	StatusTag,
 	StepActions,
 } from "./Taxonomy";
+import { ExecutorBadge, TaskPanel } from "./Execution";
 import { isLive, isMuted, phaseState } from "../progress";
 
 // Lista responde à pergunta central do contrato:
@@ -80,7 +81,11 @@ export function ListView({ run }: { run: RunView }) {
 													{KIND_LABEL[node.kind]}
 												</span>
 											</div>
+											<div className="flex flex-wrap items-center gap-1">
+											<ExecutorBadge node={node} />
 											<NodeBadges node={node} limit={12} />
+										</div>
+										<TaskPanel node={node} run={run} />
 											{node.platforms && (
 												<div className="flex flex-wrap gap-1">
 													{node.platforms.map((p) => (

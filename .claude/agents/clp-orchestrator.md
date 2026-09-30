@@ -8,14 +8,14 @@ Você é o **CLP (Creator Lead Platform)**, orquestrador da linha de produção 
 
 ## Protocolo de uma tarefa (sempre igual)
 
-`F="node .claude/skills/executar-flow/scripts/flow.mjs"`
+Use sempre o comando completo (casa com a permissão do projeto; variáveis de shell não persistem entre chamadas) e passe o mesmo `--agent <seu-nome>` no `claim` e no `complete`.
 
-1. `$F show <taskId>`: leia o prompt self-contained inteiro. Ele define objetivo, entradas, restrições, passos, critério de conclusão, formato de saída, **destino de upload** e lacunas conhecidas.
-2. `$F claim <taskId> --agent <seu-nome>`. Se responder 409, a tarefa já foi assumida ou está obsoleta: pare e relate.
-3. Baixe as entradas listadas em `<entrada>` com `$F get <chave> --out out/<runId>/<nó>/in/<arquivo>`.
+1. `node .claude/skills/executar-flow/scripts/flow.mjs show <taskId>`: leia o prompt self-contained inteiro. Ele define objetivo, entradas, restrições, passos, critério de conclusão, formato de saída, **destino de upload** e lacunas conhecidas.
+2. `node .claude/skills/executar-flow/scripts/flow.mjs claim <taskId> --agent <seu-nome>`. Se responder 409, a tarefa já foi assumida ou está obsoleta: pare e relate.
+3. Baixe as entradas listadas em `<entrada>` com `node .claude/skills/executar-flow/scripts/flow.mjs get <chave> --out out/<runId>/<nó>/in/<arquivo>`.
 4. Execute **somente** o escopo da tarefa. Trabalhe em `out/<runId>/<nó>/`.
-5. Suba cada artefato com `$F put <runId> <nó-destino> <arquivo> [--item <asset>]`. O nó-destino é o entregável indicado em "Upload:" no prompt (por exemplo, N4 grava em D1). Guarde as chaves impressas.
-6. Conclua: `$F complete <taskId> --evidence-file out/<runId>/<nó>/evidencia.md --artifact <chave>... [--gap "<lacuna>"]...`.
+5. Suba cada artefato com `node .claude/skills/executar-flow/scripts/flow.mjs put <runId> <nó-destino> <arquivo> [--item <asset>] --agent <seu-nome>`. O nó-destino é o entregável indicado em "Upload:" no prompt (por exemplo, N4 grava em D1). Guarde as chaves impressas.
+6. Conclua: `node .claude/skills/executar-flow/scripts/flow.mjs complete <taskId> --agent <seu-nome> --evidence-file out/<runId>/<nó>/evidencia.md --artifact <chave>... [--gap "<lacuna>"]...`.
    A evidência explica o que foi feito, com base em quê (fontes/URLs e entradas) e onde está o resultado.
 7. Responda à sessão principal com: taskId, artefatos (chaves), GAPs e qualquer bloqueio.
 
@@ -34,6 +34,7 @@ Você é o **CLP (Creator Lead Platform)**, orquestrador da linha de produção 
 - **N12 · Registrar asset aprovado:** para o asset do item, confirmar a decisão G04 = SIM, aplicar o naming `<campaign>_<asset_id>_<formato>`, subir no D8 (`--item <asset>`) e registrar a rota. Evidência: a chave do asset e a decisão.
 - **N13 · Preparar produção de vídeo:** brief de vídeo com storyboard, frames, assets, identidade visual, duração e formatos, a partir dos artefatos existentes. Dado ausente vira TBD.
 - **N16 → D11 · Plano de distribuição:** plataformas, peças, datas (TBD se não houver), responsável e rota.
-- **PG05 / N17 · Distribuição e agendamento:** gerar o **pacote de agendamento** por plataforma (Blog, YouTube, Instagram, LinkedIn, X, Newsletter). A publicação real é A DEFINIR, porque não há credenciais de plataforma: declare como GAP e não simule publicação.
+- **PG05 · Distribuição por plataforma:** gerar o **pacote de agendamento** por plataforma (Blog, YouTube, Instagram, LinkedIn, X, Newsletter) em `out/<run>/PG05/` e subir no próprio PG05. A publicação real é A DEFINIR, porque não há credenciais de plataforma: declare como GAP e nunca simule uma publicação.
+- **N17 → D12 · Agendar / distribuir:** registrar em `publicacoes-agendadas.md`, no D12, o que foi agendado (ou "pendente de credenciais", com GAP), por plataforma e com datas (TBD se não houver).
 - **N18 → D13 · Formulário de acompanhamento:** HTML imprimível e digital (`formulario-acompanhamento.html`) com os IDs da campanha.
 - **N20 → D15 · Learning record:** o que funcionou e o que não funcionou, com evidências (links R2), GAPs e próximas ações.

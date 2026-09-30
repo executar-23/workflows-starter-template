@@ -86,7 +86,7 @@ describe("API de planos", () => {
 		const created = (await ok.json()) as { planId: string; bound: string[] };
 		expect(created.bound).toEqual(["N4", "N10"]);
 
-		const got = await SELF.fetch(`https://x/api/plans/${created.planId}`);
+		const got = await SELF.fetch(`https://x/api/plans/${created.planId}`, { headers: auth });
 		const body = (await got.json()) as { plan: { files: Record<string, string> } };
 		expect(Object.keys(body.plan.files)).toEqual(["plano-interno.md", "linear-import.csv", "juiz.txt"]);
 		expect(await (await env.ARTIFACTS.get(body.plan.files["plano-interno.md"]))?.text()).toBe("# plano");
@@ -146,6 +146,22 @@ describe("endurecimento da fila", () => {
 			await SELF.fetch(`https://x/api/plans/${planId}`, { headers: auth })
 		).json()) as { plan: { tasks: Record<string, unknown>[] } };
 		expect(withToken.plan.tasks[0]).toHaveProperty("prompt");
+	});
+
+	it("arquivos do plano exigem AGENT_TOKEN (backlog #15)", async () => {
+		const res = await SELF.fetch("https://x/api/plans", {
+			method: "POST",
+			headers: auth,
+			body: JSON.stringify({ campaign: "cmp-plan", internalMd: "# plano", linearCsv: VALID, judgeReport: JUDGE }),
+		});
+		const { planId } = (await res.json()) as { planId: string };
+		const open = (await (await SELF.fetch(`https://x/api/plans/${planId}`)).json()) as {
+			plan: Record<string, unknown>;
+		};
+		expect(open.plan).not.toHaveProperty("files");
+		const key = `plans/${planId}/linear-import.csv`;
+		expect((await SELF.fetch(`https://x/api/artifacts/${key}`)).status).toBe(401);
+		expect((await SELF.fetch(`https://x/api/artifacts/${key}`, { headers: auth })).status).toBe(200);
 	});
 
 	it("start com planId não-string responde 400 (backlog #11)", async () => {

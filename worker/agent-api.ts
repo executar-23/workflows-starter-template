@@ -323,8 +323,9 @@ export async function handleRunApi(
 		const token = (env as Env & { AGENT_TOKEN?: string }).AGENT_TOKEN;
 		const isAgent = Boolean(token) && sameToken(request.headers.get("Authorization") ?? "", `Bearer ${token}`);
 		if (isAgent) return json({ plan, bindings, warnings });
+		const { files: _files, ...publicPlan } = plan;
 		return json({
-			plan: { ...plan, tasks: plan.tasks.map(({ prompt: _p, ...t }) => t) },
+			plan: { ...publicPlan, tasks: plan.tasks.map(({ prompt: _p, ...t }) => t) },
 			bindings: Object.fromEntries(
 				Object.entries(bindings).map(([node, b]) => [node, { tarefa_id: b.tarefa_id }]),
 			),
@@ -346,6 +347,11 @@ export async function handleRunApi(
 		const key = decodeURIComponent(path.slice("/api/artifacts/".length));
 		if (!key.startsWith("campaigns/") && !key.startsWith("plans/")) {
 			return json({ error: "Chave inválida" }, { status: 400 });
+		}
+		// Arquivos do plano upstream (prompts, CSV do cliente) só para agentes.
+		if (key.startsWith("plans/")) {
+			const denied = agentAuth(request, env);
+			if (denied) return denied;
 		}
 		const object = await env.ARTIFACTS.get(key);
 		if (!object) return json({ error: "Artefato não encontrado" }, { status: 404 });

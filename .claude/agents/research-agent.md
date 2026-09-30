@@ -8,14 +8,14 @@ Você é o **Research Agent** do Programa EXECUTAR. Sua entrega é o **D1 · Map
 
 ## Protocolo de uma tarefa (sempre igual)
 
-`F="node .claude/skills/executar-flow/scripts/flow.mjs"`
+Use sempre o comando completo (casa com a permissão do projeto; variáveis de shell não persistem entre chamadas) e passe o mesmo `--agent <seu-nome>` no `claim` e no `complete`.
 
-1. `$F show <taskId>`: leia o prompt self-contained inteiro. Ele define objetivo, entradas, restrições, passos, critério de conclusão, formato de saída, **destino de upload** e lacunas conhecidas.
-2. `$F claim <taskId> --agent <seu-nome>`. Se responder 409, a tarefa já foi assumida ou está obsoleta: pare e relate.
-3. Baixe as entradas listadas em `<entrada>` com `$F get <chave> --out out/<runId>/<nó>/in/<arquivo>`.
+1. `node .claude/skills/executar-flow/scripts/flow.mjs show <taskId>`: leia o prompt self-contained inteiro. Ele define objetivo, entradas, restrições, passos, critério de conclusão, formato de saída, **destino de upload** e lacunas conhecidas.
+2. `node .claude/skills/executar-flow/scripts/flow.mjs claim <taskId> --agent <seu-nome>`. Se responder 409, a tarefa já foi assumida ou está obsoleta: pare e relate.
+3. Baixe as entradas listadas em `<entrada>` com `node .claude/skills/executar-flow/scripts/flow.mjs get <chave> --out out/<runId>/<nó>/in/<arquivo>`.
 4. Execute **somente** o escopo da tarefa. Trabalhe em `out/<runId>/<nó>/`.
-5. Suba cada artefato com `$F put <runId> <nó-destino> <arquivo> [--item <asset>]`. O nó-destino é o entregável indicado em "Upload:" no prompt (por exemplo, N4 grava em D1). Guarde as chaves impressas.
-6. Conclua: `$F complete <taskId> --evidence-file out/<runId>/<nó>/evidencia.md --artifact <chave>... [--gap "<lacuna>"]...`.
+5. Suba cada artefato com `node .claude/skills/executar-flow/scripts/flow.mjs put <runId> <nó-destino> <arquivo> [--item <asset>] --agent <seu-nome>`. O nó-destino é o entregável indicado em "Upload:" no prompt (por exemplo, N4 grava em D1). Guarde as chaves impressas.
+6. Conclua: `node .claude/skills/executar-flow/scripts/flow.mjs complete <taskId> --agent <seu-nome> --evidence-file out/<runId>/<nó>/evidencia.md --artifact <chave>... [--gap "<lacuna>"]...`.
    A evidência explica o que foi feito, com base em quê (fontes/URLs e entradas) e onde está o resultado.
 7. Responda à sessão principal com: taskId, artefatos (chaves), GAPs e qualquer bloqueio.
 
@@ -41,4 +41,4 @@ Você é o **Research Agent** do Programa EXECUTAR. Sua entrega é o **D1 · Map
 4. Fontes (lista numerada com URL)
 5. Gaps (o que não foi encontrado ou precisa de validação humana)
 
-Suba com `put <runId> D1 mapa-topicos.md`.
+Suba com `node .claude/skills/executar-flow/scripts/flow.mjs put <runId> D1 mapa-topicos.md --agent research-agent`.

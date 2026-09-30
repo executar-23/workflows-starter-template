@@ -127,3 +127,5 @@ Três modos (Fluxograma, Kanban, Lista), aba recolhível com o `workflow.json` e
    - Headless local: `claude -p "/executar-flow" --permission-mode acceptEdits`.
 
 As rotas dos agentes (`/api/tasks*`, `PUT /api/runs/:id/artifacts/*`, `POST /api/plans`) exigem `Authorization: Bearer <AGENT_TOKEN>`. Sem o secret configurado, elas respondem 503.
+
+> **Risco aceito:** a UI é pública, então qualquer pessoa com a URL entrega evidência humana, aprova gates e lê os prompts das tarefas do run (`GET /api/runs/:id/tasks`). Os arquivos do plano upstream (`plans/*`) exigem `AGENT_TOKEN`. Para restringir a UI, coloque o Worker atrás do Cloudflare Access.

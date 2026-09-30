@@ -19,3 +19,11 @@
 - [ ] #12 Faltam testes do #3 para a tentativa obsoleta (`doneEvent` ≠ `awaiting`), do #6 para o 409 com run encerrado e do #4 para a ordenação do CSV mais recente; hoje só o ramo "tarefa humana" do #3 está coberto.
 - [ ] #13 O ruído `Instance dispose`/`hung` continua em `npx vitest run` (segunda metade do #9, que só teve o `import type` resolvido): encerrar as instâncias que ficam aguardando evento antes de fechar o #9.
 - [🔄] #14 `POST /api/plans` não limita o tamanho do corpo e `GET /api/plans/:id` expõe os prompts completos sem auth (`worker/agent-api.ts:166`, `:307`): avaliar um limite de payload e o escopo da resposta pública.
+
+> Origem: /verify Phase 3 (2026-09-30) — Agentes + executar-flow
+
+- [🔄] #15 Fechar de fato o escopo público dos prompts (#14): continuam acessíveis sem auth por `GET /api/artifacts/plans/<id>/linear-import.csv` (chave exposta em `plan.files`, `worker/agent-api.ts:327`, `:345-356`) e por `GET /api/runs/:id/tasks` (`task.prompt` com `<prompt_do_plano>`, `:338-339`): exigir AGENT_TOKEN para chaves `plans/` e omitir o prompt na listagem pública, ou registrar DECISION de que prompts são públicos (a UI da Phase 4 os mostra).
+- [ ] #16 Testar o 413 de `POST /api/plans` acima de 2 MB e o `NonRetryableError` do plano ausente (`worker/workflow.ts:474`); checar `Content-Length` antes de `request.text()` (`worker/agent-api.ts:168`) para não ler corpos enormes — #11/#14 só têm teste de metade de cada um.
+- [🔄] #17 Nos 4 agentes (`.claude/agents/*.md:11`), escrever os comandos por extenso (`node .claude/skills/executar-flow/scripts/flow.mjs show …`) em vez de `F=…`/`$F`: o shell não persiste entre chamadas Bash e `$F` não casa com o allow de `.claude/settings.json`, travando o modo headless/Routine.
+- [🔄] #18 Endurecer o parse do `flow.mjs` (`:35-48`, `:181-187`): flag sem valor vira `"true"` (`--gap` vazio envia GAP "true"), valores iniciados por `--` não passam e `--evidence` repetido quebra com `TypeError`; incluir `--agent` no passo `complete` do protocolo para `by` coincidir com `claimedBy`.
+- [🔄] #19 No `clp-orchestrator.md:37`, separar PG05 (sem entregável) de N17 → D12 · pacote de agendamento, para o guia por casa refletir o destino real de upload (hoje só o prompt indica D12).

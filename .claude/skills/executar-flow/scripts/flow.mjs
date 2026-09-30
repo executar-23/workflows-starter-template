@@ -32,17 +32,26 @@ Comandos:
                                        envia o plano upstream (skill plano-operacional-rastreavel)
   help                                 esta ajuda`;
 
+// Toda flag exige valor; só --artifact e --gap podem repetir.
+const REPEATABLE = new Set(["artifact", "gap"]);
 function parse(argv) {
 	const args = [];
 	const opts = {};
 	for (let i = 0; i < argv.length; i++) {
 		const a = argv[i];
-		if (a.startsWith("--")) {
-			const key = a.slice(2);
-			const value = argv[i + 1] && !argv[i + 1].startsWith("--") ? argv[++i] : "true";
-			if (opts[key] === undefined) opts[key] = value;
-			else opts[key] = [].concat(opts[key], value);
-		} else args.push(a);
+		if (!a.startsWith("--")) {
+			args.push(a);
+			continue;
+		}
+		const key = a.slice(2);
+		const value = argv[i + 1];
+		if (value === undefined || value.startsWith("--") || value.trim() === "") {
+			die(`--${key} exige um valor`);
+		}
+		i++;
+		if (opts[key] === undefined) opts[key] = REPEATABLE.has(key) ? [value] : value;
+		else if (REPEATABLE.has(key)) opts[key].push(value);
+		else die(`--${key} informado mais de uma vez`);
 	}
 	return { args, opts };
 }
@@ -138,8 +147,9 @@ switch (command) {
 	}
 	case "get": {
 		if (!rest[0]) die("uso: get <chaveR2> [--out arquivo]");
+		// plans/* exige token; campaigns/* é aberto (manda o token se houver).
 		const res = await api(`/api/artifacts/${rest[0].split("/").map(enc).join("/")}`, {
-			auth: false,
+			auth: Boolean(TOKEN) || rest[0].startsWith("plans/"),
 			raw: true,
 		});
 		const buf = Buffer.from(await res.arrayBuffer());
@@ -180,9 +190,7 @@ switch (command) {
 		if (!rest[0]) die("uso: complete <taskId> --evidence TXT|--evidence-file F");
 		const evidence = opts["evidence-file"]
 			? readFileSync(opts["evidence-file"], "utf8")
-			: opts.evidence === "true"
-				? ""
-				: (opts.evidence ?? "");
+			: (opts.evidence ?? "");
 		const artifacts = list(opts.artifact);
 		if (!evidence.trim() && !artifacts.length) die("informe --evidence/--evidence-file e/ou --artifact");
 		const data = await api(`/api/tasks/${enc(rest[0])}/complete`, {
@@ -195,7 +203,7 @@ switch (command) {
 	}
 	case "plan-upload": {
 		for (const k of ["campaign", "internal", "csv", "judge"]) {
-			if (!opts[k] || opts[k] === "true") die(`plan-upload: --${k} obrigatório`);
+			if (!opts[k]) die(`plan-upload: --${k} obrigatório`);
 		}
 		const data = await api("/api/plans", {
 			method: "POST",

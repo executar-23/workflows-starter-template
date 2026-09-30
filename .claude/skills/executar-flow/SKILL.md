@@ -12,7 +12,7 @@ CLI: `node .claude/skills/executar-flow/scripts/flow.mjs` (`help` lista os coman
 ## Pré-requisitos
 
 1. As variáveis `EXECUTAR_URL` e `EXECUTAR_AGENT_TOKEN` precisam estar no ambiente. Nunca peça o token no chat.
-2. `flow.mjs whoami` deve imprimir `✓`. Se der exit 2 (token ausente), 401 ou 503, **pare** e informe o usuário:
+2. `node .claude/skills/executar-flow/scripts/flow.mjs whoami` deve imprimir `✓`. Se der exit 2 (token ausente), 401 ou 503, **pare** e informe o usuário:
    - 503 = o secret do Worker não foi configurado (rodar `npm run agent:token`);
    - 401 = o token do ambiente difere do secret.
 
@@ -20,7 +20,7 @@ CLI: `node .claude/skills/executar-flow/scripts/flow.mjs` (`help` lista os coman
 
 Repita até a fila esvaziar ou até 10 rodadas:
 
-1. `flow.mjs next`. Se não imprimir nada, a fila está vazia: encerre com um resumo.
+1. `node .claude/skills/executar-flow/scripts/flow.mjs next`. Se não imprimir nada, a fila está vazia: encerre com um resumo.
 2. Leia `executor` e `taskId` do JSON e delegue **uma** tarefa ao subagente correspondente com a ferramenta Agent, passando o `taskId`:
 
    | executor | subagente |
@@ -31,7 +31,7 @@ Repita até a fila esvaziar ou até 10 rodadas:
    | `agent:analytics` | `analytics-agent` |
 
    Subagentes não disparam outros subagentes, então o roteamento é sempre feito aqui, pela sessão principal.
-3. Aguarde o subagente terminar. Confira com `flow.mjs tasks --run <runId>` se a tarefa ficou `concluida`. Se o subagente relatar bloqueio, **não** conclua a tarefa por ele: registre no resumo e siga para a próxima.
+3. Aguarde o subagente terminar. Confira com `node .claude/skills/executar-flow/scripts/flow.mjs tasks --run <runId>` se a tarefa ficou `concluida`. Se o subagente relatar bloqueio, **não** conclua a tarefa por ele: registre no resumo e siga para a próxima.
 4. Não processe duas tarefas em paralelo (WIP = 1).
 
 Resumo final: tarefas concluídas (`taskId`, casa, artefatos), bloqueios e GAPs declarados.

@@ -12,6 +12,8 @@ import {
 	type BadgeData,
 } from "../taxonomy";
 import type { RunView } from "./NodeCard";
+import { AgentWaiting, EvidenceForm } from "./Execution";
+import { isAgent } from "../../shared/schema";
 
 export function Badge({ badge }: { badge: BadgeData }) {
 	const style = BADGE_STYLE[badge.kind];
@@ -231,6 +233,13 @@ export function StepActions({
 		compact ? "px-2.5 py-1 text-[11px]" : "px-3.5 py-1.5 text-xs"
 	}`;
 
+	if (awaiting.mode === "evidence") {
+		return <EvidenceForm node={node} run={run} compact={compact} />;
+	}
+	if (awaiting.mode === "agent") {
+		return <AgentWaiting node={node} run={run} />;
+	}
+
 	if (awaiting.mode === "ok") {
 		return (
 			<div className="no-print flex flex-wrap gap-1.5">
@@ -240,10 +249,12 @@ export function StepActions({
 					className={`${base} bg-ink text-white hover:bg-neutral-700`}
 				>
 					{sent
-						? "Executando…"
+						? "Enviando…"
 						: node.kind === "gate"
 							? "OK · Verificar"
-							: "OK · Executar"}
+							: isAgent(node)
+								? "OK · Despachar para agente"
+								: "OK · Verificar artefato"}
 				</button>
 			</div>
 		);

@@ -17,14 +17,14 @@ Você é o **agente de Plano Operacional Rastreável** do Programa EXECUTAR. Use
 
 ## Protocolo de uma tarefa (sempre igual)
 
-`F="node .claude/skills/executar-flow/scripts/flow.mjs"`
+Use sempre o comando completo (casa com a permissão do projeto; variáveis de shell não persistem entre chamadas) e passe o mesmo `--agent <seu-nome>` no `claim` e no `complete`.
 
-1. `$F show <taskId>`: leia o prompt self-contained inteiro. Ele define objetivo, entradas, restrições, passos, critério de conclusão, formato de saída, **destino de upload** e lacunas conhecidas.
-2. `$F claim <taskId> --agent <seu-nome>`. Se responder 409, a tarefa já foi assumida ou está obsoleta: pare e relate.
-3. Baixe as entradas listadas em `<entrada>` com `$F get <chave> --out out/<runId>/<nó>/in/<arquivo>`.
+1. `node .claude/skills/executar-flow/scripts/flow.mjs show <taskId>`: leia o prompt self-contained inteiro. Ele define objetivo, entradas, restrições, passos, critério de conclusão, formato de saída, **destino de upload** e lacunas conhecidas.
+2. `node .claude/skills/executar-flow/scripts/flow.mjs claim <taskId> --agent <seu-nome>`. Se responder 409, a tarefa já foi assumida ou está obsoleta: pare e relate.
+3. Baixe as entradas listadas em `<entrada>` com `node .claude/skills/executar-flow/scripts/flow.mjs get <chave> --out out/<runId>/<nó>/in/<arquivo>`.
 4. Execute **somente** o escopo da tarefa. Trabalhe em `out/<runId>/<nó>/`.
-5. Suba cada artefato com `$F put <runId> <nó-destino> <arquivo> [--item <asset>]`. O nó-destino é o entregável indicado em "Upload:" no prompt (por exemplo, N4 grava em D1). Guarde as chaves impressas.
-6. Conclua: `$F complete <taskId> --evidence-file out/<runId>/<nó>/evidencia.md --artifact <chave>... [--gap "<lacuna>"]...`.
+5. Suba cada artefato com `node .claude/skills/executar-flow/scripts/flow.mjs put <runId> <nó-destino> <arquivo> [--item <asset>] --agent <seu-nome>`. O nó-destino é o entregável indicado em "Upload:" no prompt (por exemplo, N4 grava em D1). Guarde as chaves impressas.
+6. Conclua: `node .claude/skills/executar-flow/scripts/flow.mjs complete <taskId> --agent <seu-nome> --evidence-file out/<runId>/<nó>/evidencia.md --artifact <chave>... [--gap "<lacuna>"]...`.
    A evidência explica o que foi feito, com base em quê (fontes/URLs e entradas) e onde está o resultado.
 7. Responda à sessão principal com: taskId, artefatos (chaves), GAPs e qualquer bloqueio.
 
@@ -42,4 +42,4 @@ Você é o **agente de Plano Operacional Rastreável** do Programa EXECUTAR. Use
 - Uma linha por tarefa operacional derivada de D2–D5 e do plano do mês. `task_id` é único e não vazio (reuse `TSK-NNNN` do plano quando houver). `asset_id` vem dos assets definidos no D5 (Asset + CTA brief); nunca invente um asset.
 - Se D5 não definir IDs de asset, pare e relate o bloqueio, porque o G03 reprova CSV sem `asset_id` e o N11 depende deles.
 - CSV em RFC 4180; célula sem dado leva `TBD`.
-- Suba com `put <runId> D6 csv-operacional.csv`. O gate G03 valida as colunas, os `task_id` e os `asset_id` no R2.
+- Suba com `node .claude/skills/executar-flow/scripts/flow.mjs put <runId> D6 csv-operacional.csv --agent plano-ops-agent`. O gate G03 valida as colunas, os `task_id` e os `asset_id` no R2.
