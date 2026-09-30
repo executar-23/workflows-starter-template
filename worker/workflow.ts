@@ -1,5 +1,5 @@
-import { WorkflowEntrypoint, WorkflowStep } from "cloudflare:workers";
-import type { WorkflowEvent } from "cloudflare:workers";
+import { WorkflowEntrypoint } from "cloudflare:workers";
+import type { WorkflowEvent, WorkflowStep } from "cloudflare:workers";
 import {
 	WORKFLOW,
 	NODE_BY_ID,
@@ -17,6 +17,7 @@ import {
 	type WorkflowNode,
 } from "../shared/schema";
 import { buildPrompt } from "../shared/prompt";
+import { bindTasks } from "../shared/plan";
 import { listArtifacts, readText, saveEvidence, putArtifact } from "./artifacts";
 
 export type WorkflowParams = {
@@ -120,8 +121,13 @@ export class MyWorkflow extends WorkflowEntrypoint<Env, WorkflowParams> {
 			nodeId: node.id,
 			...(item ? { item } : {}),
 		});
-		const inputs = () =>
-			[...results.values()].flatMap((r) => r.artifacts).slice(-50);
+		// Plano upstream: TSK vinculadas às casas + arquivos do plano como entrada.
+		let planBindings: Record<string, { tarefa_id: string; prompt: string }> = {};
+		let planFiles: string[] = [];
+		const inputs = () => [
+			...planFiles,
+			...[...results.values()].flatMap((r) => r.artifacts).slice(-50),
+		];
 
 		// Autorização da casa (WIP = 1): um OK por casa, evento único.
 		const awaitOk = async (node: WorkflowNode, item?: string, iteration = 1) => {
@@ -214,6 +220,7 @@ export class MyWorkflow extends WorkflowEntrypoint<Env, WorkflowParams> {
 							iteration,
 							uploadPrefix,
 							inputs: inputs(),
+							planTask: planBindings[node.id],
 						}),
 						doneEvent: doneType,
 						status: isAgent ? "despachada" : "aguardando-humano",
@@ -342,7 +349,10 @@ export class MyWorkflow extends WorkflowEntrypoint<Env, WorkflowParams> {
 						continue;
 					}
 					if (node.format !== "CSV") continue;
-					const csvKey = list.find((a) => a.key.toLowerCase().endsWith(".csv"))?.key;
+					// O .csv mais recente (correção no retrabalho pode ter outro nome).
+					const csvKey = list
+						.filter((a) => a.key.toLowerCase().endsWith(".csv"))
+						.sort((a, b) => b.uploaded.localeCompare(a.uploaded))[0]?.key;
 					if (!csvKey) {
 						missing.push(`${id}: nenhum arquivo .csv`);
 						continue;
@@ -454,6 +464,18 @@ export class MyWorkflow extends WorkflowEntrypoint<Env, WorkflowParams> {
 		};
 
 		await syncMeta();
+
+		if (params.planId) {
+			const loaded = await step.do("Carregar plano upstream", async () => {
+				const plan = await env.TASK_BOARD.get(env.TASK_BOARD.idFromName("global")).getPlan(
+					params.planId!,
+				);
+				if (!plan) throw new Error(`Plano ${params.planId} não encontrado`);
+				return { bindings: bindTasks(plan.tasks).bindings, files: Object.values(plan.files) };
+			});
+			planBindings = loaded.bindings;
+			planFiles = loaded.files;
+		}
 
 		try {
 			// Execução serial em ordem topológica: ramos paralelos do grafo

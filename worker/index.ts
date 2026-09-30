@@ -62,6 +62,14 @@ export default {
 					typeof body.instanceId === "string" ? body.instanceId : undefined;
 				delete body.instanceId;
 
+				// Plano upstream (skill plano-operacional-rastreavel) opcional.
+				if (typeof body.planId === "string" && body.planId) {
+					const board = env.TASK_BOARD.get(env.TASK_BOARD.idFromName("global"));
+					const plan = await board.getPlan(body.planId);
+					if (!plan) return json({ error: "Plano não encontrado" }, { status: 404 });
+					if (!body.campaignId) body.campaignId = plan.campaign;
+				}
+
 				const instance = await env.MY_WORKFLOW.create({
 					...(requestedId ? { id: requestedId } : {}),
 					params: body,

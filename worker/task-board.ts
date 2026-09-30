@@ -1,4 +1,5 @@
 import { DurableObject } from "cloudflare:workers";
+import type { PlanTask } from "../shared/plan";
 
 // Fila global de tarefas dos agentes (singleton "global").
 // aguardando-humano → (humano entrega evidência) → concluida
@@ -37,6 +38,26 @@ export type NewTask = Omit<
 > & { status: "aguardando-humano" | "despachada" };
 
 type Row = Record<string, string | number | null>;
+
+export interface Plan {
+	planId: string;
+	campaign: string;
+	periodo: string | null;
+	judge: string;
+	files: Record<string, string>; // nome → chave R2
+	tasks: PlanTask[];
+	createdAt: string;
+}
+
+const toPlan = (r: Row): Plan => ({
+	planId: String(r.plan_id),
+	campaign: String(r.campaign),
+	periodo: (r.periodo as string) ?? null,
+	judge: String(r.judge),
+	files: JSON.parse(String(r.files)),
+	tasks: JSON.parse(String(r.tasks)),
+	createdAt: String(r.created_at),
+});
 
 const toTask = (r: Row): Task => ({
 	taskId: String(r.task_id),
@@ -91,6 +112,45 @@ export class TaskBoardDO extends DurableObject {
 			"CREATE INDEX IF NOT EXISTS tasks_status ON tasks (status, executor)",
 		);
 		this.sql.exec("CREATE INDEX IF NOT EXISTS tasks_run ON tasks (run_id)");
+		this.sql.exec(`CREATE TABLE IF NOT EXISTS plans (
+			plan_id TEXT PRIMARY KEY,
+			campaign TEXT NOT NULL,
+			periodo TEXT,
+			judge TEXT NOT NULL,
+			files TEXT NOT NULL,
+			tasks TEXT NOT NULL,
+			created_at TEXT NOT NULL
+		)`);
+	}
+
+	async savePlan(plan: Omit<Plan, "createdAt">): Promise<Plan> {
+		const createdAt = new Date().toISOString();
+		this.sql.exec(
+			`INSERT INTO plans (plan_id, campaign, periodo, judge, files, tasks, created_at)
+			 VALUES (?, ?, ?, ?, ?, ?, ?)`,
+			plan.planId,
+			plan.campaign,
+			plan.periodo,
+			plan.judge,
+			JSON.stringify(plan.files),
+			JSON.stringify(plan.tasks),
+			createdAt,
+		);
+		return { ...plan, createdAt };
+	}
+
+	async getPlan(planId: string): Promise<Plan | null> {
+		const row = this.sql
+			.exec<Row>("SELECT * FROM plans WHERE plan_id = ?", planId)
+			.toArray()[0];
+		return row ? toPlan(row) : null;
+	}
+
+	async listPlans(): Promise<Plan[]> {
+		return this.sql
+			.exec<Row>("SELECT * FROM plans ORDER BY created_at DESC LIMIT 100")
+			.toArray()
+			.map(toPlan);
 	}
 
 	// Idempotente: republicar (replay do step) não reabre tarefa concluída.
@@ -150,7 +210,8 @@ export class TaskBoardDO extends DurableObject {
 		const sql = `SELECT * FROM tasks ${
 			where.length ? `WHERE ${where.join(" AND ")}` : ""
 		} ORDER BY created_at ASC LIMIT ?`;
-		args.push(Math.min(filter.limit ?? 100, 500));
+		const limit = Math.trunc(Number(filter.limit ?? 100));
+		args.push(Number.isFinite(limit) ? Math.min(Math.max(limit, 1), 500) : 100);
 		return this.sql.exec<Row>(sql, ...args).toArray().map(toTask);
 	}
 

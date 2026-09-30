@@ -1,4 +1,5 @@
 import { NODE_BY_ID, producesOf, runPrefix } from "../shared/schema";
+import { bindTasks, judgePassed, validatePlanCsv } from "../shared/plan";
 import { artifactKey, listArtifacts, putArtifact } from "./artifacts";
 import type { DonePayload } from "./workflow";
 
@@ -28,9 +29,35 @@ async function campaignOf(env: Env, runId: string) {
 	return meta.campaignId || `campaign-${runId}`;
 }
 
-async function sendDone(env: Env, runId: string, type: string, payload: DonePayload) {
-	const instance = await env.MY_WORKFLOW.get(runId);
-	await instance.sendEvent({ type, payload });
+// Run encerrado ou inexistente vira 409, não 500.
+async function sendDone(
+	env: Env,
+	runId: string,
+	type: string,
+	payload: DonePayload,
+): Promise<Response | null> {
+	try {
+		const instance = await env.MY_WORKFLOW.get(runId);
+		await instance.sendEvent({ type, payload });
+		return null;
+	} catch (error) {
+		return json(
+			{ error: "O run não aceitou a entrega", detail: String(error) },
+			{ status: 409 },
+		);
+	}
+}
+
+// Comparação em tempo constante do Bearer.
+function sameToken(given: string, expected: string) {
+	const enc = new TextEncoder();
+	const a = enc.encode(given);
+	const b = enc.encode(expected);
+	if (a.byteLength !== b.byteLength) {
+		crypto.subtle.timingSafeEqual(b, b);
+		return false;
+	}
+	return crypto.subtle.timingSafeEqual(a, b);
 }
 
 // Sem secret configurado a fila fica fechada (nunca aberta por omissão).
@@ -42,7 +69,7 @@ function agentAuth(request: Request, env: Env): Response | null {
 			{ status: 503 },
 		);
 	}
-	if (request.headers.get("Authorization") !== `Bearer ${token}`) {
+	if (!sameToken(request.headers.get("Authorization") ?? "", `Bearer ${token}`)) {
 		return json({ error: "Unauthorized" }, { status: 401 });
 	}
 	return null;
@@ -61,6 +88,7 @@ export async function handleAgentApi(
 	const isAgentRoute =
 		path === "/api/agent/whoami" ||
 		path.startsWith("/api/tasks") ||
+		(path === "/api/plans" && request.method === "POST") ||
 		(request.method === "PUT" && /^\/api\/runs\/[^/]+\/artifacts\//.test(path));
 	if (!isAgentRoute) return null;
 
@@ -101,8 +129,18 @@ export async function handleAgentApi(
 			const body = (await request.json().catch(() => ({}))) as Json;
 			const task = await board(env).get(taskId);
 			if (!task) return json({ error: "Tarefa não encontrada" }, { status: 404 });
-			if (task.status === "concluida")
-				return json({ error: "Tarefa já concluída" }, { status: 409 });
+			if (task.status !== "despachada" && task.status !== "em-execucao")
+				return json(
+					{ error: `Tarefa em estado ${task.status}: agentes só concluem tarefas despachadas` },
+					{ status: 409 },
+				);
+			// Só a entrega que o run está esperando agora (nada de tentativa antiga).
+			const awaiting = await runStatus(env, task.runId).getAwaiting();
+			if (awaiting?.eventType !== task.doneEvent)
+				return json(
+					{ error: "Tarefa obsoleta: o run não está aguardando esta entrega" },
+					{ status: 409 },
+				);
 			const payload: DonePayload = {
 				evidence: String(body.evidence ?? ""),
 				artifacts: Array.isArray(body.artifacts) ? body.artifacts.map(String) : [],
@@ -113,7 +151,8 @@ export async function handleAgentApi(
 				return json({ error: "Envie evidence e/ou artifacts" }, { status: 400 });
 			}
 			// Evento primeiro: se o run não aceitar, a tarefa continua aberta.
-			await sendDone(env, task.runId, task.doneEvent, payload);
+			const refused = await sendDone(env, task.runId, task.doneEvent, payload);
+			if (refused) return refused;
 			const result = await board(env).complete(taskId, {
 				evidence: payload.evidence ?? "",
 				artifacts: payload.artifacts ?? [],
@@ -122,6 +161,47 @@ export async function handleAgentApi(
 			});
 			return json(result);
 		}
+	}
+
+	if (path === "/api/plans" && request.method === "POST") {
+		const body = (await request.json().catch(() => ({}))) as Json;
+		const campaign = String(body.campaign ?? "").trim();
+		const internalMd = String(body.internalMd ?? "");
+		const linearCsv = String(body.linearCsv ?? "");
+		const judgeReport = String(body.judgeReport ?? "");
+		const errors: string[] = [];
+		if (!campaign) errors.push("campaign obrigatório");
+		if (!internalMd.trim()) errors.push("internalMd (plano-interno.md) obrigatório");
+		if (!judgePassed(judgeReport))
+			errors.push("judgeReport sem RESULTADO: PASS do validar_plano.py");
+		const { errors: csvErrors, tasks } = validatePlanCsv(linearCsv);
+		errors.push(...csvErrors);
+		if (errors.length) return json({ error: "Plano rejeitado", errors }, { status: 422 });
+
+		const planId = `plan-${Date.now().toString(36)}-${crypto.randomUUID().slice(0, 8)}`;
+		const files: Record<string, string> = {};
+		for (const [name, content, type] of [
+			["plano-interno.md", internalMd, "text/markdown; charset=utf-8"],
+			["linear-import.csv", linearCsv, "text/csv; charset=utf-8"],
+			["juiz.txt", judgeReport, "text/plain; charset=utf-8"],
+		] as const) {
+			const key = `plans/${planId}/${name}`;
+			await putArtifact(env.ARTIFACTS, key, content, type, { planId, campaign });
+			files[name] = key;
+		}
+		const plan = await board(env).savePlan({
+			planId,
+			campaign,
+			periodo: body.periodo ? String(body.periodo) : null,
+			judge: judgeReport.match(/RESULTADO:[^\n]*/)?.[0] ?? "PASS",
+			files,
+			tasks,
+		});
+		const { bindings, warnings } = bindTasks(tasks);
+		return json(
+			{ planId: plan.planId, tasks: tasks.length, bound: Object.keys(bindings), warnings },
+			{ status: 201 },
+		);
 	}
 
 	const putMatch = path.match(/^\/api\/runs\/([^/]+)\/artifacts\/([^/]+)\/([^/]+)$/);
@@ -196,7 +276,8 @@ export async function handleRunApi(
 			return json({ error: "Envie texto de evidência e/ou arquivo" }, { status: 400 });
 		}
 		const payload: DonePayload = { evidence, artifacts, gaps: [], by: "humano (UI)" };
-		await sendDone(env, runId, awaiting.eventType, payload);
+		const refused = await sendDone(env, runId, awaiting.eventType, payload);
+		if (refused) return refused;
 		if (task) {
 			await board(env).complete(task.taskId, {
 				evidence,
@@ -206,6 +287,28 @@ export async function handleRunApi(
 			});
 		}
 		return json({ ok: true, artifacts });
+	}
+
+	if (path === "/api/plans" && request.method === "GET") {
+		const plans = await board(env).listPlans();
+		return json({
+			plans: plans.map((p) => ({
+				planId: p.planId,
+				campaign: p.campaign,
+				periodo: p.periodo,
+				judge: p.judge,
+				tasks: p.tasks.length,
+				bound: Object.keys(bindTasks(p.tasks).bindings),
+				createdAt: p.createdAt,
+			})),
+		});
+	}
+
+	const planMatch = path.match(/^\/api\/plans\/([^/]+)$/);
+	if (planMatch && request.method === "GET") {
+		const plan = await board(env).getPlan(decodeURIComponent(planMatch[1]));
+		if (!plan) return json({ error: "Plano não encontrado" }, { status: 404 });
+		return json({ plan, ...bindTasks(plan.tasks) });
 	}
 
 	const listMatch = path.match(/^\/api\/runs\/([^/]+)\/(artifacts|tasks)$/);

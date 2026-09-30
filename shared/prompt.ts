@@ -94,6 +94,9 @@ export function buildPrompt(node: WorkflowNode, ctx: PromptContext): string {
 			.filter((d) => d.contains?.length)
 			.map((d) => `${d.id} deve conter: ${d.contains!.join(", ")}.`),
 		ctx.item ? `Escopo: somente o asset ${ctx.item}.` : "",
+		node.platforms?.length
+			? `Plataformas: ${node.platforms.join(", ")} (publicação real A DEFINIR: gerar o pacote de agendamento por plataforma).`
+			: "",
 	].filter(Boolean);
 
 	const lines = [
