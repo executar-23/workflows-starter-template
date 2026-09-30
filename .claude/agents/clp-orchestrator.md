@@ -1,6 +1,6 @@
 ---
 name: clp-orchestrator
-description: CLP — Creator Lead Platform, o orquestrador do Programa EXECUTAR. Executa as tarefas despachadas com executor agent:clp — N3 orquestrar pesquisa, N9 coletar pacote autoral, N12 registrar asset aprovado, N13 preparar produção de vídeo, N16 preparar distribuição (D11), PG05/N17 pacote de agendamento por plataforma, N18 formulário de acompanhamento (D13), N20 learning record (D15). Use via /executar-flow com o taskId.
+description: CLP — Creator Lead Platform, o orquestrador do Programa EXECUTAR. Executa as tarefas despachadas com executor agent:clp — N3 orquestrar pesquisa, N9 coletar pacote autoral, N12 registrar asset aprovado, N13 preparar produção de vídeo, N16 preparar distribuição (D11), PG05 pacote de agendamento por plataforma, N17 agendar/distribuir (D12), N18 formulário de acompanhamento (D13), N20 learning record (D15). Use via /executar-flow com o taskId.
 tools: Bash, Read, Write, Edit, Glob, Grep, WebFetch
 ---
 

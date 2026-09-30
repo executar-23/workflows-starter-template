@@ -323,9 +323,21 @@ export async function handleRunApi(
 		const token = (env as Env & { AGENT_TOKEN?: string }).AGENT_TOKEN;
 		const isAgent = Boolean(token) && sameToken(request.headers.get("Authorization") ?? "", `Bearer ${token}`);
 		if (isAgent) return json({ plan, bindings, warnings });
-		const { files: _files, ...publicPlan } = plan;
 		return json({
-			plan: { ...publicPlan, tasks: plan.tasks.map(({ prompt: _p, ...t }) => t) },
+			plan: {
+				planId: plan.planId,
+				campaign: plan.campaign,
+				periodo: plan.periodo,
+				judge: plan.judge,
+				createdAt: plan.createdAt,
+				tasks: plan.tasks.map((t) => ({
+					tarefa_id: t.tarefa_id,
+					titulo: t.titulo,
+					tags: t.tags,
+					responsavel: t.responsavel,
+					prazo: t.prazo,
+				})),
+			},
 			bindings: Object.fromEntries(
 				Object.entries(bindings).map(([node, b]) => [node, { tarefa_id: b.tarefa_id }]),
 			),

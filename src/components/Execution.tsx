@@ -100,6 +100,7 @@ export function EvidenceForm({
 	const [files, setFiles] = useState<FileList | null>(null);
 	const [state, setState] = useState<"idle" | "sending" | "error">("idle");
 	const [error, setError] = useState("");
+	const [inputKey, setInputKey] = useState(0);
 
 	const submit = async () => {
 		setState("sending");
@@ -117,6 +118,7 @@ export function EvidenceForm({
 			}
 			setText("");
 			setFiles(null);
+			setInputKey((k) => k + 1); // limpa o <input type=file>
 			setState("idle");
 		} catch (e) {
 			setError(String((e as Error).message));
@@ -135,6 +137,7 @@ export function EvidenceForm({
 				className="w-full rounded-lg bg-white px-2 py-1.5 text-[12px] ring-1 ring-ink/25 outline-none focus:ring-ink"
 			/>
 			<input
+				key={inputKey}
 				type="file"
 				multiple
 				onChange={(e) => setFiles(e.target.files)}
