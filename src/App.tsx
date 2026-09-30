@@ -3,7 +3,7 @@ import { WorkflowDiagram } from "./components/WorkflowDiagram";
 import { CodeDisplay } from "./components/CodeDisplay";
 import { BackgroundDots } from "./components/BackgroundDots";
 import { useWorkflowWebSocket } from "./hooks/useWorkflowWebSocket";
-import { WORKFLOW_STEPS } from "./types";
+import { WORKFLOW_CONFIG, WORKFLOW_STEPS } from "./types";
 
 function App() {
 	const [instanceId, setInstanceId] = useState<string | null>(null);
@@ -76,7 +76,7 @@ function App() {
 						</svg>
 						<div className="w-px h-4 bg-neutral-300/50 dark:bg-neutral-600/50" />
 						<h1 className="text-sm font-medium text-neutral-600 dark:text-neutral-400">
-							Workflows Starter Template
+							{WORKFLOW_CONFIG.name}
 						</h1>
 					</div>
 
