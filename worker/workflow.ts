@@ -11,7 +11,6 @@ export type WorkflowParams = {
 type EventPayload = {
 	approved?: boolean;
 	comment?: string;
-	[key: string]: unknown;
 };
 
 type WorkflowJsonStep = {
@@ -23,9 +22,11 @@ type WorkflowJsonStep = {
 	branches?: string[];
 };
 
-const JSON_STEPS: WorkflowJsonStep[] = workflowConfig.phases.flatMap((phase) =>
-	phase.groups.flatMap((group) => group.steps),
-);
+const JSON_STEPS: WorkflowJsonStep[] = (
+	workflowConfig.phases as {
+		groups: { steps: WorkflowJsonStep[] }[];
+	}[]
+).flatMap((phase) => phase.groups.flatMap((group) => group.steps));
 
 export const TRACKED_STEPS = JSON_STEPS.map((step) => step.name);
 
@@ -114,7 +115,7 @@ export class MyWorkflow extends WorkflowEntrypoint<Env, WorkflowParams> {
 							deliverable: definition.deliverable,
 							campaignId: params.campaignId ?? `campaign-${instanceId}`,
 							strategicPillar: params.strategicPillar,
-							metadata: params.metadata ?? {},
+							metadata: (params.metadata ?? {}) as Record<string, string>,
 							completedAt: new Date().toISOString(),
 						}),
 					);

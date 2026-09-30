@@ -88,3 +88,10 @@ O fluxo implementa as 8 fases do mapa XMind enviado:
 6. Produção Audiovisual
 7. Revisão e Release
 8. Tracking e Analytics
+
+## Deploy
+
+`npm run deploy` usa o upload padrão de static assets do Wrangler. Em ambientes
+em que esse endpoint não está disponível (ex.: proxy que injeta credenciais),
+use `npm run deploy:inline`, que embute a UI no próprio Worker
+(`wrangler.inline.jsonc`).

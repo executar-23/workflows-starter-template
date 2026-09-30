@@ -373,7 +373,7 @@ export function WorkflowDiagram({
 									<div className="absolute left-1/2 -translate-x-1/2 -top-[5px] w-3 h-3 backdrop-blur-xl bg-neutral-900/90 dark:bg-neutral-700/90 rotate-45" />
 
 									<button
-										onClick={() => step.eventType && handleApprove(step.eventType)}
+										onClick={() => step.eventType && handleContinuar(step.eventType)}
 										className="relative px-4 py-2 backdrop-blur-xl bg-neutral-900/90 dark:bg-neutral-700/90 hover:bg-neutral-700 text-white text-xs font-medium rounded-lg transition-all shadow-xl whitespace-nowrap"
 									>
 										Approve
