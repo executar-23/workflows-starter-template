@@ -25,6 +25,8 @@ Worker Cloudflare (Workflows + Durable Objects + R2) com UI React. O fluxo intei
 
 ## Credenciais
 
+- Conta Cloudflare padrão: **Hub.executar** (`92fdc1b5…`, `*.hub-executar.workers.dev`), conforme o ADR-002 do `executar-23/PROGAMA-LANCAMENTO`. Não criar recursos em outra conta. O deploy usa assets inline (`wrangler.inline.jsonc`) porque o proxy das sessões de agente bloqueia o upload de assets do wrangler (401).
+
 - `EXECUTAR_URL` e `EXECUTAR_AGENT_TOKEN` são **variáveis do ambiente**: cloud em Edit → variáveis de ambiente; local em `export` ou em `.claude/settings.local.json`. Nunca cole o token no chat nem o grave no repositório.
 - `npm run agent:token` sincroniza o token do ambiente com o secret `AGENT_TOKEN` do Worker.
 
