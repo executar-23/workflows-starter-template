@@ -23,7 +23,7 @@ Use sempre o comando completo `node .claude/skills/executar-flow/scripts/flow.mj
 6. Se possível, rode `npm ci && npm run build` no blog e corrija **somente** o novo post. Se o build não puder rodar (rede ou tempo), registre isso em GAP.
 7. Faça commit e push do branch: `git add src/content/blog/<slug>.mdx && git commit -m "content: publica <Content_ID> — <título>" && git push -u origin cms/<slug>`.
 8. Abra o PR com `mcp__github__create_pull_request`, com `draft: false` (ADR-01), base `main`, título `Publicar: <título> (<Content_ID>)` e o corpo com o resumo, as fontes e os GAPs.
-9. Conclua: `node .claude/skills/executar-flow/scripts/flow.mjs complete <taskId> --agent blog-publisher --pr-url <url> --slug <slug> --evidence-file out/cms/<slug>/evidencia.md [--gap "…"]`. O Worker grava o PR e o slug no conteúdo do CMS.
+9. Escreva `out/cms/<slug>/evidencia.md` (URL do PR, slug, fontes usadas e GAPs) e conclua: `node .claude/skills/executar-flow/scripts/flow.mjs complete <taskId> --agent blog-publisher --pr-url <url> --slug <slug> --evidence-file out/cms/<slug>/evidencia.md [--gap "…"]`. O Worker grava o PR e o slug no conteúdo do CMS.
 
 ## Regras inegociáveis
 

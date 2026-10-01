@@ -45,6 +45,17 @@ describe("campanha a partir do conteúdo", () => {
 		expect(instance.id).toBe(result.runId);
 	});
 
+	it("campanha existente não duplica o run", async () => {
+		const again = await SELF.fetch(
+			"https://x/api/cms/campaigns",
+			admin({ method: "POST", body: JSON.stringify({ recordId: "content-0" }) }),
+		);
+		expect(again.status).toBe(200);
+		const { result } = (await again.json()) as { result: { runId: string; existing: boolean } };
+		expect(result.existing).toBe(true);
+		expect(result.runId).toBe((await hub().get("content", "content-0"))?.Run_ID);
+	});
+
 	it("404 para conteúdo inexistente", async () => {
 		const res = await SELF.fetch(
 			"https://x/api/cms/campaigns",
@@ -86,6 +97,15 @@ describe("publicação no blog via agente", () => {
 			body: JSON.stringify({ prUrl: "https://github.com/outro/repo/pull/1", slug: "x" }),
 		});
 		expect(bad.status).toBe(400);
+		const badSlug = await SELF.fetch(`https://x/api/tasks/${encodeURIComponent(result.taskId)}/complete`, {
+			method: "POST",
+			headers: agent,
+			body: JSON.stringify({ prUrl: "https://github.com/executar-23/risco-cognitivo-blog/pull/42", slug: "../x" }),
+		});
+		expect(badSlug.status).toBe(400);
+
+		// o conteúdo editorial das tarefas do CMS não sai pela rota pública do workflow
+		expect((await SELF.fetch("https://x/api/runs/cms/tasks")).status).toBe(404);
 
 		const done = await SELF.fetch(`https://x/api/tasks/${encodeURIComponent(result.taskId)}/complete`, {
 			method: "POST",
@@ -105,6 +125,17 @@ describe("publicação no blog via agente", () => {
 			result: { taskId: string; status: string }[];
 		};
 		expect(tasks.result.find((t) => t.taskId === result.taskId)?.status).toBe("concluida");
+	});
+});
+
+describe("run reservado do CMS", () => {
+	it('start com instanceId "cms" responde 400', async () => {
+		const res = await SELF.fetch("https://x/api/workflow/start", {
+			method: "POST",
+			headers: json,
+			body: JSON.stringify({ instanceId: "cms" }),
+		});
+		expect(res.status).toBe(400);
 	});
 });
 

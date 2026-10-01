@@ -24,6 +24,12 @@ export const slugify = (value: string) =>
 		.replace(/^-+|-+$/g, "")
 		.slice(0, 80);
 
+export const isSlug = (value: string) => /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(value) && value.length <= 80;
+
+/** Tarefa de publicação do CMS: identificada pelo run reservado e pelo executor, nunca só pelo runId. */
+export const isCmsTask = (task: { runId: string; executor: string; nodeId: string }) =>
+	task.runId === CMS_RUN && task.executor === "agent:blog-publisher" && task.nodeId === "PUBLISH";
+
 /** URL de PR aceita: https://github.com/<BLOG_REPO>/pull/<n> (case-insensitive no repo). */
 export function isBlogPrUrl(env: Env, url: string) {
 	const m = url.match(/^https:\/\/github\.com\/([^/]+\/[^/]+)\/pull\/\d+$/);
@@ -55,7 +61,8 @@ export function buildPublishPrompt(
 	related: Record<string, HubRecord[]>,
 ) {
 	const title = text(content.Titulo_final || content.Titulo_trabalho);
-	const slug = String(content.Blog_slug || slugify(String(content.Titulo_final || content.Titulo_trabalho || content.Content_ID)));
+	const saved = String(content.Blog_slug || "");
+	const slug = isSlug(saved) ? saved : slugify(String(content.Titulo_final || content.Titulo_trabalho || content.Content_ID));
 	const repo = blogRepo(env);
 	return [
 		`<tarefa id="${taskId}">`,
@@ -160,6 +167,8 @@ export async function handleCmsApi(request: Request, env: Env, url: URL): Promis
 		if (!content) return fail(404, "Conteúdo não encontrado");
 		const contentId = String(content.Content_ID || "");
 		if (!contentId) return fail(400, "Conteúdo sem Content_ID");
+		const existing = String(content.Run_ID || "");
+		if (existing) return ok({ runId: existing, url: `/?run=${existing}`, existing: true });
 		const instance = await env.MY_WORKFLOW.create({
 			params: { campaignId: contentId, metadata: { contentRecordId: recordId } },
 		});

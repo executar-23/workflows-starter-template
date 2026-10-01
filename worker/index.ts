@@ -3,7 +3,7 @@ export { WorkflowStatusDO } from "./durable-object";
 export { TaskBoardDO } from "./task-board";
 export { HubStoreDO } from "./hub-store";
 import { handleHubApi } from "./hub-api";
-import { handleCmsApi } from "./cms-api";
+import { CMS_RUN, handleCmsApi } from "./cms-api";
 import { corsHeaders, handleAgentApi, handleRunApi, json } from "./agent-api";
 
 type EventBody = {
@@ -72,6 +72,10 @@ export default {
 				const requestedId =
 					typeof body.instanceId === "string" ? body.instanceId : undefined;
 				delete body.instanceId;
+				// "cms" é o run reservado das tarefas de publicação do CMS.
+				if (requestedId === CMS_RUN) {
+					return json({ error: `instanceId "${CMS_RUN}" é reservado` }, { status: 400 });
+				}
 
 				// Plano upstream (skill plano-operacional-rastreavel) opcional.
 				if (body.planId !== undefined && typeof body.planId !== "string") {

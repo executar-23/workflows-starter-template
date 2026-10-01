@@ -71,7 +71,13 @@ export function HubShell() {
 	// Link profundo: /admin#<módulo>/<recordId> (vindo do workflow).
 	useEffect(() => {
 		const follow = () => {
-			const [moduleId, recordId] = decodeURIComponent(window.location.hash.slice(1)).split("/");
+			let hash = "";
+			try {
+				hash = decodeURIComponent(window.location.hash.slice(1));
+			} catch {
+				return;
+			}
+			const [moduleId, recordId] = hash.split("/");
 			if (moduleId && (MODULES_BY_ID[moduleId] || STATIC_LABELS[moduleId])) {
 				setRoute(moduleId);
 				setPending(recordId || null);

@@ -2,7 +2,7 @@ import { NODE_BY_ID, producesOf, runPrefix } from "../shared/schema";
 import { bindTasks, judgePassed, validatePlanCsv } from "../shared/plan";
 import { artifactKey, listArtifacts, putArtifact } from "./artifacts";
 import type { DonePayload } from "./workflow";
-import { CMS_RUN, isBlogPrUrl } from "./cms-api";
+import { CMS_RUN, isBlogPrUrl, isCmsTask, isSlug } from "./cms-api";
 
 // API de execução real: agentes Claude Code (Bearer AGENT_TOKEN) e UI.
 
@@ -136,11 +136,13 @@ export async function handleAgentApi(
 					{ status: 409 },
 				);
 			// Tarefa do CMS (publicação no blog): sem run do workflow; grava o PR no conteúdo.
-			if (task.runId === CMS_RUN) {
+			if (isCmsTask(task)) {
 				const prUrl = String(body.prUrl ?? "");
 				const slug = String(body.slug ?? "");
 				if (prUrl && !isBlogPrUrl(env, prUrl))
 					return json({ error: "prUrl deve ser um PR do repositório do blog" }, { status: 400 });
+				if (slug && !isSlug(slug))
+					return json({ error: "slug inválido (use a-z, 0-9 e hífens)" }, { status: 400 });
 				if (!prUrl && !String(body.evidence ?? "").trim())
 					return json({ error: "Envie prUrl ou evidence" }, { status: 400 });
 				const result = await board(env).complete(taskId, {
@@ -372,6 +374,8 @@ export async function handleRunApi(
 	const listMatch = path.match(/^\/api\/runs\/([^/]+)\/(artifacts|tasks)$/);
 	if (listMatch && request.method === "GET") {
 		const [, runId, what] = listMatch.map(decodeURIComponent);
+		// Tarefas do CMS carregam o conteúdo editorial: só via /api/cms/tasks (sessão de admin).
+		if (runId === CMS_RUN) return json({ error: "Not Found" }, { status: 404 });
 		if (what === "tasks") {
 			return json({ tasks: await board(env).list({ runId, limit: 500 }) });
 		}
