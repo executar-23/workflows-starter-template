@@ -330,6 +330,99 @@
   --color-critical-on-default: var(--critical-950);
 }
 
+/* ===== DS-STORE-001 — area markers (ADR-STORE-ROUTES-UI-001) =====
+   Colour = area, never fill. Institutional/Editorial reuse brand/attention; Skills,
+   Operations and Tools add primitives that exist ONLY as --area-* (no callouts/charts). */
+:root {
+  /* Primitives (area-only hues) */
+  --green-50: oklch(0.975 0.012 150);
+  --green-100: oklch(0.948 0.022 150);
+  --green-200: oklch(0.900 0.040 150);
+  --green-300: oklch(0.830 0.062 150);
+  --green-400: oklch(0.720 0.085 150);
+  --green-500: oklch(0.614 0.098 150);
+  --green-600: oklch(0.508 0.102 150);
+  --green-700: oklch(0.448 0.090 150);
+  --green-800: oklch(0.388 0.078 150);
+  --green-900: oklch(0.328 0.066 150);
+  --green-950: oklch(0.278 0.056 150);
+
+  --teal-50: oklch(0.975 0.012 195);
+  --teal-100: oklch(0.948 0.022 195);
+  --teal-200: oklch(0.900 0.040 195);
+  --teal-300: oklch(0.830 0.062 195);
+  --teal-400: oklch(0.720 0.085 195);
+  --teal-500: oklch(0.614 0.098 195);
+  --teal-600: oklch(0.508 0.102 195);
+  --teal-700: oklch(0.448 0.090 195);
+  --teal-800: oklch(0.388 0.078 195);
+  --teal-900: oklch(0.328 0.066 195);
+  --teal-950: oklch(0.278 0.056 195);
+
+  --violet-50: oklch(0.975 0.012 300);
+  --violet-100: oklch(0.948 0.022 300);
+  --violet-200: oklch(0.900 0.040 300);
+  --violet-300: oklch(0.830 0.062 300);
+  --violet-400: oklch(0.720 0.085 300);
+  --violet-500: oklch(0.614 0.098 300);
+  --violet-600: oklch(0.508 0.102 300);
+  --violet-700: oklch(0.448 0.090 300);
+  --violet-800: oklch(0.388 0.078 300);
+  --violet-900: oklch(0.328 0.066 300);
+  --violet-950: oklch(0.278 0.056 300);
+
+  /* Semantic: --area-{name} = marker/icon/text (>= 4.5:1 on card), -subtle = icon container */
+  --area-institutional: var(--color-brand-default);
+  --area-institutional-subtle: var(--color-brand-subtle);
+  --area-editorial: var(--color-attention-default);
+  --area-editorial-subtle: var(--color-attention-subtle);
+  --area-skills: var(--green-600);
+  --area-skills-subtle: var(--green-100);
+  --area-operations: var(--teal-600);
+  --area-operations-subtle: var(--teal-100);
+  --area-tools: var(--violet-600);
+  --area-tools-subtle: var(--violet-100);
+  --area-data: var(--muted-foreground);
+  --area-data-subtle: var(--muted);
+  --area-store: var(--foreground);
+  --area-store-subtle: var(--muted);
+}
+
+.dark {
+  /* re-declared so aliases resolve against the .dark semantic values (same pattern as --chart-*) */
+  --area-institutional: var(--color-brand-default);
+  --area-institutional-subtle: var(--color-brand-subtle);
+  --area-editorial: var(--color-attention-default);
+  --area-editorial-subtle: var(--color-attention-subtle);
+  --area-data: var(--muted-foreground);
+  --area-data-subtle: var(--muted);
+  --area-store: var(--foreground);
+  --area-store-subtle: var(--muted);
+  --area-skills: var(--green-300);
+  --area-skills-subtle: var(--green-950);
+  --area-operations: var(--teal-300);
+  --area-operations-subtle: var(--teal-950);
+  --area-tools: var(--violet-300);
+  --area-tools-subtle: var(--violet-950);
+}
+
+@theme inline {
+  --color-area-institutional: var(--area-institutional);
+  --color-area-institutional-subtle: var(--area-institutional-subtle);
+  --color-area-editorial: var(--area-editorial);
+  --color-area-editorial-subtle: var(--area-editorial-subtle);
+  --color-area-skills: var(--area-skills);
+  --color-area-skills-subtle: var(--area-skills-subtle);
+  --color-area-operations: var(--area-operations);
+  --color-area-operations-subtle: var(--area-operations-subtle);
+  --color-area-tools: var(--area-tools);
+  --color-area-tools-subtle: var(--area-tools-subtle);
+  --color-area-data: var(--area-data);
+  --color-area-data-subtle: var(--area-data-subtle);
+  --color-area-store: var(--area-store);
+  --color-area-store-subtle: var(--area-store-subtle);
+}
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);

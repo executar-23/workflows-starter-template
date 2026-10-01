@@ -1,7 +1,7 @@
 # REPORT-GENERATOR-CONTRACT-001
 
 Contrato para agentes (e pessoas) que geram relatórios publicáveis no blog.
-Decisão: ADR-05 em `CLAUDE.md` · ADR-BLOG-ASCII-001 · ANX-ADR-BLOG-ASCII-001-A.
+Decisão: ADR-06 em `CLAUDE.md` · ADR-BLOG-ASCII-001 · ANX-ADR-BLOG-ASCII-001-A.
 Exemplo compilado: `src/pages/admin/relatorio-exemplo.mdx` → `/admin/relatorio-exemplo/`.
 
 ## Objetivo

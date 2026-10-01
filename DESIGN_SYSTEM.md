@@ -6,8 +6,8 @@ O registro legível por máquina está em `design-system.manifest.json`.
 | Campo | Valor |
 | --- | --- |
 | SOURCE_REPOSITORY | `executar-23/Risco-cognitivo-blog` |
-| SOURCE_BRANCH | `claude/youthful-archimedes-qksrsl` (default branch resolvida em 2026-10-01) |
-| SOURCE_COMMIT | `11f78e42a9c10df077b50c169b05ec4da7718f68` |
+| SOURCE_BRANCH | `main` (ver nota abaixo) |
+| SOURCE_COMMIT | `530afe1708ed24111f9b6756948908ab7e9b3afe` |
 | CANONICAL_TOKEN_FILE | `admin/app.css` |
 | COMPONENT_DIRECTORY | `admin/components/ui` |
 | DESIGN_SYSTEM_ROUTE | `/admin/design-system` |
@@ -15,6 +15,12 @@ O registro legível por máquina está em `design-system.manifest.json`.
 | INTEGRATION_STATUS | `IMPLEMENTED_DEFAULT` |
 | LAST_SYNC | 2026-10-01 |
 | TARGET_COMMIT_BEFORE | `117e574f2613d8464716b5c99a11319166f54479` |
+
+> Nota sobre a branch: em 2026-10-01 a default branch do GitHub da origem era
+> `claude/youthful-archimedes-qksrsl` (`11f78e4`), ancestral direto da `main` (`530afe1`, 7 commits
+> à frente). A `main` é a branch de integração declarada no `CLAUDE.md` da origem e traz a versão
+> mais nova do design system (tokens `--area-*`, `ScrollArea` com `viewportProps`), por isso é a
+> fonte usada aqui.
 
 ## Fonte canônica na origem
 

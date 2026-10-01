@@ -2,7 +2,7 @@
 
 | Campo | Valor |
 |---|---|
-| ID | ADR-BLOG-ASCII-001 (registrado como ADR-05 em `CLAUDE.md`) |
+| ID | ADR-BLOG-ASCII-001 (registrado como ADR-06 em `CLAUDE.md`) |
 | Versão | 1.0.0 |
 | Área | Blog / Design System / Frontend |
 | Workflow | Conteúdo → Renderização → Interface |

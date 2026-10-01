@@ -4,7 +4,7 @@
 |---|---|
 | ID | ROUTES-HUB-WORKFLOW-001 |
 | Versão | 1.0.0 |
-| Decisão | ADR-06 (`CLAUDE.md`) |
+| Decisão | ADR-07 (`CLAUDE.md`) |
 | Hub | `/admin/rotas/` (linkado em `/admin`) |
 | Fonte única | `src/data/routes.ts` |
 | Verificação | `npm run routes:check` → `tests/routes.spec.ts` |
@@ -65,7 +65,7 @@ exibida no cartão.
 ## Base dos QRs
 
 `PUBLIC_ROUTES_BASE_URL` (variável de build). Padrão: o host de produção
-`https://risco-cognitivo-blog.executar-rotina-8b7.workers.dev`. Se o domínio mudar, altere
+`https://risco-cognitivo-blog.hub-executar.workers.dev`. Se o domínio mudar, altere
 `DEFAULT_BASE_URL` em `src/data/routes.ts`.
 
 ## Origem
