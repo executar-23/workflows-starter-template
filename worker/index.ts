@@ -37,6 +37,20 @@ const appHandler = {
 			return new Response(null, { status: 204, headers: corsHeaders });
 		}
 
+		// Multi-entry SPA routing: /admin/* must resolve to the Admin shell,
+		// while the root SPA keeps /index.html as its own fallback.
+		if (
+			(request.method === "GET" || request.method === "HEAD") &&
+			url.pathname.startsWith("/admin/")
+		) {
+			const assets = (env as Env & {
+				ASSETS: { fetch(request: Request): Promise<Response> };
+			}).ASSETS;
+			return assets.fetch(
+				new Request(new URL("/admin/index.html", request.url), request),
+			);
+		}
+
 		if (url.pathname === "/api/health" && request.method === "GET") {
 			return json({
 				ok: true,
