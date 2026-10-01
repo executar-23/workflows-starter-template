@@ -35,7 +35,13 @@ const { chromium } = loadPlaywright();
 const params = new URLSearchParams({ ...(defId ? { def: defId } : {}), ...(run ? { run } : {}), print: "1" });
 const url = `${base}/?${params}`;
 
-const browser = await chromium.launch();
+// channel "chromium" = Chromium completo (lê o NSS do usuário, onde ficam CAs
+// corporativas/proxy); PDF_CHROMIUM_PATH sobrepõe o binário se preciso.
+const browser = await chromium.launch(
+	process.env.PDF_CHROMIUM_PATH
+		? { executablePath: process.env.PDF_CHROMIUM_PATH }
+		: { channel: "chromium" },
+);
 try {
 	const page = await browser.newPage({ viewport: { width: 1000, height: 1400 } });
 	await page.goto(url, { waitUntil: "networkidle" });

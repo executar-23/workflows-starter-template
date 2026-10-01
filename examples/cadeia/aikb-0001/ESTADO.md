@@ -19,6 +19,6 @@
 - Data de início do ciclo (A DEFINIR).
 - T08 em paralelo com T05–T07 (PROPOSED).
 
-## Bloqueios
+## Publicação
 
-- Publicação em produção (`hub-executar.workers.dev`): R2 não habilitado na conta Cloudflare → `bloqueado-externo`. Validação e publicação feitas no Worker local (mesmo código); republicar após habilitar o R2.
+- 2026-10-01 · Worker em produção `https://workflows-starter-template.hub-executar.workers.dev` (R2 habilitado pelo usuário): definição r1 `definitions/pd-clb-20260906-f01/v1-aa664c0c.json` + 13 artefatos em `cadeia/pd-clb-20260906-f01/`; PDF gerado da página de produção (`?def=pd-clb-20260906-f01&print=1`, 6 p.).
