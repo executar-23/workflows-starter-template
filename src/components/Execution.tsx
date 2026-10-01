@@ -134,7 +134,7 @@ export function EvidenceForm({
 				onChange={(e) => setText(e.target.value)}
 				rows={compact ? 2 : 3}
 				placeholder="Evidência: o que foi feito, com base em quê, onde está"
-				className="w-full rounded-lg bg-white px-2 py-1.5 text-[12px] ring-1 ring-ink/25 outline-none focus:ring-ink"
+				className="w-full rounded-lg bg-card px-2 py-1.5 text-[12px] ring-1 ring-ink/25 outline-none focus:ring-ink"
 			/>
 			<input
 				key={inputKey}
@@ -147,7 +147,7 @@ export function EvidenceForm({
 				<button
 					disabled={empty || state === "sending"}
 					onClick={submit}
-					className="min-h-9 rounded-full bg-ink px-4 py-2 text-[11px] font-semibold text-white hover:bg-neutral-700 disabled:opacity-40 sm:px-3 sm:py-1"
+					className="min-h-9 rounded-full bg-ink px-4 py-2 text-[11px] font-semibold text-background hover:bg-foreground/85 disabled:opacity-40 sm:px-3 sm:py-1"
 				>
 					{state === "sending" ? "Enviando…" : "Concluir casa"}
 				</button>

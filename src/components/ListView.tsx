@@ -63,7 +63,7 @@ export function ListView({ run }: { run: RunView }) {
 										key={node.id}
 										id={`node-${node.id}`}
 										className={`grid grid-cols-[22px_1fr] gap-x-3 gap-y-1 border-t border-ink/10 px-4 py-3 first:border-t-0 sm:grid-cols-[22px_52px_1fr_170px_auto] sm:items-center ${
-											active ? "bg-muted" : "bg-white"
+											active ? "bg-muted" : "bg-card"
 										} ${isMuted(run, node) ? "opacity-40 grayscale" : ""}`}
 									>
 										<ShapeGlyph kind={node.kind} symbol={node.symbol} />

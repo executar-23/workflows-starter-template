@@ -266,6 +266,40 @@
   --callout-focus-offset: 2px;
   --callout-width: 100%;
   --callout-max-width: 100%;
+
+  /* ADMIN-WORKFLOW-HANDOFF-001 — admin/app.css is the visual Source of Truth. */
+  --layout-rail: 64px;
+  --layout-sidebar: 240px;
+  --layout-context: 320px;
+
+  /* Anatomy of memory systems: scoped diagram grammar only. */
+  --diagram-canvas: color-mix(in oklch, var(--background), var(--secondary) 45%);
+  --diagram-panel: var(--card);
+  --diagram-panel-muted: var(--secondary);
+  --diagram-ink: var(--foreground);
+  --diagram-muted-ink: var(--muted-foreground);
+  --diagram-line: var(--foreground);
+  --diagram-accent: #5d49f4;
+  --diagram-accent-2: #7d6ede;
+  --diagram-accent-soft: #e7e3ff;
+  --diagram-border: #7768c9;
+  --diagram-grid: color-mix(in oklch, var(--border), transparent 28%);
+  --diagram-grid-size: 24px;
+  --diagram-grid-dot: 1px;
+  --diagram-decision-size: 7rem;
+
+  /* Workflow semantic aliases. These inherit the admin semantic system. */
+  --workflow-type-human: var(--color-attention-default);
+  --workflow-type-orchestrator: var(--diagram-accent);
+  --workflow-type-phase: var(--primary);
+  --workflow-type-deliverable: var(--color-brand-default);
+  --workflow-type-subdeliverable: var(--brand-700);
+  --workflow-type-platform: var(--diagram-accent-2);
+  --workflow-type-agent: var(--color-critical-default);
+  --workflow-type-id: var(--color-attention-subtle);
+  --workflow-type-format: var(--foreground);
+  --workflow-type-skill: var(--primary);
+  --workflow-type-tool: var(--muted-foreground);
 }
 
 .dark {
@@ -328,6 +362,15 @@
   --color-critical-default: var(--critical-300);
   --color-critical-strong: var(--critical-700);
   --color-critical-on-default: var(--critical-950);
+
+  --diagram-canvas: color-mix(in oklch, var(--background), var(--secondary) 35%);
+  --diagram-panel: var(--card);
+  --diagram-panel-muted: var(--secondary);
+  --diagram-accent: #9b8cff;
+  --diagram-accent-2: #b0a5ff;
+  --diagram-accent-soft: color-mix(in oklch, var(--diagram-accent), transparent 84%);
+  --diagram-border: #8d80e8;
+  --diagram-grid: color-mix(in oklch, var(--border), transparent 35%);
 }
 
 @theme inline {
@@ -366,6 +409,20 @@
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
+
+  --color-diagram-accent: var(--diagram-accent);
+  --color-diagram-accent-soft: var(--diagram-accent-soft);
+  --color-workflow-human: var(--workflow-type-human);
+  --color-workflow-orchestrator: var(--workflow-type-orchestrator);
+  --color-workflow-phase: var(--workflow-type-phase);
+  --color-workflow-deliverable: var(--workflow-type-deliverable);
+  --color-workflow-subdeliverable: var(--workflow-type-subdeliverable);
+  --color-workflow-platform: var(--workflow-type-platform);
+  --color-workflow-agent: var(--workflow-type-agent);
+  --color-workflow-id: var(--workflow-type-id);
+  --color-workflow-format: var(--workflow-type-format);
+  --color-workflow-skill: var(--workflow-type-skill);
+  --color-workflow-tool: var(--workflow-type-tool);
 
   --radius-xs: calc(var(--radius) - 4px);
   --radius-sm: calc(var(--radius) - 4px);
@@ -655,4 +712,102 @@ body {
 .prose thead,
 .prose tbody tr {
   border: 0;
+}
+
+
+/* ===== ADMIN-WORKFLOW-HANDOFF-001 / Diagram primitives ===== */
+@layer components {
+  .diagram-scope {
+    color: var(--diagram-ink);
+    background-color: var(--diagram-canvas);
+    border-color: var(--diagram-grid);
+  }
+  .diagram-grid {
+    background-image: radial-gradient(var(--diagram-grid) var(--diagram-grid-dot), transparent var(--diagram-grid-dot));
+    background-size: var(--diagram-grid-size) var(--diagram-grid-size);
+  }
+  .diagram-flow-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 0.9fr) auto minmax(0, 1.6fr) auto minmax(0, 1fr);
+    align-items: center;
+    gap: calc(var(--spacing) * 4);
+  }
+  .diagram-group {
+    border: 1px solid var(--diagram-border);
+    border-radius: var(--radius-xl);
+    background: color-mix(in oklch, var(--diagram-panel), transparent 5%);
+    padding: calc(var(--spacing) * 4);
+    box-shadow: var(--shadow-sm);
+  }
+  .diagram-node {
+    display: flex;
+    min-width: 0;
+    flex-direction: column;
+    gap: calc(var(--spacing) * 1.5);
+    border: 1px solid var(--diagram-grid);
+    border-radius: var(--radius-lg);
+    background: var(--diagram-panel);
+    padding: calc(var(--spacing) * 3);
+    box-shadow: var(--shadow-xs);
+  }
+  .diagram-node-emphasis {
+    border-color: var(--diagram-border);
+    background: var(--diagram-accent-soft);
+  }
+  .diagram-node-kicker {
+    font-family: var(--text-family);
+    font-size: 0.6875rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--diagram-muted-ink);
+  }
+  .diagram-node small {
+    color: var(--diagram-muted-ink);
+    overflow-wrap: anywhere;
+  }
+  .diagram-decision {
+    display: grid;
+    width: var(--diagram-decision-size);
+    height: var(--diagram-decision-size);
+    place-items: center;
+    transform: rotate(45deg);
+    border: 1px solid var(--diagram-border);
+    border-radius: var(--radius-md);
+    background: var(--diagram-accent);
+    color: var(--color-brand-on-default);
+    box-shadow: var(--shadow-md);
+  }
+  .diagram-decision > span {
+    max-width: calc(var(--diagram-decision-size) * 0.72);
+    transform: rotate(-45deg);
+    text-align: center;
+    font-size: 0.75rem;
+    font-weight: 700;
+    line-height: 1.2;
+  }
+  .diagram-flow-edge {
+    display: flex;
+    min-width: calc(var(--spacing) * 8);
+    align-items: center;
+    justify-content: center;
+    color: var(--diagram-line);
+    font-size: 1.5rem;
+  }
+  .diagram-feedback-edge {
+    border-top: 2px dashed var(--diagram-accent);
+    padding-top: calc(var(--spacing) * 2);
+    text-align: center;
+    color: var(--diagram-accent);
+    font-size: 0.75rem;
+    font-weight: 700;
+  }
+}
+@media (max-width: 1023px) {
+  .diagram-flow-layout {
+    grid-template-columns: 1fr;
+  }
+  .diagram-flow-edge {
+    transform: rotate(90deg);
+  }
 }

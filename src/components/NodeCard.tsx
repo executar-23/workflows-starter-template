@@ -47,20 +47,20 @@ export function NodeCard({
 
 	return (
 		<div
-			className={`relative overflow-hidden rounded-[14px] bg-white text-left transition duration-300 ${
+			className={`relative overflow-hidden rounded-[14px] bg-card text-left transition duration-300 ${
 				live
 					? "shadow-lg shadow-black/10 ring-[2.5px] ring-ink"
 					: "ring-1 ring-hairline/70"
 			} ${muted ? "opacity-40 grayscale" : ""} ${className}`}
 		>
 			{live && status !== "error" && (
-				<div className="bg-ink px-3 py-0.5 text-[9.5px] font-bold tracking-[0.18em] text-white">
+				<div className="bg-ink px-3 py-0.5 text-[9.5px] font-bold tracking-[0.18em] text-background">
 					▶ AGORA
 				</div>
 			)}
 			{isDeliverable && (
 				<div
-					className={`flex items-center justify-between gap-2 px-3 py-1 text-[9.5px] font-bold uppercase tracking-wider text-white ${
+					className={`flex items-center justify-between gap-2 px-3 py-1 text-[9.5px] font-bold uppercase tracking-wider text-background ${
 						node.kind === "deliverable" ? "bg-deliverable" : "bg-subdeliverable"
 					}`}
 				>

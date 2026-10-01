@@ -213,7 +213,7 @@ function App() {
 
 	return (
 		<div
-			className="min-h-screen bg-white text-ink"
+			className="min-h-screen bg-background text-ink"
 			style={bannerHeight ? { paddingBottom: bannerHeight + 16 } : undefined}
 		>
 			<header className="flex flex-col gap-5 px-4 pb-5 pt-6 sm:px-6 sm:pt-8">
@@ -223,10 +223,10 @@ function App() {
 							{WORKFLOW.program}
 						</span>
 						<a
-							href="/admin"
+							href="/admin/workflows"
 							className="no-print inline-flex min-h-9 items-center rounded-full px-3 text-xs font-semibold ring-1 ring-ink/25 hover:bg-muted"
 						>
-							CMS · Hub Editorial →
+							Admin · Workflows →
 						</a>
 					</div>
 					<h1 className="text-[28px] font-bold leading-[1.05] tracking-[-0.02em] sm:text-[44px]">
@@ -322,7 +322,7 @@ function App() {
 							<button
 								onClick={start}
 								disabled={isStarting}
-								className="min-h-9 rounded-full bg-ink px-4 py-1.5 text-xs font-semibold text-white hover:bg-neutral-700 disabled:opacity-50"
+								className="min-h-9 rounded-full bg-ink px-4 py-1.5 text-xs font-semibold text-background hover:bg-foreground/85 disabled:opacity-50"
 							>
 								{isStarting ? "Iniciando…" : "Iniciar run"}
 							</button>
@@ -392,7 +392,7 @@ function App() {
 				// Celular: ação fixa no rodapé, ao alcance do polegar; desktop: sticky no topo.
 				<div
 					ref={bannerRef}
-					className="no-print fixed inset-x-0 bottom-0 z-30 bg-white/95 px-3 pb-[max(0.5rem,env(safe-area-inset-bottom))] pt-2 shadow-[0_-8px_24px_rgba(0,0,0,0.08)] backdrop-blur sm:sticky sm:bottom-auto sm:top-0 sm:bg-white/90 sm:px-6 sm:py-2 sm:shadow-none">
+					className="no-print fixed inset-x-0 bottom-0 z-30 bg-card/95 px-3 pb-[max(0.5rem,env(safe-area-inset-bottom))] pt-2 shadow-[0_-8px_24px_rgba(0,0,0,0.08)] backdrop-blur sm:sticky sm:bottom-auto sm:top-0 sm:bg-card/90 sm:px-6 sm:py-2 sm:shadow-none">
 					<div className="flex max-h-[60vh] flex-col gap-2 overflow-y-auto rounded-[22px] bg-muted px-4 py-3 ring-2 ring-ink sm:max-h-none sm:flex-row sm:items-center sm:overflow-visible">
 						<div className="flex-1 text-sm">
 							<span className="mr-2 text-[11px] font-bold tracking-wider">

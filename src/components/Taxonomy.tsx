@@ -68,7 +68,7 @@ export function StatusTag({ label }: { label: StatusLabel }) {
 		<span
 			className={`inline-flex shrink-0 items-center gap-1 whitespace-nowrap rounded-full px-1.5 py-[1px] text-[9.5px] font-semibold tracking-wide ${
 				live
-					? "bg-ink text-white"
+					? "bg-ink text-background"
 					: done
 						? "text-ink ring-1 ring-ink"
 						: "text-ink-2 ring-1 ring-ink/25"
@@ -84,7 +84,7 @@ export function PhasePill({ phaseId }: { phaseId?: string }) {
 	const phase = phaseId ? PHASE_BY_ID.get(phaseId) : undefined;
 	if (!phase) return null;
 	return (
-		<span className="inline-flex items-center gap-1.5 whitespace-nowrap rounded-full bg-phase px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-white">
+		<span className="inline-flex items-center gap-1.5 whitespace-nowrap rounded-full bg-phase px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-background">
 			Fase {phase.number}
 			<span className="font-medium opacity-90">· {phase.name}</span>
 		</span>
@@ -94,7 +94,7 @@ export function PhasePill({ phaseId }: { phaseId?: string }) {
 export function PlatformChip({ name }: { name: string }) {
 	const accent = PLATFORM_ACCENT[name];
 	return (
-		<span className="inline-flex items-stretch overflow-hidden rounded-md bg-platform text-[11px] font-semibold text-white">
+		<span className="inline-flex items-stretch overflow-hidden rounded-md bg-platform text-[11px] font-semibold text-background">
 			{accent && (
 				<span aria-hidden className="w-1.5" style={{ background: accent }} />
 			)}
@@ -119,7 +119,7 @@ export function ShapeGlyph({
 	size?: number;
 }) {
 	const s = size;
-	const stroke = { stroke: "#171717", strokeWidth: 1.5, fill: "#fff" };
+	const stroke = { stroke: "var(--foreground)", strokeWidth: 1.5, fill: "var(--card)" };
 	let shape;
 	switch (kind) {
 		case "start":
@@ -149,7 +149,7 @@ export function ShapeGlyph({
 						textAnchor="middle"
 						fontSize={s * 0.55}
 						fontWeight={700}
-						fill="#171717"
+						fill="var(--foreground)"
 					>
 						{mark}
 					</text>
@@ -168,7 +168,7 @@ export function ShapeGlyph({
 						width={s - 4}
 						height={4}
 						rx={1.5}
-						fill={kind === "deliverable" ? "#15803D" : "#14532D"}
+						fill={kind === "deliverable" ? "var(--workflow-type-deliverable)" : "var(--workflow-type-subdeliverable)"}
 					/>
 				</>
 			);
@@ -180,7 +180,7 @@ export function ShapeGlyph({
 					{kind !== "activity" && (
 						<path
 							d={`M${s / 2 - 2.5} ${s - 6} h5 M${s / 2} ${s - 8.5} v5`}
-							stroke="#171717"
+							stroke="var(--foreground)"
 							strokeWidth={1.2}
 						/>
 					)}
@@ -246,7 +246,7 @@ export function StepActions({
 				<button
 					disabled={sent}
 					onClick={() => send({})}
-					className={`${base} bg-ink text-white hover:bg-neutral-700`}
+					className={`${base} bg-ink text-background hover:bg-foreground/85`}
 				>
 					{sent
 						? "Enviando…"
@@ -273,14 +273,14 @@ export function StepActions({
 			<button
 				disabled={sent}
 				onClick={() => send({ approved: true, comment: "Aprovado via UI" })}
-				className={`${base} bg-ink text-white hover:bg-neutral-700`}
+				className={`${base} bg-ink text-background hover:bg-foreground/85`}
 			>
 				SIM · Aprovar
 			</button>
 			<button
 				disabled={sent}
 				onClick={reject}
-				className={`${base} bg-white text-ink ring-1 ring-ink hover:bg-muted`}
+				className={`${base} bg-card text-ink ring-1 ring-ink hover:bg-muted`}
 			>
 				NÃO · Reprovar
 			</button>

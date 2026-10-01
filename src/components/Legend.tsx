@@ -1,17 +1,17 @@
 import { ShapeGlyph } from "./Taxonomy";
 
 const COLORS: [string, string, string][] = [
-	["bg-human", "text-white", "Humano"],
-	["bg-orchestrator", "text-white", "Orchestrator"],
-	["bg-phase", "text-white", "Fase"],
-	["bg-agent", "text-white", "Agente"],
-	["bg-skill", "text-white", "Skill"],
-	["bg-tool", "text-white", "Tool"],
-	["bg-deliverable", "text-white", "Entregável"],
-	["bg-subdeliverable", "text-white", "Subentregável"],
-	["bg-platform", "text-white", "Plataforma"],
-	["bg-id", "text-[#111]", "ID"],
-	["bg-format", "text-white", "Formato"],
+	["bg-human", "text-background", "Humano"],
+	["bg-orchestrator", "text-background", "Orchestrator"],
+	["bg-phase", "text-background", "Fase"],
+	["bg-agent", "text-background", "Agente"],
+	["bg-skill", "text-background", "Skill"],
+	["bg-tool", "text-background", "Tool"],
+	["bg-deliverable", "text-background", "Entregável"],
+	["bg-subdeliverable", "text-background", "Subentregável"],
+	["bg-platform", "text-background", "Plataforma"],
+	["bg-id", "text-foreground", "ID"],
+	["bg-format", "text-background", "Formato"],
 ];
 
 const SHAPES = [
@@ -48,7 +48,7 @@ export function Legend() {
 				))}
 				<span className="inline-flex items-center gap-1.5">
 					<svg width="28" height="8" aria-hidden>
-						<path d="M0 4 H28" stroke="#171717" strokeWidth="1.75" />
+						<path d="M0 4 H28" stroke="var(--foreground)" strokeWidth="1.75" />
 					</svg>
 					Dependência
 				</span>
@@ -56,7 +56,7 @@ export function Legend() {
 					<svg width="28" height="8" aria-hidden>
 						<path
 							d="M0 4 H28"
-							stroke="#666"
+							stroke="var(--muted-foreground)"
 							strokeWidth="1.1"
 							strokeDasharray="5 4"
 						/>

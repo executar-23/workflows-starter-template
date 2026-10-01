@@ -3,6 +3,8 @@ export { WorkflowStatusDO } from "./durable-object";
 export { TaskBoardDO } from "./task-board";
 export { HubStoreDO } from "./hub-store";
 import { handleHubApi } from "./hub-api";
+import { handleAdminRegistryApi } from "./admin-registry-api";
+import { handleAdminWorkflowApi } from "./admin-workflow-api";
 import { CMS_RUN, handleCmsApi } from "./cms-api";
 import { corsHeaders, handleAgentApi, handleRunApi, json } from "./agent-api";
 import { handleDefinitionsApi } from "./definitions-api";
@@ -61,6 +63,12 @@ const appHandler = {
 		// CMS (Hub Editorial): sessão de administrador própria (ADMIN_TOKEN).
 		const hubResponse = await handleHubApi(request, env, url);
 		if (hubResponse) return hubResponse;
+
+		const adminRegistryResponse = await handleAdminRegistryApi(request, env, url);
+		if (adminRegistryResponse) return adminRegistryResponse;
+
+		const adminWorkflowResponse = await handleAdminWorkflowApi(request, env, url);
+		if (adminWorkflowResponse) return adminWorkflowResponse;
 
 		// Working process publicado pela cadeia-valor-unica (definições múltiplas).
 		const definitionsResponse = await handleDefinitionsApi(request, env, url);

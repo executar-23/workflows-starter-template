@@ -28,19 +28,19 @@ function highlight(line: string): JSX.Element {
 				if (!token) return null;
 				if (/^".*:\s*$/.test(token) || /":$/.test(token))
 					return (
-						<span key={i} className="text-[#1D4ED8]">
+						<span key={i} className="text-primary">
 							{token}
 						</span>
 					);
 				if (token.startsWith('"'))
 					return (
-						<span key={i} className="text-[#15803D]">
+						<span key={i} className="text-[var(--color-brand-default)]">
 							{token}
 						</span>
 					);
 				if (/^(\d+|true|false|null)$/.test(token))
 					return (
-						<span key={i} className="text-[#C2410C]">
+						<span key={i} className="text-[var(--color-attention-default)]">
 							{token}
 						</span>
 					);
@@ -110,7 +110,7 @@ export function JsonDrawer({ currentStep }: { currentStep: string | null }) {
 				onClick={() => setOpen((v) => !v)}
 				aria-expanded={open}
 				aria-controls="json-panel"
-				className="mb-6 mt-auto hidden h-fit sm:flex items-center gap-2 rounded-l-xl bg-ink px-2 py-4 text-[11px] font-semibold tracking-wider text-white shadow-lg [writing-mode:vertical-rl]"
+				className="mb-6 mt-auto hidden h-fit sm:flex items-center gap-2 rounded-l-xl bg-ink px-2 py-4 text-[11px] font-semibold tracking-wider text-background shadow-lg [writing-mode:vertical-rl]"
 			>
 				<span aria-hidden className="rotate-90">
 					{open ? "▾" : "▴"}
@@ -120,7 +120,7 @@ export function JsonDrawer({ currentStep }: { currentStep: string | null }) {
 
 			<aside
 				id="json-panel"
-				className="flex h-full w-screen flex-col sm:w-[min(560px,88vw)] bg-white shadow-2xl ring-1 ring-ink/15"
+				className="flex h-full w-screen flex-col sm:w-[min(560px,88vw)] bg-card shadow-2xl ring-1 ring-ink/15"
 			>
 				<header className="flex items-center gap-2 border-b border-ink/10 px-4 py-3">
 					<span className="font-mono text-xs font-semibold">workflow.json</span>
@@ -128,7 +128,7 @@ export function JsonDrawer({ currentStep }: { currentStep: string | null }) {
 						v{WORKFLOW.version} · {WORKFLOW.nodes.length} nós
 					</span>
 					{currentStep && (
-						<span className="rounded-full bg-id px-2 py-0.5 font-mono text-[10px] font-semibold text-[#111]">
+						<span className="rounded-full bg-id px-2 py-0.5 font-mono text-[10px] font-semibold text-foreground">
 							{currentStep}
 						</span>
 					)}
