@@ -1,4 +1,5 @@
-import { WORKFLOW, type RunStatus, type WorkflowNode } from "../shared/schema";
+import type { RunStatus, WorkflowNode } from "../shared/schema";
+import { WORKFLOW } from "./active-graph";
 import type { RunView } from "./components/NodeCard";
 
 const LIVE: RunStatus[] = ["ready", "running", "waiting", "error"];

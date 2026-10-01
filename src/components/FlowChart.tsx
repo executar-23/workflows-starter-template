@@ -6,13 +6,8 @@ import {
 	useState,
 } from "react";
 import type { ReactNode } from "react";
-import {
-	NODE_BY_ID,
-	WORKFLOW,
-	statusLabel,
-	successorsOf,
-	type WorkflowNode,
-} from "../../shared/schema";
+import { statusLabel, type WorkflowNode } from "../../shared/schema";
+import { NODE_BY_ID, WORKFLOW, successorsOf } from "../active-graph";
 import { NodeCard, type RunView } from "./NodeCard";
 import { NodeBadges, PhasePill, StatusTag, StepActions } from "./Taxonomy";
 import { ExecutorBadge, TaskPanel } from "./Execution";

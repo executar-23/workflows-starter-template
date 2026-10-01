@@ -60,6 +60,7 @@
 		"dev": "vite",
 		"lint": "eslint .",
 		"preview": "npm run build && vite preview",
+		"pdf": "node scripts/print-pdf.mjs",
 		"test": "vitest run"
 	},
 	"type": "module"

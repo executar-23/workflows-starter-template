@@ -1,0 +1,23 @@
+{
+	"id": "cadeia-min",
+	"version": 1,
+	"program": "TESTE",
+	"title": "Cadeia mínima",
+	"subtitle": "Fixture do validador",
+	"source": ["test/fixtures/def-cadeia-min.json"],
+	"phases": [
+		{ "id": "f1", "number": "01", "name": "Preparar" },
+		{ "id": "f2", "number": "02", "name": "Produzir" }
+	],
+	"nodes": [
+		{ "id": "START", "kind": "start", "title": "Início", "dependsOn": [] },
+		{ "id": "T01", "kind": "activity", "title": "Validar tema", "phase": "f1", "dependsOn": ["START"], "executor": "human", "output": "Tema validado" },
+		{ "id": "G1", "kind": "gate", "title": "Tema aprovado?", "phase": "f1", "dependsOn": ["T01"], "decision": "human", "event": "g1-tema", "onReject": { "target": "T01", "label": "Revisar tema" } },
+		{ "id": "PS1", "kind": "parallel-split", "title": "Produção paralela", "phase": "f2", "dependsOn": ["G1"], "symbol": "+" },
+		{ "id": "T02", "kind": "activity", "title": "Escrever artigo", "phase": "f2", "dependsOn": ["PS1"], "executor": "human" },
+		{ "id": "T03", "kind": "activity", "title": "Roteiro do vídeo", "phase": "f2", "dependsOn": ["PS1"], "executor": "human" },
+		{ "id": "PJ1", "kind": "parallel-join", "title": "Produção concluída", "phase": "f2", "dependsOn": ["T02", "T03"], "symbol": "+" },
+		{ "id": "T04", "kind": "activity", "title": "Handoff", "phase": "f2", "dependsOn": ["PJ1"], "executor": "agent:clp" },
+		{ "id": "END", "kind": "end", "title": "Fim", "dependsOn": ["T04"] }
+	]
+}

@@ -5,6 +5,8 @@ export { HubStoreDO } from "./hub-store";
 import { handleHubApi } from "./hub-api";
 import { CMS_RUN, handleCmsApi } from "./cms-api";
 import { corsHeaders, handleAgentApi, handleRunApi, json } from "./agent-api";
+import { handleDefinitionsApi } from "./definitions-api";
+import { getPointer } from "./definitions";
 
 type EventBody = {
 	type: string;
@@ -39,6 +41,7 @@ export default {
 					evidence: "POST /api/runs/:id/nodes/:node/evidence",
 					artifacts: "GET /api/runs/:id/artifacts · GET /api/artifacts/:key",
 					tasks: "GET /api/runs/:id/tasks",
+					definitions: "GET|POST /api/definitions · GET /api/definitions/:id · PUT /api/definitions/:id/artifacts/:file",
 					agent: "GET /api/tasks · POST /api/tasks/:id/claim|complete · PUT /api/runs/:id/artifacts/:node/:file (Bearer AGENT_TOKEN)",
 				},
 			});
@@ -51,6 +54,10 @@ export default {
 		// CMS (Hub Editorial): sessão de administrador própria (ADMIN_TOKEN).
 		const hubResponse = await handleHubApi(request, env, url);
 		if (hubResponse) return hubResponse;
+
+		// Working process publicado pela cadeia-valor-unica (definições múltiplas).
+		const definitionsResponse = await handleDefinitionsApi(request, env, url);
+		if (definitionsResponse) return definitionsResponse;
 
 		// Agentes usam AGENT_TOKEN próprio, independente do API_TOKEN da UI.
 		const agentResponse = await handleAgentApi(request, env, url);
@@ -86,6 +93,18 @@ export default {
 					const plan = await board.getPlan(body.planId);
 					if (!plan) return json({ error: "Plano não encontrado" }, { status: 404 });
 					if (!body.campaignId) body.campaignId = plan.campaign;
+				}
+
+				// Definição publicada (cadeia-valor-unica): fixa a revisão atual no run.
+				if (body.definitionId !== undefined) {
+					if (typeof body.definitionId !== "string") {
+						return json({ error: "definitionId deve ser string" }, { status: 400 });
+					}
+					const pointer = await getPointer(env.ARTIFACTS, body.definitionId);
+					if (!pointer) return json({ error: "Definição não encontrada" }, { status: 404 });
+					body.definitionKey = pointer.key;
+				} else {
+					delete body.definitionKey;
 				}
 
 				const instance = await env.MY_WORKFLOW.create({

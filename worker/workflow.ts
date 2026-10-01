@@ -3,7 +3,7 @@ import { NonRetryableError } from "cloudflare:workflows";
 import type { WorkflowEvent, WorkflowStep } from "cloudflare:workers";
 import {
 	WORKFLOW,
-	NODE_BY_ID,
+	graphOf,
 	artifactPrefix,
 	csvRecords,
 	decisionEventType,
@@ -11,7 +11,6 @@ import {
 	executorOf,
 	isStructural,
 	okEventType,
-	producesOf,
 	taskIdOf,
 	type Awaiting,
 	type RunStatus,
@@ -20,12 +19,16 @@ import {
 import { buildPrompt } from "../shared/prompt";
 import { bindTasks } from "../shared/plan";
 import { listArtifacts, readText, saveEvidence, putArtifact } from "./artifacts";
+import { getByKey } from "./definitions";
 
 export type WorkflowParams = {
 	campaignId?: string;
 	strategicPillar?: string;
 	assetIds?: string[];
 	planId?: string;
+	definitionId?: string;
+	// Revisão imutável da definição (R2 definitions/…): fixada no start.
+	definitionKey?: string;
 	metadata?: Record<string, string>;
 };
 
@@ -60,17 +63,15 @@ export const TRACKED_NODES = WORKFLOW.nodes.map((node) => node.id);
 
 // Unidade de execução: um nó, ou o bloco contíguo multi-instância
 // (N11 → D8) repetido para cada Asset_ID.
-function buildUnits(): WorkflowNode[][] {
+function buildUnits(nodes: WorkflowNode[]): WorkflowNode[][] {
 	const units: WorkflowNode[][] = [];
-	for (const node of WORKFLOW.nodes) {
+	for (const node of nodes) {
 		const last = units.at(-1);
 		if (node.multiInstance && last?.[0].multiInstance) last.push(node);
 		else units.push([node]);
 	}
 	return units;
 }
-
-const UNITS = buildUnits();
 
 export class MyWorkflow extends WorkflowEntrypoint<Env, WorkflowParams> {
 	async run(event: WorkflowEvent<WorkflowParams>, step: WorkflowStep) {
@@ -80,6 +81,9 @@ export class MyWorkflow extends WorkflowEntrypoint<Env, WorkflowParams> {
 		const campaignId = params.campaignId || `campaign-${instanceId}`;
 		let assetIds = params.assetIds?.length ? params.assetIds : ["asset-1"];
 		const results = new Map<string, StepRecord>();
+		// Grafo do run: fluxo padrão, ou definição publicada lida dentro de um
+		// step (determinístico no replay; a chave é imutável).
+		let graph = graphOf(WORKFLOW);
 
 		const status = env.WORKFLOW_STATUS.get(
 			env.WORKFLOW_STATUS.idFromName(instanceId),
@@ -103,6 +107,9 @@ export class MyWorkflow extends WorkflowEntrypoint<Env, WorkflowParams> {
 				.setMeta({
 					campaignId,
 					assetIds: assetIds.join(", "),
+					...(params.definitionKey
+						? { definitionId: graph.def.id, definitionKey: params.definitionKey }
+						: {}),
 					...(params.planId ? { planId: params.planId } : {}),
 					...(params.metadata?.contentRecordId
 						? { contentRecordId: params.metadata.contentRecordId }
@@ -154,7 +161,7 @@ export class MyWorkflow extends WorkflowEntrypoint<Env, WorkflowParams> {
 			attempt: number,
 			payload: DonePayload,
 		) => {
-			const produced = producesOf(node);
+			const produced = graph.producesOf(node);
 			const missing: string[] = [];
 			const found: string[] = [];
 			for (const d of produced) {
@@ -203,7 +210,7 @@ export class MyWorkflow extends WorkflowEntrypoint<Env, WorkflowParams> {
 				const taskId = taskIdOf(instanceId, doneType);
 				const suffix = attempt > 1 ? ` a${attempt}` : "";
 				const uploadPrefix: Record<string, string> = { [node.id]: prefixOf(node, item) };
-				for (const d of producesOf(node)) uploadPrefix[d.id] = prefixOf(d, item);
+				for (const d of graph.producesOf(node)) uploadPrefix[d.id] = prefixOf(d, item);
 
 				await step.do(`${stepName(node, item, iteration)} · publicar${suffix}`, async () => {
 					await board.publish({
@@ -225,7 +232,7 @@ export class MyWorkflow extends WorkflowEntrypoint<Env, WorkflowParams> {
 							uploadPrefix,
 							inputs: inputs(),
 							planTask: planBindings[node.id],
-						}),
+						}, graph),
 						doneEvent: doneType,
 						status: isAgent ? "despachada" : "aguardando-humano",
 						note: attempt > 1 ? "Nova tentativa: entrega anterior insuficiente" : null,
@@ -317,7 +324,7 @@ export class MyWorkflow extends WorkflowEntrypoint<Env, WorkflowParams> {
 							iteration,
 							uploadPrefix: { [node.id]: prefixOf(node, item) },
 							inputs: inputs(),
-						}),
+						}, graph),
 						doneEvent: doneType,
 						status: "aguardando-humano",
 						note: "Artefato ausente no R2",
@@ -344,7 +351,7 @@ export class MyWorkflow extends WorkflowEntrypoint<Env, WorkflowParams> {
 			const missing: string[] = [];
 			let foundAssets: string[] = [];
 			for (const id of gate.check ?? []) {
-				const node = NODE_BY_ID.get(id)!;
+				const node = graph.byId.get(id)!;
 				const items = node.multiInstance ? assetIds : [undefined];
 				for (const item of items) {
 					const list = await listArtifacts(env.ARTIFACTS, prefixOf(node, item));
@@ -446,9 +453,9 @@ export class MyWorkflow extends WorkflowEntrypoint<Env, WorkflowParams> {
 			item: string | undefined,
 			iteration: number,
 		) => {
-			const from = WORKFLOW.nodes.findIndex((n) => n.id === target);
-			const to = WORKFLOW.nodes.findIndex((n) => n.id === gate.id);
-			for (const node of WORKFLOW.nodes.slice(from, to)) {
+			const from = graph.nodes.findIndex((n) => n.id === target);
+			const to = graph.nodes.findIndex((n) => n.id === gate.id);
+			for (const node of graph.nodes.slice(from, to)) {
 				await execNode(node, item, iteration);
 			}
 		};
@@ -467,6 +474,15 @@ export class MyWorkflow extends WorkflowEntrypoint<Env, WorkflowParams> {
 			return execWork(node, item, iteration);
 		};
 
+		if (params.definitionKey) {
+			const def = await step.do("Carregar definição", async () => {
+				const loaded = await getByKey(env.ARTIFACTS, params.definitionKey!);
+				if (!loaded) throw new NonRetryableError(`Definição ${params.definitionKey} não encontrada`);
+				return loaded;
+			});
+			graph = graphOf(def);
+		}
+
 		await syncMeta();
 
 		if (params.planId) {
@@ -475,7 +491,7 @@ export class MyWorkflow extends WorkflowEntrypoint<Env, WorkflowParams> {
 					params.planId!,
 				);
 				if (!plan) throw new NonRetryableError(`Plano ${params.planId} não encontrado`);
-				return { bindings: bindTasks(plan.tasks).bindings, files: Object.values(plan.files) };
+				return { bindings: bindTasks(plan.tasks, graph).bindings, files: Object.values(plan.files) };
 			});
 			planBindings = loaded.bindings;
 			planFiles = loaded.files;
@@ -484,7 +500,7 @@ export class MyWorkflow extends WorkflowEntrypoint<Env, WorkflowParams> {
 		try {
 			// Execução serial em ordem topológica: ramos paralelos do grafo
 			// são percorridos um de cada vez (WIP = 1).
-			for (const unit of UNITS) {
+			for (const unit of buildUnits(graph.nodes)) {
 				const items = unit[0].multiInstance ? assetIds : [undefined];
 				for (const item of items) {
 					for (const node of unit) await execNode(node, item);
@@ -494,7 +510,7 @@ export class MyWorkflow extends WorkflowEntrypoint<Env, WorkflowParams> {
 
 			return {
 				instanceId,
-				workflow: WORKFLOW.id,
+				workflow: graph.def.id,
 				campaignId,
 				status: "completed",
 				results: Object.fromEntries(results),

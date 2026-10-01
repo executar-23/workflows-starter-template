@@ -6,7 +6,7 @@ import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
 import { basename, dirname } from "node:path";
 
 const BASE = (
-	process.env.EXECUTAR_URL || "https://workflows-starter-template.hub-executar.workers.dev"
+	process.env.EXECUTAR_URL || "https://workflows-starter-template.executar-rotina-8b7.workers.dev"
 ).replace(/\/$/, "");
 const TOKEN = process.env.EXECUTAR_AGENT_TOKEN || "";
 
@@ -30,6 +30,14 @@ Comandos:
                                        conclui a tarefa com evidência
   plan-upload --campaign C --internal F.md --csv F.csv --judge F.txt [--periodo P]
                                        envia o plano upstream (skill plano-operacional-rastreavel)
+  def-validate <def.json> [--edges mapa.json]
+                                       valida o working process no servidor (dry run)
+  def-upload <def.json> [--edges mapa.json]
+                                       publica o working process (nova revisão)
+  def-put <defId> <arquivo> [--name nome]
+                                       sobe artefato da cadeia (cadeia/<defId>/)
+  def-list                             lista as definições publicadas
+  def-start <defId> [--campaign C]     inicia um run real da definição
   help                                 esta ajuda`;
 
 // Toda flag exige valor; só --artifact e --gap podem repetir.
@@ -225,6 +233,58 @@ switch (command) {
 			}),
 		});
 		console.log(JSON.stringify(data, null, 2));
+		break;
+	}
+	case "def-validate":
+	case "def-upload": {
+		if (!rest[0]) die(`uso: ${command} <def.json> [--edges mapa.json]`);
+		const definition = JSON.parse(readFileSync(rest[0], "utf8"));
+		// mapa-dependencias.json: lista de arestas ou { edges: [...] } com source/target
+		const rawEdges = opts.edges ? JSON.parse(readFileSync(opts.edges, "utf8")) : [];
+		const edges = (Array.isArray(rawEdges) ? rawEdges : (rawEdges.edges ?? []))
+			.filter((e) => e.mandatory !== false)
+			.map((e) => ({ source: e.source ?? e.source_artifact_id, target: e.target ?? e.target_artifact_id }));
+		const dry = command === "def-validate";
+		const data = await api(`/api/definitions${dry ? "?dryRun=1" : ""}`, {
+			method: "POST",
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify({ definition, edges }),
+		});
+		console.log(JSON.stringify(dry ? data : { ...data, ui: `${BASE}${data.url}`, pdf: `${BASE}${data.printUrl}` }, null, 2));
+		if (dry && !data.ok) process.exit(1);
+		break;
+	}
+	case "def-put": {
+		const [defId, file] = rest;
+		if (!defId || !file) die("uso: def-put <defId> <arquivo> [--name nome]");
+		const name = opts.name || basename(file);
+		const types = { md: "text/markdown; charset=utf-8", csv: "text/csv; charset=utf-8", html: "text/html; charset=utf-8", json: "application/json", txt: "text/plain; charset=utf-8", pdf: "application/pdf" };
+		const type = types[name.split(".").pop().toLowerCase()] ?? "application/octet-stream";
+		const data = await api(`/api/definitions/${enc(defId)}/artifacts/${enc(name)}`, {
+			method: "PUT",
+			headers: { "Content-Type": type },
+			body: readFileSync(file),
+		});
+		console.log(data.key);
+		break;
+	}
+	case "def-list": {
+		const data = await api("/api/definitions", { auth: false });
+		for (const d of data.definitions) console.log(`${d.definitionId}\tr${d.revision}\t${d.nodes} nós\t${d.title}`);
+		break;
+	}
+	case "def-start": {
+		if (!rest[0]) die("uso: def-start <defId> [--campaign C]");
+		const data = await api("/api/workflow/start", {
+			method: "POST",
+			auth: false,
+			headers: {
+				"Content-Type": "application/json",
+				...(process.env.EXECUTAR_API_TOKEN ? { Authorization: `Bearer ${process.env.EXECUTAR_API_TOKEN}` } : {}),
+			},
+			body: JSON.stringify({ definitionId: rest[0], ...(opts.campaign ? { campaignId: opts.campaign } : {}) }),
+		});
+		console.log(JSON.stringify({ ...data, ui: `${BASE}/?def=${enc(rest[0])}&run=${enc(data.instanceId)}` }, null, 2));
 		break;
 	}
 	case "help":

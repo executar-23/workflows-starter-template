@@ -1,4 +1,4 @@
-import { NODE_BY_ID, csvRecords } from "./schema";
+import { DEFAULT_GRAPH, csvRecords, type WorkflowGraph } from "./schema";
 
 // Insumo upstream: entregável #3 da skill plano-operacional-rastreavel
 // (references/schema-csv-tarefas.md, colunas 1–22) + relatório do juiz
@@ -81,14 +81,14 @@ export const judgePassed = (report: string) =>
 	/RESULTADO:\s*PASS/.test(report) && !/RESULTADO:\s*FAIL/.test(report);
 
 // Vínculo TSK → casa pela tag `no-<nó>` (DECISION da skill executar-flow).
-export function bindTasks(tasks: PlanTask[]) {
+export function bindTasks(tasks: PlanTask[], graph: WorkflowGraph = DEFAULT_GRAPH) {
 	const bindings: Record<string, { tarefa_id: string; prompt: string }> = {};
 	const warnings: string[] = [];
 	for (const task of tasks) {
 		for (const tag of task.tags) {
 			if (!tag.startsWith("no-")) continue;
 			const nodeId = tag.slice(3).toUpperCase();
-			if (!NODE_BY_ID.has(nodeId)) {
+			if (!graph.byId.has(nodeId)) {
 				warnings.push(`${task.tarefa_id}: tag ${tag} aponta para nó inexistente`);
 				continue;
 			}
