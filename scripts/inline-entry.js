@@ -9,10 +9,20 @@ export { HubStoreDO } from "../worker/hub-store";
 const decode = (b64) => Uint8Array.from(atob(b64), (c) => c.charCodeAt(0));
 
 export default {
-	async fetch(request, env) {
+	async fetch(request, env, ctx) {
 		const { pathname } = new URL(request.url);
-		if (pathname.startsWith("/api/") || pathname === "/ws") {
-			return api.fetch(request, env);
+		// API, WebSocket, MCP e OAuth (OAuthProvider em worker/index.ts).
+		if (
+			pathname.startsWith("/api/") ||
+			pathname === "/ws" ||
+			pathname === "/mcp" ||
+			pathname.startsWith("/mcp/") ||
+			pathname === "/authorize" ||
+			pathname === "/token" ||
+			pathname === "/register" ||
+			pathname.startsWith("/.well-known/")
+		) {
+			return api.fetch(request, env, ctx);
 		}
 		if (request.method === "GET" || request.method === "HEAD") {
 			// /admin e subrotas → CMS (segunda entrada do Vite).
