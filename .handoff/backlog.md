@@ -53,3 +53,9 @@
 - [🔄] #27 #23 continua com padding fixo `pb-52 sm:pb-0` (`src/App.tsx:161`), e o banner de ação pode chegar a 60vh no modo evidência. Dimensionar pela altura real (ResizeObserver → variável CSS) para não cobrir o fim da página.
 - [🔄] #28 `POST /api/auth/login` não limita tentativas (`worker/hub-api.ts`). Antes do deploy da Phase 8, adicionar um rate limit simples, por exemplo um contador por IP com janela no HubStoreDO ou uma regra de WAF, para reduzir força bruta no `ADMIN_TOKEN`.
 - [ ] #29 No deploy não inline (`wrangler.jsonc:12`, `not_found_handling: single-page-application`), `/admin/<sub-rota>` cai no `index.html` do workflow. Hoje o CMS só usa `/admin/`. Documentar a limitação no README ou usar `run_worker_first` para `/admin/*` se o CMS passar a ter rotas por URL.
+
+> Origem: /verify Phase 7 (2026-10-01) — Entrypoint único
+
+- [ ] #30 `buildPublishPrompt`/`section` (`worker/cms-api.ts:41-54`, `:57-101`) põem os valores do CMS crus no prompt: delimitar os dados (cercas ou escape de `<`/`>`) e serializar não-strings com `JSON.stringify`, para um campo com `</tarefa>` não fechar a estrutura e objetos não virarem `[object Object]`.
+- [ ] #31 O limite de login (`worker/hub-api.ts:134-140`) é global e checado antes do token: 10 falhas de qualquer origem barram o `ADMIN_TOKEN` correto por 15 min (lockout), e `loginFailures`/`noteLoginFailure` são RPCs separados, não atômicos. Contar por `CF-Connecting-IP` num único `checkAndNote` do HubStoreDO.
+- [ ] #32 `POST /api/cms/campaigns` (`worker/cms-api.ts:172-175`): uma exceção de `MY_WORKFLOW.create` vira 500 sem o envelope `fail`; envolver em try/catch e responder 502 com mensagem clara.
