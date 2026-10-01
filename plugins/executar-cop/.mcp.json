@@ -1,0 +1,8 @@
+{
+	"mcpServers": {
+		"executar": {
+			"type": "http",
+			"url": "https://workflows-starter-template.executar-rotina-8b7.workers.dev/mcp"
+		}
+	}
+}

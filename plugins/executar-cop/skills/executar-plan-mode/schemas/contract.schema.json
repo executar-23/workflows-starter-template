@@ -1,0 +1,54 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "executar-plan-mode.contract.schema.json",
+  "title": "Plan Mode Contract",
+  "type": "object",
+  "required": [
+    "id",
+    "status",
+    "version",
+    "must",
+    "must_not"
+  ],
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string"
+    },
+    "version": {
+      "type": "string"
+    },
+    "target": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "must": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "must_not": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "should": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "may": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  }
+}

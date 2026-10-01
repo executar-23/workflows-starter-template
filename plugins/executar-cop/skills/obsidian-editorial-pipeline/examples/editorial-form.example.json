@@ -1,0 +1,34 @@
+{
+  "cycle_id": "RC-CYCLE-EXAMPLE",
+  "cycle_title": "Exemplo de ciclo",
+  "problem": {
+    "problem_id": "RC-PROBLEM-999",
+    "problem_title": "Problema de exemplo",
+    "problem_statement": "[PREENCHER]",
+    "context": "[PREENCHER]",
+    "status": "Validado"
+  },
+  "solution": {
+    "solution_id": "RC-SOLUTION-999",
+    "solution_name": "Solução de exemplo",
+    "family": "Checklist"
+  },
+  "topic_pack": {
+    "working_title": "[PREENCHER]",
+    "central_claim": "[PREENCHER]",
+    "cta_id": "RC-CTA-001",
+    "tool": "[PREENCHER]"
+  },
+  "asset_plan": {
+    "artigo_mae": 1,
+    "video_mae": 1,
+    "carrossel": 2,
+    "imagem_estatica": 0,
+    "video_vertical": 1,
+    "stories": 4,
+    "newsletter": 1,
+    "ebook": 0,
+    "infografico": 1,
+    "cta_ferramenta": 2
+  }
+}

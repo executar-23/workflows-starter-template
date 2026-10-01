@@ -1,0 +1,84 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "executar-plan-mode.evidence.schema.json",
+  "title": "Evidence Record",
+  "type": "object",
+  "required": [
+    "evidence_id",
+    "class",
+    "source_type",
+    "summary"
+  ],
+  "properties": {
+    "evidence_id": {
+      "type": "string"
+    },
+    "claim_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "class": {
+      "enum": [
+        "A",
+        "B",
+        "C",
+        "D",
+        "E"
+      ]
+    },
+    "source_type": {
+      "type": "string"
+    },
+    "author_or_org": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "title": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "date": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "url_or_path": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "locator": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "summary": {
+      "type": "string"
+    },
+    "confidence": {
+      "enum": [
+        "HIGH",
+        "MEDIUM",
+        "LOW",
+        "UNKNOWN"
+      ]
+    },
+    "conflict_status": {
+      "enum": [
+        "NONE",
+        "OPEN",
+        "RESOLVED",
+        "UNKNOWN"
+      ]
+    }
+  }
+}

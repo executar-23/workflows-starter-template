@@ -1,0 +1,89 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "executar-cop/grafo-dependencias.schema.json",
+  "title": "Grafo de dependências do plugin executar-cop",
+  "description": "Contrato geral de dependências entre as unidades do plugin (skills, plugins externos e skills da conta). Reaproveita o contrato de executar-arvore-roadmap/references/schema.md (depende_de, porta, desbloqueia, estados aberta/concluida/bloqueada/marco) e a Árvore Visual (bloqueado-interno/externo). As arestas usam o schema exato de 16_REG_Dependencias, com status_epistemico obrigatório (ADR-0003). Semântica da aresta: target depende de source (source existe primeiro).",
+  "type": "object",
+  "required": ["meta", "nos", "arestas"],
+  "additionalProperties": false,
+  "properties": {
+    "meta": {
+      "type": "object",
+      "required": ["fluxo_de_valor", "versao", "fonte", "atualizado_em"],
+      "additionalProperties": false,
+      "properties": {
+        "fluxo_de_valor": {"type": "string"},
+        "versao": {"type": "string"},
+        "fonte": {"type": "array", "items": {"type": "string"}, "minItems": 1},
+        "atualizado_em": {"type": "string", "format": "date"}
+      }
+    },
+    "nos": {
+      "type": "array",
+      "minItems": 1,
+      "items": {"$ref": "#/$defs/no"}
+    },
+    "arestas": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/aresta"}
+    }
+  },
+  "$defs": {
+    "id": {"type": "string", "pattern": "^[A-Z0-9]+(-[A-Z0-9]+)*$"},
+    "no": {
+      "type": "object",
+      "required": ["id", "titulo", "tipo", "camada", "modulo", "cv_ids", "depende_de", "desbloqueia", "porta", "estado", "saida_visual"],
+      "additionalProperties": false,
+      "properties": {
+        "id": {"$ref": "#/$defs/id"},
+        "titulo": {"type": "string"},
+        "tipo": {"enum": ["skill-plugin", "plugin-externo", "skill-conta", "agente"]},
+        "camada": {"enum": [1, 2, 3]},
+        "modulo": {"type": "string", "description": "Nome resolvível: skill do plugin, plugin@marketplace ou skill da conta."},
+        "cv_ids": {"type": "array", "items": {"type": "string", "pattern": "^CV-[A-Z]+-[0-9]{3}$"}, "uniqueItems": true},
+        "depende_de": {"type": "array", "items": {"$ref": "#/$defs/id"}, "uniqueItems": true},
+        "desbloqueia": {"type": "array", "items": {"$ref": "#/$defs/id"}, "uniqueItems": true},
+        "porta": {"type": ["string", "null"]},
+        "estado": {"enum": ["aberta", "concluida", "bloqueada", "marco"]},
+        "saida_visual": {"type": "boolean"},
+        "recurso_externo": {
+          "type": "object",
+          "required": ["tipo", "referencia", "se_ausente"],
+          "additionalProperties": false,
+          "properties": {
+            "tipo": {"enum": ["plugin", "skill-conta", "arquivo", "mcp"]},
+            "referencia": {"type": "string"},
+            "se_ausente": {"const": "bloqueado-externo"}
+          }
+        },
+        "bloqueio": {
+          "type": "object",
+          "required": ["tipo", "descricao"],
+          "additionalProperties": false,
+          "properties": {
+            "tipo": {"enum": ["interno", "externo"]},
+            "descricao": {"type": "string"}
+          }
+        },
+        "lacunas": {"type": "array", "items": {"type": "string"}}
+      }
+    },
+    "aresta": {
+      "type": "object",
+      "required": ["dependency_id", "source_artifact_id", "target_artifact_id", "relation", "mandatory", "gate_id", "required_status", "status", "status_epistemico", "justificativa"],
+      "additionalProperties": false,
+      "properties": {
+        "dependency_id": {"type": "string", "pattern": "^DEP-COP-[0-9]{3}$"},
+        "source_artifact_id": {"$ref": "#/$defs/id"},
+        "target_artifact_id": {"$ref": "#/$defs/id"},
+        "relation": {"enum": ["alimenta", "informa"], "description": "alimenta = o target consome a saída do source; informa = contexto não bloqueante."},
+        "mandatory": {"type": "boolean", "description": "true = bloqueante; false = informativa."},
+        "gate_id": {"type": ["string", "null"], "description": "null quando a fonte não define Gate (equivale a gate:tbd)."},
+        "required_status": {"enum": ["aberta", "concluida", "marco"]},
+        "status": {"enum": ["ativa", "proposta", "suspensa"]},
+        "status_epistemico": {"enum": ["DIRECT", "DERIVED", "PROPOSED", "CONFLICT", "GAP"]},
+        "justificativa": {"type": "string", "minLength": 1, "description": "Fonte (DIRECT) ou justificativa rastreável (DERIVED/PROPOSED)."}
+      }
+    }
+  }
+}

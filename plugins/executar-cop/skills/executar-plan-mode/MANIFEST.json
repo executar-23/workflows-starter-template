@@ -1,0 +1,120 @@
+{
+  "name": "executar-plan-mode",
+  "version": "1.0",
+  "status": "draft",
+  "file_count": 28,
+  "files": [
+    {
+      "path": "SKILL.md",
+      "bytes": 9199
+    },
+    {
+      "path": "adapters/claude-code/CLAUDE.template.md",
+      "bytes": 809
+    },
+    {
+      "path": "adapters/codex/AGENTS.template.md",
+      "bytes": 718
+    },
+    {
+      "path": "contracts/CLAUDE-CODE-PLAN-MODE.contract.md",
+      "bytes": 2293
+    },
+    {
+      "path": "contracts/CODEX-PLAN-MODE.contract.md",
+      "bytes": 2193
+    },
+    {
+      "path": "contracts/EVIDENCE-TRACEABILITY.contract.md",
+      "bytes": 862
+    },
+    {
+      "path": "contracts/OUTPUT-QUALITY.contract.md",
+      "bytes": 874
+    },
+    {
+      "path": "contracts/PLAN-MODE-CORE.contract.md",
+      "bytes": 1847
+    },
+    {
+      "path": "examples/01-research-plan.example.md",
+      "bytes": 735
+    },
+    {
+      "path": "examples/02-migration-plan.example.md",
+      "bytes": 332
+    },
+    {
+      "path": "examples/03-agent-neutral-plan.example.md",
+      "bytes": 335
+    },
+    {
+      "path": "references/CLAUDE-CODE.reference.md",
+      "bytes": 691
+    },
+    {
+      "path": "references/CODEX.reference.md",
+      "bytes": 767
+    },
+    {
+      "path": "references/CROSSWALK.reference.md",
+      "bytes": 920
+    },
+    {
+      "path": "references/INDEX.md",
+      "bytes": 404
+    },
+    {
+      "path": "references/SOURCE-REGISTER.md",
+      "bytes": 1114
+    },
+    {
+      "path": "schemas/contract.schema.json",
+      "bytes": 874
+    },
+    {
+      "path": "schemas/evidence.schema.json",
+      "bytes": 1269
+    },
+    {
+      "path": "schemas/plan.schema.json",
+      "bytes": 2419
+    },
+    {
+      "path": "scripts/validate_plan.py",
+      "bytes": 1085
+    },
+    {
+      "path": "scripts/validate_skill.py",
+      "bytes": 1357
+    },
+    {
+      "path": "templates/AMBIGUITY-REGISTER.template.csv",
+      "bytes": 64
+    },
+    {
+      "path": "templates/ARGUMENT-MAP.template.md",
+      "bytes": 236
+    },
+    {
+      "path": "templates/EVIDENCE-LEDGER.template.csv",
+      "bytes": 119
+    },
+    {
+      "path": "templates/EXECUTION-PLAN.template.md",
+      "bytes": 350
+    },
+    {
+      "path": "templates/EXECUTOR-PROMPT.template.md",
+      "bytes": 654
+    },
+    {
+      "path": "templates/PROJECT-CHARTER.template.md",
+      "bytes": 300
+    },
+    {
+      "path": "templates/WORKFLOW-STORYBOARD.template.md",
+      "bytes": 150
+    }
+  ]
+}

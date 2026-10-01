@@ -1,0 +1,11 @@
+{
+  "name": "execution-toolkit",
+  "entrypoint": "SKILL.md",
+  "progressive_disclosure": true,
+  "references": [
+    "references/plan.md",
+    "references/workflow-composer.md",
+    "references/image-processing.md",
+    "references/technical-writing.md"
+  ]
+}
