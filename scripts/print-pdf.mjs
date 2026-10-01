@@ -16,7 +16,7 @@ const defId = argv.find((a, i) => !a.startsWith("--") && !argv[i - 1]?.startsWit
 const base = (
 	opt("base") ||
 	process.env.EXECUTAR_URL ||
-	"https://workflows-starter-template.executar-rotina-8b7.workers.dev"
+	"https://workflows-starter-template.hub-executar.workers.dev"
 ).replace(/\/$/, "");
 const out = opt("out", `out/cadeia/${defId ?? "padrao"}/workflow-${defId ?? "padrao"}.pdf`);
 const run = opt("run");

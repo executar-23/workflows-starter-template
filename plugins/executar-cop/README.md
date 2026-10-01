@@ -34,7 +34,7 @@ Entregáveis:
 4. Relatório único: dependências, otimização e o PDF.
 5. Runbook em Markdown tabular.
 
-`.mcp.json` registra o conector `executar` (Streamable HTTP + OAuth) em `https://workflows-starter-template.executar-rotina-8b7.workers.dev/mcp`. A autorização pede o `ADMIN_TOKEN` do Worker.
+`.mcp.json` registra o conector `executar` (Streamable HTTP + OAuth) em `https://workflows-starter-template.hub-executar.workers.dev/mcp`. A autorização pede o `ADMIN_TOKEN` do Worker.
 
 Ferramentas expostas:
 - `cadeia_prompt`

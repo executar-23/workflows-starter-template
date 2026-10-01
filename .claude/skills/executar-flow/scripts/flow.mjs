@@ -6,7 +6,7 @@ import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
 import { basename, dirname } from "node:path";
 
 const BASE = (
-	process.env.EXECUTAR_URL || "https://workflows-starter-template.executar-rotina-8b7.workers.dev"
+	process.env.EXECUTAR_URL || "https://workflows-starter-template.hub-executar.workers.dev"
 ).replace(/\/$/, "");
 const TOKEN = process.env.EXECUTAR_AGENT_TOKEN || "";
 
