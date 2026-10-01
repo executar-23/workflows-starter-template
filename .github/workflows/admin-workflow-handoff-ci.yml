@@ -1,6 +1,8 @@
 name: Admin Workflow Handoff CI
 
 on:
+  push:
+    branches: [feat/admin-workflow-handoff-v1]
   pull_request:
     branches: [main]
   workflow_dispatch:
