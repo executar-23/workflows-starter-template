@@ -9,14 +9,22 @@ export default defineConfig({
 	plugins: [react(), tailwindcss(), cloudflare()],
 	resolve: {
 		// "~" = código do CMS (Hub Editorial) em admin/ (caminho relativo à raiz).
-		alias: [{ find: /^~\//, replacement: "/admin/" }],
+		// "@" = alias canônico do design system (components.json da origem), também em admin/.
+		alias: [
+			{ find: /^~\//, replacement: "/admin/" },
+			{ find: /^@\//, replacement: "/admin/" },
+		],
 	},
 	environments: {
 		client: {
 			build: {
 				rollupOptions: {
-					// Duas entradas: workflow (/) e CMS (/admin/), cada uma com seu CSS.
-					input: { main: "index.html", admin: "admin/index.html" },
+					// Entradas: workflow (/), CMS (/admin/) e catálogo do design system (/admin/design-system/).
+					input: {
+						main: "index.html",
+						admin: "admin/index.html",
+						designSystem: "admin/design-system/index.html",
+					},
 				},
 			},
 		},

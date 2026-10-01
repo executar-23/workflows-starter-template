@@ -1,0 +1,22 @@
+{
+  "$comment": "ADR-DS-ROOT-MIGRATION-001 — apontador da fonte de verdade do design system. Ver DESIGN_SYSTEM.md.",
+  "source": {
+    "repository": "executar-23/Risco-cognitivo-blog",
+    "branch": "claude/youthful-archimedes-qksrsl",
+    "commit": "11f78e42a9c10df077b50c169b05ec4da7718f68"
+  },
+  "target": {
+    "repository": "executar-23/workflows-starter-template",
+    "commitBefore": "117e574f2613d8464716b5c99a11319166f54479"
+  },
+  "paths": {
+    "tokens": "admin/app.css",
+    "components": "admin/components/ui",
+    "catalog": "admin/design-system/main.tsx"
+  },
+  "runtimeRoute": "/admin/design-system",
+  "classification": "COMPATIBLE_NATIVE",
+  "status": "IMPLEMENTED_DEFAULT",
+  "lastSync": "2026-10-01",
+  "verified": false
+}

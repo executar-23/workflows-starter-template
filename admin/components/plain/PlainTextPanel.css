@@ -1,0 +1,16 @@
+/* PlainTextPanel — same surface, but long text wraps (annex §6). */
+.plain-text-panel__content {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  word-break: normal;
+  line-height: var(--plain-line-height-panel);
+}
+.plain-text-panel__content[style*="max-height"] {
+  overflow-y: auto;
+}
+.plain-surface[data-density="compact"] .plain-text-panel__content {
+  line-height: var(--plain-line-height-compact);
+}
+.plain-surface[data-density="comfortable"] .plain-text-panel__content {
+  line-height: var(--plain-line-height-comfortable);
+}

@@ -1,0 +1,31 @@
+/* AsciiDiagram — preserves geometry: never re-flow, scroll horizontally. */
+.ascii-diagram__pre {
+  overflow-x: auto;
+  overscroll-behavior-inline: contain;
+  -webkit-overflow-scrolling: touch;
+  white-space: pre;
+  word-break: normal;
+  overflow-wrap: normal;
+  line-height: var(--plain-line-height-diagram);
+}
+.ascii-diagram__pre > code {
+  font: inherit;
+  color: inherit;
+  background: none;
+  padding: 0;
+}
+.ascii-diagram__pre[data-wrap="true"] {
+  white-space: pre-wrap;
+}
+.ascii-diagram__pre[data-responsive="false"] {
+  font-size: var(--plain-font-size-fixed);
+}
+.ascii-diagram__pre[style*="max-height"] {
+  overflow-y: auto;
+}
+.plain-surface[data-density="compact"] .ascii-diagram__pre {
+  line-height: var(--plain-line-height-compact);
+}
+.plain-surface[data-density="comfortable"] .ascii-diagram__pre {
+  line-height: var(--plain-line-height-comfortable);
+}

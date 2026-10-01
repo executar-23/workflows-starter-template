@@ -25,13 +25,17 @@ export default {
 			return api.fetch(request, env, ctx);
 		}
 		if (request.method === "GET" || request.method === "HEAD") {
-			// /admin e subrotas → CMS (segunda entrada do Vite).
+			// Entrada própria do Vite (ex.: /admin/design-system/index.html) tem precedência;
+			// /admin e demais subrotas → CMS (segunda entrada do Vite).
+			const entry = `${pathname.replace(/\/$/, "")}/index.html`;
 			const key =
 				pathname === "/"
 					? "/index.html"
-					: pathname === "/admin" || (pathname.startsWith("/admin/") && !pathname.includes("."))
-						? "/admin/index.html"
-						: pathname;
+					: !pathname.includes(".") && assets[entry]
+						? entry
+						: pathname === "/admin" || (pathname.startsWith("/admin/") && !pathname.includes("."))
+							? "/admin/index.html"
+							: pathname;
 			// SPA fallback for unknown, non-file paths
 			const asset = assets[key] ?? (key.includes(".") ? null : assets["/index.html"]);
 			if (asset) {

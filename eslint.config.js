@@ -6,7 +6,19 @@ import tseslint from "typescript-eslint";
 import { globalIgnores } from "eslint/config";
 
 export default tseslint.config([
-	globalIgnores(["dist", "worker-configuration.d.ts", "plugins", ".inline"]),
+	globalIgnores([
+		"dist",
+		"worker-configuration.d.ts",
+		"plugins",
+		".inline",
+		// Clones do design system do Risco-cognitivo-blog (DESIGN_SYSTEM.md): mantidos idênticos à origem.
+		"admin/components/ui",
+		"admin/components/plain",
+		"admin/lib/plain",
+		"admin/hooks",
+		"admin/components/design-system/component-gallery.tsx",
+		"admin/components/design-system/data-gallery.tsx",
+	]),
 	{
 		files: ["**/*.{ts,tsx}"],
 		extends: [
