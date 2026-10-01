@@ -1,4 +1,5 @@
-import { NODE_BY_ID, WORKFLOW, statusLabel } from "../../shared/schema";
+import { statusLabel } from "../../shared/schema";
+import { NODE_BY_ID, WORKFLOW } from "../active-graph";
 import { KIND_LABEL } from "../taxonomy";
 import type { RunView } from "./NodeCard";
 import {

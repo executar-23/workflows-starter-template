@@ -75,13 +75,47 @@ export interface WorkflowDefinition {
 
 export const WORKFLOW = workflowJson as WorkflowDefinition;
 
-export const NODE_BY_ID = new Map(WORKFLOW.nodes.map((n) => [n.id, n]));
-
-export const PHASE_BY_ID = new Map(WORKFLOW.phases.map((p) => [p.id, p]));
-
-export function successorsOf(id: string): WorkflowNode[] {
-	return WORKFLOW.nodes.filter((n) => n.dependsOn.includes(id));
+// Grafo de uma definição: índices e navegação. O fluxo padrão (workflow.json)
+// e as definições publicadas por agentes (R2 definitions/) usam o mesmo shape.
+export interface WorkflowGraph {
+	def: WorkflowDefinition;
+	nodes: WorkflowNode[];
+	byId: Map<string, WorkflowNode>;
+	phaseById: Map<string, Phase>;
+	successorsOf: (id: string) => WorkflowNode[];
+	producesOf: (node: WorkflowNode) => WorkflowNode[];
 }
+
+export function graphOf(def: WorkflowDefinition): WorkflowGraph {
+	const successors = new Map<string, WorkflowNode[]>();
+	for (const n of def.nodes) {
+		for (const dep of n.dependsOn) {
+			successors.set(dep, [...(successors.get(dep) ?? []), n]);
+		}
+	}
+	const successorsOf = (id: string) => successors.get(id) ?? [];
+	return {
+		def,
+		nodes: def.nodes,
+		byId: new Map(def.nodes.map((n) => [n.id, n])),
+		phaseById: new Map(def.phases.map((p) => [p.id, p])),
+		successorsOf,
+		// Entregáveis produzidos diretamente pela casa (o artefato é gravado no
+		// prefixo do entregável: N4 → D1).
+		producesOf: (node) =>
+			successorsOf(node.id).filter(
+				(n) => n.kind === "deliverable" || n.kind === "subdeliverable",
+			),
+	};
+}
+
+export const DEFAULT_GRAPH = graphOf(WORKFLOW);
+
+export const NODE_BY_ID = DEFAULT_GRAPH.byId;
+
+export const PHASE_BY_ID = DEFAULT_GRAPH.phaseById;
+
+export const successorsOf = DEFAULT_GRAPH.successorsOf;
 
 // Estados de execução internos; a UI traduz para a STATUS_LANGUAGE do contrato.
 // "ready" = casa atual aguardando OK (WIP = 1); "waiting" = gate aguardando decisão.
@@ -153,12 +187,7 @@ export function executorOf(node: WorkflowNode): ExecutorKind {
 export const isAgent = (node: WorkflowNode) =>
 	executorOf(node).startsWith("agent:");
 
-// Entregáveis produzidos diretamente pela casa (o artefato é gravado no
-// prefixo do entregável: N4 → D1).
-export const producesOf = (node: WorkflowNode) =>
-	successorsOf(node.id).filter(
-		(n) => n.kind === "deliverable" || n.kind === "subdeliverable",
-	);
+export const producesOf = DEFAULT_GRAPH.producesOf;
 
 export const taskIdOf = (runId: string, doneType: string) =>
 	`${runId}~${doneType}`;

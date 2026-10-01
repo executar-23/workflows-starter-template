@@ -1,0 +1,24 @@
+{
+  "name": "executar-cop",
+  "displayName": "EXECUTAR · Orquestrador CMD-COP",
+  "version": "0.4.0",
+  "description": "Orquestrador CMD-COP do EXECUTAR: resolve slash, sinônimo ou alias para um ID verbal (CV-XXX-NNN), roda o pré-voo de dependências e delega ao módulo certo — rotina, produtividade, operações, produto e a cadeia proprietária (dependências → árvore → árvore visual → editorial Obsidian) e a Cadeia de Valor Única (/cadeia-unica: dependências + otimização + árvore roadmap + árvore visual + runbook → working process publicado no Worker Cloudflare via MCP). Toda saída visual segue o token do calendário; toda resposta em pt-BR.",
+  "author": {
+    "name": "executar-23",
+    "url": "https://github.com/executar-23"
+  },
+  "homepage": "https://github.com/executar-23/workflows-starter-template/tree/main/plugins/executar-cop",
+  "repository": "https://github.com/executar-23/workflows-starter-template",
+  "keywords": [
+    "executar",
+    "cmd-cop",
+    "orquestrador",
+    "dependencias",
+    "roadmap",
+    "obsidian",
+    "pt-BR",
+    "cadeia-unica",
+    "workflow",
+    "mcp"
+  ]
+}

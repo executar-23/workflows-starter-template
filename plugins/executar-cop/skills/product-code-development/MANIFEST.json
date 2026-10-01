@@ -1,0 +1,127 @@
+[
+  {
+    "path": "README.md",
+    "bytes": 1080,
+    "sha256": "9374b2736096b07d191428a347f47193e4ee23545a0825b82ecad4829cf5a777"
+  },
+  {
+    "path": "SESSION_GUIDE_BASE.md",
+    "bytes": 2870,
+    "sha256": "678a463a11eb593c002df5499fe05626b2a9cfed0049332afa2c5db9ca68203a"
+  },
+  {
+    "path": "SKILL.md",
+    "bytes": 5422,
+    "sha256": "0704cfa668db7b2ddcba05a24ffb444e85d310768739e0fcd7676632e6ecb252"
+  },
+  {
+    "path": "examples/PLAN_MODE_INVOCATION.md",
+    "bytes": 911,
+    "sha256": "12b21897a659339a0308210912260daf0991e8f658ba089c8aef06c49df5b5db"
+  },
+  {
+    "path": "references/CAPABILITY_MAP.md",
+    "bytes": 1984,
+    "sha256": "b0a7cd34334fae1b4cff5810d84dc8a7f9902bedb17450896ae25515f1797b47"
+  },
+  {
+    "path": "references/ENGINEERING_CAPABILITIES.md",
+    "bytes": 2079,
+    "sha256": "edb56673d8ef4b2194807ce53398dc03468ecd6be3be735ca7c6cc5c0af8c5ba"
+  },
+  {
+    "path": "references/GAP_AND_EVIDENCE_POLICY.md",
+    "bytes": 850,
+    "sha256": "0a97d651588837113cb7646e1f95e96b9abb14dcc2bcda84d27f1f8aa7ce214b"
+  },
+  {
+    "path": "references/PRODUCT_MANAGEMENT_CAPABILITIES.md",
+    "bytes": 1665,
+    "sha256": "4e64ece47626e6745ee9bec7a3ab0ac7273d275ddd4d2a56f1b80da005464096"
+  },
+  {
+    "path": "references/SOURCE_MANIFEST.md",
+    "bytes": 1348,
+    "sha256": "b10d9928d686c9c45820086b6d491cb3e20c010ab0eeabb80ff29bd797373e8c"
+  },
+  {
+    "path": "scripts/validate_skill.py",
+    "bytes": 1593,
+    "sha256": "1a651ea3c77d543ca4d85d49ae8d41c676a209e6760371c85e05c8251968cc63"
+  },
+  {
+    "path": "templates/DECISION_RECORD.md",
+    "bytes": 364,
+    "sha256": "b469443a0e60f723e6475b6de743d8b98bbc197018eea28679705a0a152b5cc7"
+  },
+  {
+    "path": "templates/HANDOFF.md",
+    "bytes": 283,
+    "sha256": "2703181f10c10d07669f6f94ab8ee370faa13d2afd12cad5487a266a0c33d9e2"
+  },
+  {
+    "path": "templates/IMPLEMENTATION_TASK.md",
+    "bytes": 456,
+    "sha256": "56bd58c73c9f79f0fb01defb769e2d35af74949f16db18554d437df42e6ffa26"
+  },
+  {
+    "path": "templates/PLAN_MODE_CONTRACT.md",
+    "bytes": 935,
+    "sha256": "5d52f189c29d33b1e3875f0eec51d05477079c005f2362c015ff68076754d4e2"
+  },
+  {
+    "path": "workflows/WF-00-SESSION-INTAKE.md",
+    "bytes": 423,
+    "sha256": "ba9856562c3cba833d954ae94235c21979d43863cd227f1e9b017673f7cb394f"
+  },
+  {
+    "path": "workflows/WF-01-PRODUCT-DISCOVERY-RESEARCH.md",
+    "bytes": 643,
+    "sha256": "09ee5409251e686ea011f02b48c0bf2b10b57c0a0a1698ba38f4d80ebbff9d41"
+  },
+  {
+    "path": "workflows/WF-02-ARCHITECTURE-SYSTEM-DESIGN.md",
+    "bytes": 642,
+    "sha256": "a092f09256fb6a73541c1137e60b48a7a44b08f3fd8abfee861c79c5ef5e65fe"
+  },
+  {
+    "path": "workflows/WF-03-CODE-IMPLEMENTATION-PLAN.md",
+    "bytes": 718,
+    "sha256": "2b8aa4d8458dfa5b8ac9131192edecbb030f348964329d188bf197c69a620a0b"
+  },
+  {
+    "path": "workflows/WF-04-VERTICAL-SLICE-BUILD.md",
+    "bytes": 559,
+    "sha256": "843c0732ba4b95de69206254367ce8ebddc6e69147718723ef841d5e299e8206"
+  },
+  {
+    "path": "workflows/WF-05-REVIEW-DEBUG.md",
+    "bytes": 507,
+    "sha256": "a4ab7e1b26016391e2f5e505d8ac6ed79e65ea8e216baab75512fb74e3b3263b"
+  },
+  {
+    "path": "workflows/WF-06-TESTING-DEPLOY.md",
+    "bytes": 489,
+    "sha256": "5bc7b1b5a9a77d1b99a51a01a46a45895e654c45b8e692b84ed16c6178956667"
+  },
+  {
+    "path": "workflows/WF-07-OPERATE-EVOLVE.md",
+    "bytes": 456,
+    "sha256": "7a52f1b18766e01ff24105b8170bc4b0e1d6244478aac28c7bcc27bbc7948dfc"
+  },
+  {
+    "path": "workflows/WF-08-GAP-RESOLUTION.md",
+    "bytes": 705,
+    "sha256": "337323d3a8706f60d979fd52ad345d6dac1f94b32c0a7a3f5ae9d712a4158fb7"
+  },
+  {
+    "path": "workflows/WF-09-PRODUCT-TO-PRODUCTION.md",
+    "bytes": 608,
+    "sha256": "16929ac4d5a2193d56bead87a0e499b6c588af63a03ca7df004702cd557294e8"
+  },
+  {
+    "path": "workflows/WORKFLOW_INDEX.md",
+    "bytes": 890,
+    "sha256": "7c7ecbceccf68a76d61e9da13e57ff5f40980f346bcae9b671a13b82874bd293"
+  }
+]

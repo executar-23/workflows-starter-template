@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Editorial Job State",
+  "type": "object",
+  "required": [
+    "job_id",
+    "state",
+    "steps",
+    "wip_limit"
+  ],
+  "properties": {
+    "job_id": {
+      "type": "string"
+    },
+    "state": {
+      "enum": [
+        "PLANNED",
+        "STRUCTURED",
+        "IMPLEMENTED",
+        "PRODUCED",
+        "VERIFIED"
+      ]
+    },
+    "percent": {
+      "enum": [
+        0,
+        33,
+        66,
+        99,
+        100
+      ]
+    },
+    "wip_limit": {
+      "const": 1
+    },
+    "steps": {
+      "type": "array"
+    },
+    "handoff_accepted": {
+      "type": "boolean"
+    }
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "id": "LANCAMENTO-0709",
+  "titulo": "EXECUTAR · LANÇAMENTO 07/09",
+  "tipo": "pasta",
+  "estado": "liberado",
+  "filhos": [
+    {
+      "id": "FILA",
+      "titulo": "FILA TEMPORAL ÚNICA",
+      "tipo": "pasta",
+      "filhos": [
+        {
+          "id": "D25",
+          "titulo": "25/08 · Central de lançamento",
+          "tipo": "pasta",
+          "estado": "atual",
+          "filhos": [
+            {"id":"D25-ROTAS","titulo":"Reunir rotas existentes","tipo":"arquivo","estado":"liberado"},
+            {"id":"D25-CTAS","titulo":"Classificar chamadas para ação","tipo":"arquivo","estado":"liberado"},
+            {"id":"D25-MATERIAIS","titulo":"Reunir materiais existentes","tipo":"arquivo","estado":"liberado"},
+            {"id":"D25-DEPS","titulo":"Atualizar mapa de dependências","tipo":"arquivo","estado":"dependencia"},
+            {"id":"PORTA-D26","titulo":"Liberar 26/08","tipo":"porta","estado":"dependencia"}
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -206,26 +206,31 @@ export class HubStoreDO extends DurableObject {
 		return out;
 	}
 
-	// Limite de tentativas de login (janela de 15 min, contador no meta).
-	async loginFailures(windowStart: number): Promise<number> {
+	// #31: limite de tentativas de login por IP (janela deslizante), checado e
+	// registrado num único RPC (o DO serializa as chamadas → atômico). O token
+	// correto vindo de outro IP não é barrado pelas falhas de um atacante.
+	async loginAttempt(
+		ip: string,
+		ok: boolean,
+		now: number,
+		windowStart: number,
+		maxFailures: number,
+	): Promise<"ok" | "invalid" | "blocked"> {
+		const key = `login_failures:${ip.slice(0, 64)}`;
 		const row = this.sql
-			.exec<{ value: string }>("SELECT value FROM meta WHERE key = 'login_failures'")
+			.exec<{ value: string }>("SELECT value FROM meta WHERE key = ?", key)
 			.toArray()[0];
-		const stamps = row ? (JSON.parse(row.value) as number[]) : [];
-		return stamps.filter((t) => t >= windowStart).length;
-	}
-
-	async noteLoginFailure(now: number, windowStart: number): Promise<number> {
-		const row = this.sql
-			.exec<{ value: string }>("SELECT value FROM meta WHERE key = 'login_failures'")
-			.toArray()[0];
-		const stamps = [...(row ? (JSON.parse(row.value) as number[]) : []).filter((t) => t >= windowStart), now];
+		const stamps = (row ? (JSON.parse(row.value) as number[]) : []).filter((t) => t >= windowStart);
+		if (stamps.length >= maxFailures) return "blocked";
+		if (ok) return "ok";
+		stamps.push(now);
 		this.sql.exec(
-			"INSERT INTO meta (key, value) VALUES ('login_failures', ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value",
+			"INSERT INTO meta (key, value) VALUES (?, ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value",
+			key,
 			JSON.stringify(stamps.slice(-50)),
 		);
 		this.audit("anon", "login_failed", null, null);
-		return stamps.length;
+		return "invalid";
 	}
 
 	async remove(actor: string, module: string, id: string): Promise<boolean> {

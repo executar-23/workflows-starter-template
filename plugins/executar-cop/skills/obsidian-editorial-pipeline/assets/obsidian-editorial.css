@@ -1,0 +1,38 @@
+/* Obsidian Editorial Pipeline V2.2 — interface operacional inspirada no HIG */
+/* Paleta: token do calendário (plugins/executar-cop/assets/design-tokens/calendario-light-mode.md).
+   Vermelho só para hoje, prioridade alta e item atual; estado também comunicado por ícone e título. */
+.obsidian-editorial, .editorial-hig {
+  --oe-radius: 12px;
+  --oe-tinta: 17,17,17;       /* #111111 */
+  --oe-tinta-3: 140,140,140;  /* #8c8c8c */
+  --oe-vermelho: 227,25,25;   /* #e31919 */
+}
+.editorial-hig .markdown-preview-sizer,
+.editorial-hig .cm-sizer { max-width: 820px; margin-inline: auto; }
+.editorial-hig h1 { font-size: clamp(1.8rem,4vw,2.45rem); line-height:1.08; letter-spacing:-.03em; border:0; margin-bottom:.35rem; }
+.editorial-hig h2 { font-size:1.15rem; letter-spacing:0; text-transform:none; border:0; margin-top:2.1rem; }
+.editorial-hig p, .editorial-hig li { line-height:1.6; }
+.editorial-hig .callout { border:1px solid var(--background-modifier-border); border-radius:var(--oe-radius); box-shadow:none; padding:.15rem .3rem; }
+.editorial-hig .callout-title { font-weight:700; }
+.editorial-hig .callout[data-callout="agora"] { --callout-color: var(--oe-vermelho); --callout-icon: lucide-play-circle; }
+.editorial-hig .callout[data-callout="entrega"] { --callout-color: var(--oe-tinta); --callout-icon: lucide-package-check; }
+.editorial-hig .callout[data-callout="preencher"] { --callout-color: var(--oe-tinta); --callout-icon: lucide-pencil-line; }
+.editorial-hig .callout[data-callout="pronto"] { --callout-color: var(--oe-tinta-3); --callout-icon: lucide-circle-check-big; }
+.editorial-hig .callout[data-callout="proximo"] { --callout-color: var(--oe-tinta); --callout-icon: lucide-arrow-right-circle; }
+.editorial-hig .callout[data-callout="navegacao"] { --callout-color: var(--oe-tinta-3); --callout-icon: lucide-navigation; }
+.editorial-hig .callout[data-callout="contexto"] { --callout-color: var(--oe-tinta-3); --callout-icon: lucide-info; }
+.editorial-hig .callout[data-callout="bloqueio"] { --callout-color: var(--oe-tinta); --callout-icon: lucide-octagon-alert; }
+.editorial-hig .callout[data-callout="navegacao"] .callout-title { display:none; }
+.editorial-hig .callout[data-callout="navegacao"] .callout-content { display:flex; flex-wrap:wrap; gap:.45rem; align-items:center; padding-top:.5rem; }
+.editorial-hig .callout[data-callout="navegacao"] .internal-link,
+.editorial-hig .callout[data-callout="agora"] .internal-link,
+.editorial-hig .callout[data-callout="proximo"] .internal-link {
+  display:inline-block; text-decoration:none; border:1px solid var(--background-modifier-border); border-radius:999px; padding:.42rem .72rem; font-weight:650; background:var(--background-primary);
+}
+.editorial-hig table { width:100%; border-collapse:separate; border-spacing:0; overflow:hidden; border:1px solid var(--background-modifier-border); border-radius:12px; }
+.editorial-hig th, .editorial-hig td { padding:.58rem .68rem; border-bottom:1px solid var(--background-modifier-border); vertical-align:top; }
+.editorial-hig tr:last-child td { border-bottom:0; }
+.editorial-hig th { background:var(--background-secondary); font-size:.78rem; }
+.editorial-hig input[type="checkbox"] { transform:scale(1.08); }
+.editorial-hig .metadata-container { border:1px solid var(--background-modifier-border); border-radius:12px; padding:.35rem; }
+@media (max-width:700px){ .editorial-hig .markdown-preview-sizer,.editorial-hig .cm-sizer{padding-inline:.75rem}.editorial-hig table{font-size:.84rem} }

@@ -1,0 +1,7 @@
+interface:
+  display_name: "Obsidian Editorial Pipeline V2.1"
+  short_description: "Produção editorial navegável em português até o ZIP de entrega"
+  default_prompt: "Use $obsidian-editorial-pipeline para criar ou continuar este ciclo editorial no Obsidian pelo entry point, executar a próxima etapa elegível e manter a navegação interna até o ZIP final."
+policy:
+  products: [chatgpt, codex, api, atlas]
+  allow_implicit_invocation: true

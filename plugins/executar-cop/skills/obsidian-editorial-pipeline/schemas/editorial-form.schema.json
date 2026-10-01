@@ -1,0 +1,238 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Editorial Form",
+  "type": "object",
+  "required": [
+    "problem"
+  ],
+  "properties": {
+    "cycle_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "cycle_title": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "problem": {
+      "type": "object",
+      "required": [
+        "problem_id",
+        "problem_title"
+      ],
+      "properties": {
+        "problem_id": {
+          "type": "string"
+        },
+        "problem_title": {
+          "type": "string"
+        },
+        "problem_statement": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "audience": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "context": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "consequence": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "principle_mechanism": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "risk_ids": {
+          "type": [
+            "array",
+            "string",
+            "null"
+          ]
+        },
+        "cognitive_cost_ids": {
+          "type": [
+            "array",
+            "string",
+            "null"
+          ]
+        },
+        "evidence_ids": {
+          "type": [
+            "array",
+            "string",
+            "null"
+          ]
+        },
+        "management_domain_ids": {
+          "type": [
+            "array",
+            "string",
+            "null"
+          ]
+        },
+        "editorial_pillar": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "awareness_level": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "priority": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "status": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    },
+    "solution": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "properties": {
+        "solution_id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "solution_name": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "family": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "intervention": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "before_state": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "after_state": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "next_action": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "success_metric": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    },
+    "topic_pack": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "properties": {
+        "working_title": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "central_claim": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "cta_id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "tool": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "arc": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    },
+    "asset_plan": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "additionalProperties": {
+        "type": "integer",
+        "minimum": 0
+      }
+    },
+    "sources": {
+      "type": [
+        "array",
+        "null"
+      ],
+      "items": {
+        "type": "object"
+      }
+    },
+    "extensions": {
+      "type": [
+        "object",
+        "null"
+      ]
+    }
+  }
+}

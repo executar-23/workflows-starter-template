@@ -1,0 +1,109 @@
+{
+  "meta": {
+    "titulo": "EXECUTAR_LANCAMENTO_31-08-2026",
+    "objetivo": "lançar_ecossistema_EXECUTAR_em_31-08-2026",
+    "inicio": "2026-08-07",
+    "fim": "2026-08-09",
+    "total_peso": 7.042,
+    "unidades_executaveis": 12,
+    "dias_operacionais": 2
+  },
+  "fluxos_de_valor": [
+    {"id": "VS-00", "nome": "CONTROLE", "peso": 10.0},
+    {"id": "VS-01", "nome": "DECISOES_INFRA", "peso": 10.0}
+  ],
+  "portas": [
+    {
+      "id": "G-CONTROLE",
+      "itens": [
+        "formulario_M0-M4_instalado_e_testado",
+        "Obsidian_e_ligacoes_funcionais",
+        "Drive_diario_criado",
+        "registrador_18h_funcionando",
+        "rastreabilidade_local_Drive_GitHub"
+      ],
+      "libera": "G-DECISOES"
+    },
+    {
+      "id": "G-DECISOES",
+      "itens": [
+        "base_tecnica_e_infra_registradas",
+        "plataformas_formatos_dominio_ativos_custos",
+        "contas_e_assinaturas_inventariadas"
+      ],
+      "libera": "G-PRODUTO"
+    },
+    {
+      "id": "G-PRODUTO",
+      "itens": [
+        "fluxos_principais_implementados",
+        "navegacao_funcoes_estados_dados_testados"
+      ],
+      "libera": "G-INTEGRACAO"
+    }
+  ],
+  "calendario": [
+    {
+      "data": "2026-08-07",
+      "label": "07_SEXTA",
+      "objetos": 3,
+      "peso_dia": 1.152,
+      "ciclos": {
+        "M0": {"tarefas": []},
+        "M1": {"tarefas": []},
+        "M2": {"tarefas": []},
+        "M3": {
+          "tarefas": [
+            {"id": "PLN-001", "titulo": "Instalar e validar formulário diário M0–M4", "peso": 0.384, "depende_de": [], "porta": "G-CONTROLE", "status": "aberta", "evidencia": null},
+            {"id": "PLN-002", "titulo": "Configurar ligações diretas do Obsidian", "peso": 0.384, "depende_de": ["PLN-001"], "porta": "G-CONTROLE", "status": "aberta", "evidencia": null},
+            {"id": "PLN-003", "titulo": "Configurar árvore diária do Google Drive", "peso": 0.384, "depende_de": ["PLN-001"], "porta": "G-CONTROLE", "status": "aberta", "evidencia": null}
+          ]
+        },
+        "M4": {"tarefas": []},
+        "18H": {"tarefas": []}
+      }
+    },
+    {
+      "data": "2026-08-08",
+      "label": "08_SABADO",
+      "objetos": 9,
+      "peso_dia": 5.890,
+      "ciclos": {
+        "M0": {"tarefas": []},
+        "M1": {
+          "tarefas": [
+            {"id": "EXE-084", "titulo": "Stack técnico", "peso": 0.526, "depende_de": [], "porta": "G-DECISOES", "status": "aberta", "evidencia": null},
+            {"id": "EXE-085", "titulo": "Infraestrutura", "peso": 0.526, "depende_de": [], "porta": "G-DECISOES", "status": "aberta", "evidencia": null},
+            {"id": "EXE-094", "titulo": "Cadastros e assinaturas", "peso": 0.526, "depende_de": [], "porta": "G-DECISOES", "status": "aberta", "evidencia": null}
+          ]
+        },
+        "M2": {
+          "tarefas": [
+            {"id": "EXE-021", "titulo": "Prototipar aplicativo funcionalmente", "peso": 1.316, "depende_de": [], "porta": "G-PRODUTO", "status": "aberta", "evidencia": null},
+            {"id": "EXE-040", "titulo": "Inserir o plano no aplicativo", "peso": 1.316, "depende_de": ["EXE-021"], "porta": "G-PRODUTO", "status": "aberta", "evidencia": null},
+            {"id": "EXE-119", "titulo": "Definir diretório padrão", "peso": 0.385, "depende_de": [], "porta": "G-CONTROLE", "status": "aberta", "evidencia": null}
+          ]
+        },
+        "M3": {
+          "tarefas": [
+            {"id": "EXE-122", "titulo": "Manter estrutura no GitHub", "peso": 0.384, "depende_de": ["EXE-119"], "porta": "G-CONTROLE", "status": "aberta", "evidencia": null},
+            {"id": "PLN-004", "titulo": "Configurar registro diário das 18h", "peso": 0.384, "depende_de": ["PLN-003", "EXE-122"], "porta": "G-CONTROLE", "status": "aberta", "evidencia": null},
+            {"id": "DER-001", "titulo": "Registrar e-mail operacional", "peso": 0.527, "depende_de": ["EXE-094"], "porta": "G-DECISOES", "status": "aberta", "evidencia": null}
+          ]
+        },
+        "M4": {"tarefas": []},
+        "18H": {"tarefas": []}
+      }
+    },
+    {
+      "data": "2026-08-09",
+      "label": "09_DOMINGO",
+      "objetos": 0,
+      "peso_dia": 0,
+      "ciclos": {
+        "M0": {"tarefas": []}, "M1": {"tarefas": []}, "M2": {"tarefas": []},
+        "M3": {"tarefas": []}, "M4": {"tarefas": []}, "18H": {"tarefas": []}
+      }
+    }
+  ]
+}

@@ -57,5 +57,4 @@
 > Origem: /verify Phase 7 (2026-10-01) — Entrypoint único
 
 - [ ] #30 `buildPublishPrompt`/`section` (`worker/cms-api.ts:41-54`, `:57-101`) põem os valores do CMS crus no prompt: delimitar os dados (cercas ou escape de `<`/`>`) e serializar não-strings com `JSON.stringify`, para um campo com `</tarefa>` não fechar a estrutura e objetos não virarem `[object Object]`.
-- [ ] #31 O limite de login (`worker/hub-api.ts:134-140`) é global e checado antes do token: 10 falhas de qualquer origem barram o `ADMIN_TOKEN` correto por 15 min (lockout), e `loginFailures`/`noteLoginFailure` são RPCs separados, não atômicos. Contar por `CF-Connecting-IP` num único `checkAndNote` do HubStoreDO.
 - [ ] #32 `POST /api/cms/campaigns` (`worker/cms-api.ts:172-175`): uma exceção de `MY_WORKFLOW.create` vira 500 sem o envelope `fail`; envolver em try/catch e responder 502 com mensagem clara.

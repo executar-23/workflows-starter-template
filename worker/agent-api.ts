@@ -1,8 +1,10 @@
-import { NODE_BY_ID, producesOf, runPrefix } from "../shared/schema";
+import { runPrefix } from "../shared/schema";
 import { bindTasks, judgePassed, validatePlanCsv } from "../shared/plan";
 import { artifactKey, listArtifacts, putArtifact } from "./artifacts";
 import type { DonePayload } from "./workflow";
 import { CMS_RUN, isBlogPrUrl, isCmsTask, isSlug } from "./cms-api";
+import { CADEIA_PREFIX, graphOfRun } from "./definitions";
+import { cadeiaReadAllowed } from "./definitions-api";
 
 // API de execução real: agentes Claude Code (Bearer AGENT_TOKEN) e UI.
 
@@ -62,7 +64,7 @@ function sameToken(given: string, expected: string) {
 }
 
 // Sem secret configurado a fila fica fechada (nunca aberta por omissão).
-function agentAuth(request: Request, env: Env): Response | null {
+export function agentAuth(request: Request, env: Env): Response | null {
 	const token = (env as Env & { AGENT_TOKEN?: string }).AGENT_TOKEN;
 	if (!token) {
 		return json(
@@ -243,7 +245,7 @@ export async function handleAgentApi(
 	const putMatch = path.match(/^\/api\/runs\/([^/]+)\/artifacts\/([^/]+)\/([^/]+)$/);
 	if (putMatch && request.method === "PUT") {
 		const [, runId, nodeId, file] = putMatch.map(decodeURIComponent);
-		const node = NODE_BY_ID.get(nodeId);
+		const node = (await graphOfRun(env, runId)).byId.get(nodeId);
 		if (!node) return json({ error: `Nó ${nodeId} inexistente` }, { status: 400 });
 		const item = url.searchParams.get("item") ?? undefined;
 		const key = artifactKey(
@@ -281,11 +283,12 @@ export async function handleRunApi(
 		if (!awaiting || awaiting.nodeId !== nodeId || awaiting.mode !== "evidence") {
 			return json({ error: "Esta casa não está aguardando evidência" }, { status: 409 });
 		}
-		const node = NODE_BY_ID.get(nodeId)!;
+		const graph = await graphOfRun(env, runId);
+		const node = graph.byId.get(nodeId)!;
 		const task = awaiting.taskId ? await board(env).get(awaiting.taskId) : null;
 		const item = task?.item ?? undefined;
 		// Casa humana que produz entregável grava no prefixo do entregável (N6 → D2).
-		const target = producesOf(node)[0] ?? node;
+		const target = graph.producesOf(node)[0] ?? node;
 		const campaignId = await campaignOf(env, runId);
 
 		const form = await request.formData();
@@ -385,8 +388,17 @@ export async function handleRunApi(
 
 	if (path.startsWith("/api/artifacts/") && request.method === "GET") {
 		const key = decodeURIComponent(path.slice("/api/artifacts/".length));
-		if (!key.startsWith("campaigns/") && !key.startsWith("plans/")) {
+		if (
+			!key.startsWith("campaigns/") &&
+			!key.startsWith("plans/") &&
+			!key.startsWith(CADEIA_PREFIX)
+		) {
 			return json({ error: "Chave inválida" }, { status: 400 });
+		}
+		// Artefatos da cadeia (process doc do cliente): agente ou admin.
+		if (key.startsWith(CADEIA_PREFIX)) {
+			const denied = await cadeiaReadAllowed(request, env);
+			if (denied) return denied;
 		}
 		// Arquivos do plano upstream (prompts, CSV do cliente) só para agentes.
 		if (key.startsWith("plans/")) {

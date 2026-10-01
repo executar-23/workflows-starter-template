@@ -109,6 +109,26 @@ async function guarded(fn: () => Promise<Response>) {
 }
 
 /** Rotas /api/auth/*, /api/hub*, /api/vocab*. Publicação/campanhas: cms-api.ts. */
+// ADMIN_TOKEN com limite por IP (#28/#31): no máximo 10 falhas a cada 15 min
+// por CF-Connecting-IP. Usado pelo login do CMS e pela autorização OAuth do MCP.
+export async function checkAdminToken(
+	request: Request,
+	env: Env,
+	given: string,
+): Promise<"ok" | "invalid" | "blocked" | "unconfigured"> {
+	const secret = adminToken(env);
+	if (!secret) return "unconfigured";
+	const now = Date.now();
+	const ip = request.headers.get("CF-Connecting-IP") ?? "local";
+	return store(env).loginAttempt(
+		ip,
+		safeEqual(given, secret),
+		now,
+		now - LOGIN_WINDOW_MS,
+		LOGIN_MAX_FAILURES,
+	);
+}
+
 export async function handleHubApi(
 	request: Request,
 	env: Env,
@@ -128,17 +148,12 @@ export async function handleHubApi(
 	if (path === "/api/auth/login" && method === "POST") {
 		const secret = adminToken(env);
 		if (!secret) return fail(503, "ADMIN_TOKEN não configurado no Worker");
-		// #28: no máximo 10 falhas a cada 15 min (contador no HubStoreDO).
-		const now = Date.now();
-		const windowStart = now - LOGIN_WINDOW_MS;
-		if ((await store(env).loginFailures(windowStart)) >= LOGIN_MAX_FAILURES) {
+		const body = (await request.json().catch(() => ({}))) as Json;
+		const result = await checkAdminToken(request, env, String(body.token ?? ""));
+		if (result === "blocked") {
 			return fail(429, "Muitas tentativas. Aguarde 15 minutos.", { "Retry-After": "900" });
 		}
-		const body = (await request.json().catch(() => ({}))) as Json;
-		if (!safeEqual(String(body.token ?? ""), secret)) {
-			await store(env).noteLoginFailure(now, windowStart);
-			return fail(401, "Token inválido");
-		}
+		if (result !== "ok") return fail(401, "Token inválido");
 		const epoch = await store(env).sessionEpoch();
 		return ok(
 			{ email: ACTOR },

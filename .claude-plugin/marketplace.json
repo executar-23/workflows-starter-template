@@ -1,0 +1,24 @@
+{
+	"name": "executar",
+	"owner": { "name": "executar-23", "url": "https://github.com/executar-23" },
+	"metadata": {
+		"description": "Plugins do Programa EXECUTAR: orquestrador CMD-COP com a Cadeia de Valor Única (MCP no Worker Cloudflare) e o workflow agent-handoff (plan → execute → verify).",
+		"version": "0.4.0"
+	},
+	"plugins": [
+		{
+			"name": "executar-cop",
+			"source": "./plugins/executar-cop",
+			"description": "Orquestrador CMD-COP + Cadeia de Valor Única (/cadeia-unica): process doc → dependências → otimização → árvores → working process no Cloudflare → relatório + runbook.",
+			"version": "0.4.0",
+			"category": "productivity"
+		},
+		{
+			"name": "agent-handoff",
+			"source": "./plugins/agent-handoff",
+			"description": "Workflow de 3 estágios (plan → execute → verify) com estado em disco (.handoff/).",
+			"version": "0.4.2",
+			"category": "development"
+		}
+	]
+}

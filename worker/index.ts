@@ -5,6 +5,11 @@ export { HubStoreDO } from "./hub-store";
 import { handleHubApi } from "./hub-api";
 import { CMS_RUN, handleCmsApi } from "./cms-api";
 import { corsHeaders, handleAgentApi, handleRunApi, json } from "./agent-api";
+import { handleDefinitionsApi } from "./definitions-api";
+import { getPointer } from "./definitions";
+import OAuthProvider from "@cloudflare/workers-oauth-provider";
+import { mcpHandler } from "./mcp";
+import { handleAuthorize, isAllowedRedirect } from "./oauth-authorize";
 
 type EventBody = {
 	type: string;
@@ -19,13 +24,16 @@ function isAuthorized(request: Request, env: Env) {
 	return request.headers.get("Authorization") === `Bearer ${token}`;
 }
 
-export default {
+const appHandler = {
 	async fetch(request: Request, env: Env): Promise<Response> {
+		const url = new URL(request.url);
+
+		// Autorização OAuth do conector MCP (ADMIN_TOKEN).
+		if (url.pathname === "/authorize") return handleAuthorize(request, env);
+
 		if (request.method === "OPTIONS") {
 			return new Response(null, { status: 204, headers: corsHeaders });
 		}
-
-		const url = new URL(request.url);
 
 		if (url.pathname === "/api/health" && request.method === "GET") {
 			return json({
@@ -39,6 +47,8 @@ export default {
 					evidence: "POST /api/runs/:id/nodes/:node/evidence",
 					artifacts: "GET /api/runs/:id/artifacts · GET /api/artifacts/:key",
 					tasks: "GET /api/runs/:id/tasks",
+					mcp: "POST /mcp (OAuth: /authorize com ADMIN_TOKEN · /token · /register)",
+					definitions: "GET|POST /api/definitions · GET /api/definitions/:id · PUT /api/definitions/:id/artifacts/:file",
 					agent: "GET /api/tasks · POST /api/tasks/:id/claim|complete · PUT /api/runs/:id/artifacts/:node/:file (Bearer AGENT_TOKEN)",
 				},
 			});
@@ -51,6 +61,10 @@ export default {
 		// CMS (Hub Editorial): sessão de administrador própria (ADMIN_TOKEN).
 		const hubResponse = await handleHubApi(request, env, url);
 		if (hubResponse) return hubResponse;
+
+		// Working process publicado pela cadeia-valor-unica (definições múltiplas).
+		const definitionsResponse = await handleDefinitionsApi(request, env, url);
+		if (definitionsResponse) return definitionsResponse;
 
 		// Agentes usam AGENT_TOKEN próprio, independente do API_TOKEN da UI.
 		const agentResponse = await handleAgentApi(request, env, url);
@@ -86,6 +100,18 @@ export default {
 					const plan = await board.getPlan(body.planId);
 					if (!plan) return json({ error: "Plano não encontrado" }, { status: 404 });
 					if (!body.campaignId) body.campaignId = plan.campaign;
+				}
+
+				// Definição publicada (cadeia-valor-unica): fixa a revisão atual no run.
+				if (body.definitionId !== undefined) {
+					if (typeof body.definitionId !== "string") {
+						return json({ error: "definitionId deve ser string" }, { status: 400 });
+					}
+					const pointer = await getPointer(env.ARTIFACTS, body.definitionId);
+					if (!pointer) return json({ error: "Definição não encontrada" }, { status: 404 });
+					body.definitionKey = pointer.key;
+				} else {
+					delete body.definitionKey;
 				}
 
 				const instance = await env.MY_WORKFLOW.create({
@@ -192,5 +218,52 @@ export default {
 		}
 
 		return json({ error: "Not Found" }, { status: 404 });
+	},
+} satisfies ExportedHandler<Env>;
+
+// OAuth 2.1 (DCR + PKCE) na frente de tudo: /mcp exige access token; o resto
+// segue para o app como antes (defaultHandler). O recurso protegido (RFC 9728)
+// é a URL /mcp do próprio host, então há um provider por origem (workers.dev,
+// domínio próprio, testes).
+function createProvider(origin: string) {
+	return new OAuthProvider({
+		apiRoute: "/mcp",
+		apiHandler: mcpHandler,
+		defaultHandler: appHandler,
+		authorizeEndpoint: "/authorize",
+		tokenEndpoint: "/token",
+		clientRegistrationEndpoint: "/register",
+		scopesSupported: ["executar"],
+		accessTokenTTL: 3600,
+		resourceMetadata: {
+			resource: `${origin}/mcp`,
+			resource_name: "Programa EXECUTAR · Cadeia de Valor Única (MCP)",
+		},
+		// O DCR é aberto (claude.ai registra o próprio cliente), mas só com
+		// redirect_uri conhecidos: claude.ai/claude.com e loopback local.
+		clientRegistrationCallback: ({ clientMetadata }) => {
+			const uris = (clientMetadata.redirect_uris as string[] | undefined) ?? [];
+			if (!uris.length || !uris.every(isAllowedRedirect)) {
+				return {
+					code: "invalid_redirect_uri",
+					description: "redirect_uri não permitido (use o conector do claude.ai)",
+					status: 400,
+				};
+			}
+		},
+	});
+}
+
+const providers = new Map<string, ReturnType<typeof createProvider>>();
+
+export default {
+	fetch(request: Request, env: Env, ctx: ExecutionContext) {
+		const origin = new URL(request.url).origin.replace(/^http:\/\/(?!localhost|127\.0\.0\.1)/, "https://");
+		let provider = providers.get(origin);
+		if (!provider) {
+			provider = createProvider(origin);
+			if (providers.size < 10) providers.set(origin, provider);
+		}
+		return provider.fetch(request, env, ctx);
 	},
 } satisfies ExportedHandler<Env>;

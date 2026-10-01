@@ -1,0 +1,25 @@
+{
+  "id": "RAIZ-001",
+  "titulo": "Título da árvore",
+  "tipo": "pasta",
+  "estado": "liberado",
+  "aberto": true,
+  "filhos": [
+    {
+      "id": "RAMO-001",
+      "titulo": "Ramo principal",
+      "tipo": "pasta",
+      "estado": "atual",
+      "filhos": [
+        {
+          "id": "NO-001",
+          "titulo": "Nó final",
+          "tipo": "arquivo",
+          "estado": "liberado",
+          "dependeDe": [],
+          "desbloqueia": []
+        }
+      ]
+    }
+  ]
+}

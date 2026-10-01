@@ -1,0 +1,296 @@
+{
+  "id": "PD-CLB-20260922-F01-DOC-V02",
+  "version": "2.0",
+  "cycle_days": 15,
+  "wip": 1,
+  "entry_gate_days": 4,
+  "states": [
+    {
+      "code": "PLANNED",
+      "percent": 0
+    },
+    {
+      "code": "STRUCTURED",
+      "percent": 33
+    },
+    {
+      "code": "IMPLEMENTED",
+      "percent": 66
+    },
+    {
+      "code": "PRODUCED",
+      "percent": 99
+    },
+    {
+      "code": "VERIFIED",
+      "percent": 100
+    }
+  ],
+  "default_assets": {
+    "artigo_mae": 1,
+    "video_mae": 1,
+    "infografico": 3,
+    "imagem_estatica": 6,
+    "carrossel": 6,
+    "video_vertical": 4,
+    "stories": 12,
+    "cta_ferramenta": 6,
+    "newsletter": 3,
+    "ebook": 3
+  },
+  "steps": [
+    {
+      "id": "S01",
+      "title": "Validar o tema do ciclo",
+      "depends_on": [],
+      "asset_key": null,
+      "output": "02 - TRILHA/Etapa 01 - Validar o tema.md",
+      "evidence_required": "registro da dor/sinal + decisão",
+      "ui_title": "Validar o tema"
+    },
+    {
+      "id": "S02",
+      "title": "Pesquisar e organizar evidências",
+      "depends_on": [
+        "S01"
+      ],
+      "asset_key": null,
+      "output": "02 - TRILHA/Etapa 02 - Organizar evidências.md",
+      "evidence_required": "fontes identificáveis + claims sustentados",
+      "ui_title": "Organizar evidências"
+    },
+    {
+      "id": "S03",
+      "title": "Definir o Pacote Temático",
+      "depends_on": [
+        "S01",
+        "S02"
+      ],
+      "asset_key": null,
+      "output": "02 - TRILHA/Etapa 03 - Fechar o pacote temático.md",
+      "evidence_required": "título + claim central + CTA + ferramenta",
+      "ui_title": "Fechar o pacote temático"
+    },
+    {
+      "id": "S04",
+      "title": "Estruturar o outline da peça-mãe",
+      "depends_on": [
+        "S03"
+      ],
+      "asset_key": null,
+      "output": "02 - TRILHA/Etapa 04 - Estruturar o artigo.md",
+      "evidence_required": "outline com Claim/Evidência/Exemplo/Interpretação",
+      "ui_title": "Estruturar o artigo"
+    },
+    {
+      "id": "S05",
+      "title": "Produzir o artigo-mãe",
+      "depends_on": [
+        "S04",
+        "S02"
+      ],
+      "asset_key": "artigo_mae",
+      "output": "02 - TRILHA/Etapa 05 - Escrever o artigo.md",
+      "evidence_required": "artigo versionado + revisão",
+      "ui_title": "Escrever o artigo"
+    },
+    {
+      "id": "S06",
+      "title": "Revisar o estilo editorial",
+      "depends_on": [
+        "S05"
+      ],
+      "asset_key": null,
+      "output": "02 - TRILHA/Etapa 06 - Revisar o artigo.md",
+      "evidence_required": "checklist + ajustes + aprovação",
+      "ui_title": "Revisar o artigo"
+    },
+    {
+      "id": "S07",
+      "title": "Otimizar GEO e SEO do artigo",
+      "depends_on": [
+        "S06",
+        "S02"
+      ],
+      "asset_key": null,
+      "output": "02 - TRILHA/Etapa 07 - Otimizar GEO e SEO.md",
+      "evidence_required": "checklist GEO/SEO",
+      "ui_title": "Otimizar GEO e SEO"
+    },
+    {
+      "id": "S08",
+      "title": "Produzir/registrar o vídeo-mãe",
+      "depends_on": [
+        "S05"
+      ],
+      "asset_key": "video_mae",
+      "output": "02 - TRILHA/Etapa 08 - Registrar o vídeo-mãe.md",
+      "evidence_required": "roteiro 8–12 min",
+      "ui_title": "Registrar o vídeo-mãe"
+    },
+    {
+      "id": "S09",
+      "title": "Mapear a origem dos derivados",
+      "depends_on": [
+        "S07",
+        "S08"
+      ],
+      "asset_key": null,
+      "output": "02 - TRILHA/Etapa 09 - Marcar origem dos derivados.md",
+      "evidence_required": "mapeamento origem→derivado",
+      "ui_title": "Marcar origem dos derivados"
+    },
+    {
+      "id": "S10",
+      "title": "Produzir textos curtos derivados",
+      "depends_on": [
+        "S09"
+      ],
+      "asset_key": null,
+      "output": "02 - TRILHA/Etapa 10 - Produzir textos curtos.md",
+      "evidence_required": "banco versionado",
+      "ui_title": "Produzir textos curtos"
+    },
+    {
+      "id": "S11",
+      "title": "Produzir/registrar vídeos verticais",
+      "depends_on": [
+        "S09"
+      ],
+      "asset_key": "video_vertical",
+      "output": "02 - TRILHA/Etapa 11 - Registrar vídeos verticais.md",
+      "evidence_required": "roteiros versionados",
+      "ui_title": "Registrar vídeos verticais"
+    },
+    {
+      "id": "S12",
+      "title": "Produzir carrosséis",
+      "depends_on": [
+        "S09"
+      ],
+      "asset_key": "carrossel",
+      "output": "02 - TRILHA/Etapa 12 - Produzir carrosséis.md",
+      "evidence_required": "copies versionadas",
+      "ui_title": "Produzir carrosséis"
+    },
+    {
+      "id": "S13",
+      "title": "Produzir/registrar imagens estáticas",
+      "depends_on": [
+        "S09"
+      ],
+      "asset_key": "imagem_estatica",
+      "output": "02 - TRILHA/Etapa 13 - Registrar imagens.md",
+      "evidence_required": "copies versionadas",
+      "ui_title": "Registrar imagens"
+    },
+    {
+      "id": "S14",
+      "title": "Produzir briefing/registro dos infográficos",
+      "depends_on": [
+        "S09"
+      ],
+      "asset_key": "infografico",
+      "output": "02 - TRILHA/Etapa 14 - Registrar infográficos.md",
+      "evidence_required": "briefings 16:9",
+      "ui_title": "Registrar infográficos"
+    },
+    {
+      "id": "S15",
+      "title": "Produzir sequência de Stories",
+      "depends_on": [
+        "S09"
+      ],
+      "asset_key": "stories",
+      "output": "02 - TRILHA/Etapa 15 - Produzir stories.md",
+      "evidence_required": "sequência + CTA",
+      "ui_title": "Produzir stories"
+    },
+    {
+      "id": "S16",
+      "title": "Produzir newsletters",
+      "depends_on": [
+        "S09"
+      ],
+      "asset_key": "newsletter",
+      "output": "02 - TRILHA/Etapa 16 - Produzir newsletters.md",
+      "evidence_required": "copies versionadas",
+      "ui_title": "Produzir newsletters"
+    },
+    {
+      "id": "S17",
+      "title": "Produzir ebooks",
+      "depends_on": [
+        "S09"
+      ],
+      "asset_key": "ebook",
+      "output": "02 - TRILHA/Etapa 17 - Produzir ebooks.md",
+      "evidence_required": "ebooks/outline versionados",
+      "ui_title": "Produzir ebooks"
+    },
+    {
+      "id": "S18",
+      "title": "Mapear CTAs por peça",
+      "depends_on": [
+        "S09"
+      ],
+      "asset_key": "cta_ferramenta",
+      "output": "02 - TRILHA/Etapa 18 - Conferir CTAs.md",
+      "evidence_required": "CTA por peça",
+      "ui_title": "Conferir CTAs"
+    },
+    {
+      "id": "S19",
+      "title": "Verificar coerência do arco temático",
+      "depends_on": [
+        "S10",
+        "S11",
+        "S12",
+        "S13",
+        "S14",
+        "S15",
+        "S16",
+        "S17",
+        "S18"
+      ],
+      "asset_key": null,
+      "output": "02 - TRILHA/Etapa 19 - Conferir coerência do arco.md",
+      "evidence_required": "checklist + aprovação",
+      "ui_title": "Conferir coerência do arco"
+    },
+    {
+      "id": "S20",
+      "title": "Indexar e nomear todos os arquivos",
+      "depends_on": [
+        "S19"
+      ],
+      "asset_key": null,
+      "output": "02 - TRILHA/Etapa 20 - Organizar arquivos.md",
+      "evidence_required": "índice reconciliado",
+      "ui_title": "Organizar arquivos"
+    },
+    {
+      "id": "S21",
+      "title": "Executar checklist final pré-entrega",
+      "depends_on": [
+        "S20"
+      ],
+      "asset_key": null,
+      "output": "02 - TRILHA/Etapa 21 - Fazer conferência final.md",
+      "evidence_required": "checklist concluído + aprovação",
+      "ui_title": "Fazer conferência final"
+    },
+    {
+      "id": "S22",
+      "title": "Entregar o pacote para a Fase 2",
+      "depends_on": [
+        "S21"
+      ],
+      "asset_key": null,
+      "output": "02 - TRILHA/Etapa 22 - Entregar para a Fase 2.md",
+      "evidence_required": "ZIP + confirmação de recebimento/aceite",
+      "ui_title": "Entregar para a Fase 2"
+    }
+  ],
+  "ui_version": "HIG-OBSIDIAN-1.0"
+}

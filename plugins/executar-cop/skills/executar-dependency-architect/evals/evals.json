@@ -1,0 +1,37 @@
+{
+  "skill_name": "executar-dependency-architect",
+  "evals": [
+    {
+      "id": 1,
+      "name": "reconstrucao-completa",
+      "prompt": "Tenho aqui a planilha do control plane do EXECUTAR HUB (é uma versão reduzida, de teste): {INPUTS}/control-plane-FICTICIO.xlsx. Reconstrói a rede de dependências e me entrega o que eu preciso colar no 16_REG_Dependencias e a ordem de preenchimento por fases. Salva os arquivos que você gerar.",
+      "expected_output": "Três partes (Registro 16_REG com 8 colunas exatas; Mapa origem→destino→motivo→Gate→impacto com subseção A03; Arquitetura de Preenchimento com as 9 colunas). Ciclo A03↔A04 resolvido (um lado informativo). CONFLICT A05→A06 (DEC-02 × DOC-02) fora do registro. GAP de 12_REG_Portfolio e A07–A12. DEP-001 reutilizado. Validador sem erros.",
+      "files": ["control-plane-FICTICIO.xlsx — gerar com: python3 tests/fixtures/gerar_control_plane_ficticio.py <INPUTS>/control-plane-FICTICIO.xlsx --shared"],
+      "assertions": [
+        "registro.csv salvo com exatamente as 8 colunas do schema, na ordem",
+        "validar_registro.py (com --control-plane e --fases) termina com 0 erros sobre os arquivos gerados",
+        "a resposta tem as três partes: REGISTRO FORMAL, MAPA DE DEPENDÊNCIAS e ARQUITETURA DE PREENCHIMENTO",
+        "há análise explícita do A03 como transição Produto → Engenharia",
+        "o ciclo A03↔A04 é identificado e resolvido marcando um lado como informativo (ou PROPOSED)",
+        "o conflito A05→A06 (DEC-02 × DOC-02) é reportado como CONFLICT e não entra no registro como fato",
+        "12_REG_Portfolio ausente é declarado como GAP",
+        "DEP-001 (A00→A01) é reutilizado com o mesmo ID",
+        "a tabela de fases tem as 9 colunas obrigatórias, na ordem",
+        "a resposta está em português do Brasil"
+      ]
+    },
+    {
+      "id": 2,
+      "name": "sem-planilha",
+      "prompt": "Qual é a ordem certa de preenchimento do EXECUTAR HUB? Me dá as dependências entre os formulários A00 a A12 pra eu já ir colando no 16_REG. Não estou com a planilha aqui agora.",
+      "expected_output": "Declara bloqueio externo (planilha necessária), pede o arquivo e não apresenta dependências como fato; qualquer prévia vem marcada como PROPOSED/GAP.",
+      "files": [],
+      "assertions": [
+        "declara que a planilha é necessária (bloqueado-externo) e pede o arquivo",
+        "não apresenta dependências entre A00–A12 como fato (nenhuma linha de registro sem marcação PROPOSED/GAP)",
+        "não usa a ordem numérica A00→A12 como sequência de preenchimento",
+        "a resposta está em português do Brasil"
+      ]
+    }
+  ]
+}

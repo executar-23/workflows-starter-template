@@ -68,3 +68,15 @@
 		print-color-adjust: exact;
 	}
 }
+
+/* PDF do working process (?print=1): casas não quebram no meio. */
+@media print {
+	.node-card,
+	tr {
+		break-inside: avoid;
+	}
+	svg {
+		overflow: visible;
+	}
+}
+

@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { JSX } from "react";
-import { WORKFLOW } from "../../shared/schema";
+import { WORKFLOW } from "../active-graph";
 
 const SOURCE = JSON.stringify(WORKFLOW, null, 2);
 const LINES = SOURCE.split("\n");

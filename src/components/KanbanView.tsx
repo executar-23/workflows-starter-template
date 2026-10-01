@@ -1,6 +1,7 @@
 import { useState } from "react";
 import type { ReactNode } from "react";
-import { WORKFLOW, statusLabel, type WorkflowNode } from "../../shared/schema";
+import { statusLabel, type WorkflowNode } from "../../shared/schema";
+import { WORKFLOW } from "../active-graph";
 import { STATUS_ORDER, STATUS_SYMBOL, isWorkItem } from "../taxonomy";
 import { NodeCard, type RunView } from "./NodeCard";
 import { PhasePill } from "./Taxonomy";

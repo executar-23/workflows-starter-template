@@ -1,6 +1,5 @@
 import { useState } from "react";
 import {
-	PHASE_BY_ID,
 	type StatusLabel,
 	type WorkflowNode,
 } from "../../shared/schema";
@@ -14,6 +13,7 @@ import {
 import type { RunView } from "./NodeCard";
 import { AgentWaiting, EvidenceForm } from "./Execution";
 import { isAgent } from "../../shared/schema";
+import { PHASE_BY_ID } from "../active-graph";
 
 export function Badge({ badge }: { badge: BadgeData }) {
 	const style = BADGE_STYLE[badge.kind];

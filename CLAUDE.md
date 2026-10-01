@@ -15,6 +15,14 @@ Worker Cloudflare (Workflows + Durable Objects + R2) com UI React. O fluxo intei
 - **Plano do mês (upstream):** delegue ao `plano-ops-agent` com o intake. Ele usa a skill `plano-operacional-rastreavel`, passa o plano pelo juiz `validar_plano.py` e envia com `flow.mjs plan-upload`. Depois, inicie o run com o `planId` retornado.
 - **Diagnóstico:** `node .claude/skills/executar-flow/scripts/flow.mjs whoami` e `node .claude/skills/executar-flow/scripts/flow.mjs tasks --status despachada`.
 
+## Cadeia de Valor Única (upstream)
+
+- **Agente/skill:** `cadeia-valor-unica` (`/cadeia-unica` no plugin `executar-cop`). Process doc → 5 artefatos (árvore roadmap, árvore visual, working process, relatório único, runbook), Estratégia 07 + handoff, WIP = 1, `out/cadeia/<slug>/ESTADO.md` único. Juiz: `python3 .claude/skills/cadeia-valor-unica/scripts/validar_cadeia.py out/cadeia/<slug> --etapa all`.
+- **Working process no Worker:** `flow.mjs def-validate|def-upload|def-put|def-list|def-start` (R2 `definitions/` imutável + `cadeia/<slug>/`); UI em `/?def=<slug>`, PDF A4 em `/?def=<slug>&print=1` ou `npm run pdf -- <slug>`.
+- **MCP:** `POST /mcp` (Streamable HTTP, OAuth: `/authorize` pede o `ADMIN_TOKEN`). Conector no claude.ai: Configurações → Conectores → Adicionar personalizado → `<URL do Worker>/mcp`.
+- **Exemplo completo:** `examples/cadeia/aikb-0001/` (AIKB-0001 · PD-CLB-20260906-F01).
+- **Plugins:** `.claude-plugin/marketplace.json` → `plugins/executar-cop` (0.4.0) e `plugins/agent-handoff` (0.4.2).
+
 ## Credenciais
 
 - `EXECUTAR_URL` e `EXECUTAR_AGENT_TOKEN` são **variáveis do ambiente**: cloud em Edit → variáveis de ambiente; local em `export` ou em `.claude/settings.local.json`. Nunca cole o token no chat nem o grave no repositório.
@@ -23,6 +31,7 @@ Worker Cloudflare (Workflows + Durable Objects + R2) com UI React. O fluxo intei
 ## Fluxo Git e issues
 
 - **Nunca criar PR em rascunho (draft).** Se um PR for necessário, abra-o já pronto para revisão. Vale mesmo quando o ambiente ou uma ferramenta sugerir draft por padrão.
+- **Precedência sobre o ambiente.** Se a sessão ou o ambiente designar uma branch de trabalho (ex.: `claude/...`) e mandar abrir PR em rascunho, estas regras prevalecem: a branch designada é só base temporária de trabalho; integre o resultado na `main` e, se um PR for necessário, abra-o pronto para revisão, nunca em rascunho.
 - **Trabalho direto na `main`.** O padrão é commitar e dar push na `main`. Antes do push: `git pull --rebase origin main`, `npx vitest run`, `npx eslint .`, `npx tsc -b` e `npm run build`.
 - **Branches paralelas.** Com mais de uma frente independente ao mesmo tempo (várias sessões ou agentes), cada frente usa sua própria branch curta (`git worktree add ../<nome> -b <tipo>/<nome>`), com escopo de arquivos disjunto. Ao terminar, integre na `main` (merge ou rebase, sem PR draft), apague a branch e remova o worktree. Uma frente única vai direto na `main`.
 - **Issues no GitHub, não no chat.** Nunca devolva listas de issues, pendências ou achados por aqui: registre cada item como issue do repositório com as ferramentas `mcp__github__*` (`issue_write`; cheque duplicatas com `search_issues`) e responda só com o link e um resumo de uma linha. O `.handoff/backlog.md` é o rascunho local do ciclo; os itens abertos viram issues.

@@ -64,6 +64,10 @@
 	/**
 	 * R2: entregáveis reais do fluxo (campaigns/{cmp}/runs/{run}/{nó}/...)
 	 */
+	// OAuth do conector MCP (/mcp): clientes, grants e tokens.
+	"kv_namespaces": [
+		{ "binding": "OAUTH_KV", "id": "098ae084fbd94a588b06eca0f8c78a41" }
+	],
 	"r2_buckets": [
 		{
 			"binding": "ARTIFACTS",

@@ -6,13 +6,8 @@ import {
 	useState,
 } from "react";
 import type { ReactNode } from "react";
-import {
-	NODE_BY_ID,
-	WORKFLOW,
-	statusLabel,
-	successorsOf,
-	type WorkflowNode,
-} from "../../shared/schema";
+import { statusLabel, type WorkflowNode } from "../../shared/schema";
+import { NODE_BY_ID, WORKFLOW, successorsOf } from "../active-graph";
 import { NodeCard, type RunView } from "./NodeCard";
 import { NodeBadges, PhasePill, StatusTag, StepActions } from "./Taxonomy";
 import { ExecutorBadge, TaskPanel } from "./Execution";
@@ -66,6 +61,12 @@ function buildSequence(startId: string, stopId?: string): Item[] {
 const SEQUENCE = buildSequence(WORKFLOW.nodes[0].id);
 const LOOP_GATES = WORKFLOW.nodes.filter((n) => n.onReject?.target);
 const INDEX = new Map(WORKFLOW.nodes.map((n, i) => [n.id, i]));
+// PDF A4 (?print=1): com mais de 4 ramos paralelos o desenho lado a lado não
+// cabe na folha; usa o modo compacto (ramos empilhados com trilhos).
+const PRINT_COMPACT =
+	typeof document !== "undefined" &&
+	document.documentElement.classList.contains("print-mode") &&
+	WORKFLOW.nodes.some((n) => n.kind === "parallel-split" && successorsOf(n.id).length > 4);
 const RAIL = 10; // distância dos trilhos de split/join às bordas (modo compacto)
 
 type Geometry = {
@@ -81,7 +82,7 @@ export function FlowChart({ run }: { run: RunView }) {
 	const elements = useRef(new Map<string, HTMLElement>());
 	// Mobile first: abaixo de 640 px os ramos paralelos empilham em coluna única.
 	const [compact, setCompact] = useState(
-		() => typeof window !== "undefined" && window.innerWidth < 640,
+		() => typeof window !== "undefined" && (window.innerWidth < 640 || PRINT_COMPACT),
 	);
 	const [geo, setGeo] = useState<Geometry>({
 		width: 0,
@@ -201,7 +202,7 @@ export function FlowChart({ run }: { run: RunView }) {
 	useLayoutEffect(() => {
 		const el = scroller.current;
 		if (!el) return;
-		const update = () => setCompact(el.clientWidth < 640);
+		const update = () => setCompact(el.clientWidth < 640 || PRINT_COMPACT);
 		update();
 		const observer = new ResizeObserver(update);
 		observer.observe(el);

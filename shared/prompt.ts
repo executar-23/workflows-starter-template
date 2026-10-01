@@ -1,10 +1,4 @@
-import {
-	NODE_BY_ID,
-	PHASE_BY_ID,
-	WORKFLOW,
-	producesOf,
-	type WorkflowNode,
-} from "./schema";
+import { DEFAULT_GRAPH, type WorkflowGraph, type WorkflowNode } from "./schema";
 
 // Prompt self-contained da casa, na estrutura obrigatória de
 // .claude/skills/plano-operacional-rastreavel/references/prompt-self-contained.md
@@ -44,11 +38,15 @@ function gaps(node: WorkflowNode): string[] {
 	return out;
 }
 
-export function buildPrompt(node: WorkflowNode, ctx: PromptContext): string {
-	const phase = node.phase ? PHASE_BY_ID.get(node.phase) : undefined;
-	const produces = producesOf(node);
+export function buildPrompt(
+	node: WorkflowNode,
+	ctx: PromptContext,
+	graph: WorkflowGraph = DEFAULT_GRAPH,
+): string {
+	const phase = node.phase ? graph.phaseById.get(node.phase) : undefined;
+	const produces = graph.producesOf(node);
 	const deps = node.dependsOn
-		.map((id) => NODE_BY_ID.get(id))
+		.map((id) => graph.byId.get(id))
 		.filter(Boolean)
 		.map((n) => `${n!.id} · ${n!.title}`);
 
@@ -102,7 +100,7 @@ export function buildPrompt(node: WorkflowNode, ctx: PromptContext): string {
 	const lines = [
 		`<tarefa id="${esc(ctx.taskId)}"${ctx.planTask ? ` tsk="${esc(ctx.planTask.tarefa_id)}"` : ""}>`,
 		"  <contexto>",
-		`    ${esc(WORKFLOW.program)} · ${esc(WORKFLOW.title)}. Campanha ${esc(ctx.campaignId)}, run ${esc(ctx.runId)}${
+		`    ${esc(graph.def.program)} · ${esc(graph.def.title)}. Campanha ${esc(ctx.campaignId)}, run ${esc(ctx.runId)}${
 			ctx.iteration > 1 ? `, tentativa ${ctx.iteration}` : ""
 		}. ${phase ? `Fase ${phase.number} · ${esc(phase.name)}. ` : ""}Casa ${esc(node.id)} · ${esc(node.title)}.`,
 		"  </contexto>",

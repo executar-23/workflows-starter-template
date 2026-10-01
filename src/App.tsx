@@ -1,6 +1,9 @@
 import { useEffect, useRef, useState } from "react";
 import type { ReactNode } from "react";
-import { NODE_BY_ID, WORKFLOW } from "../shared/schema";
+import { ACTIVE, NODE_BY_ID, WORKFLOW } from "./active-graph";
+import { WORKFLOW as DEFAULT_WORKFLOW } from "../shared/schema";
+
+const WORKFLOW_DEFAULT_TITLE = DEFAULT_WORKFLOW.title;
 import { FlowChart } from "./components/FlowChart";
 import { JsonDrawer } from "./components/JsonDrawer";
 import { KanbanView, Segmented } from "./components/KanbanView";
@@ -8,6 +11,7 @@ import { Legend } from "./components/Legend";
 import { ListView } from "./components/ListView";
 import type { RunView } from "./components/NodeCard";
 import { StepActions } from "./components/Taxonomy";
+import { PrintSheet } from "./components/PrintSheet";
 import { useWorkflowWebSocket } from "./hooks/useWorkflowWebSocket";
 import { useRunData } from "./hooks/useRunData";
 import type { ViewMode } from "./types";
@@ -34,10 +38,16 @@ const write = (key: string, value: string | null) => {
 
 // O run fica na URL (?run=) para retomar um gate dias depois.
 function initialRun() {
-	return (
-		new URLSearchParams(window.location.search).get("run") ?? read(RUN_KEY)
-	);
+	const params = new URLSearchParams(window.location.search);
+	// PDF e definições publicadas só abrem o run que estiver na URL.
+	if (params.get("print") === "1" || params.has("def")) return params.get("run");
+	return params.get("run") ?? read(RUN_KEY);
 }
+
+// Modo impressão/PDF (?print=1): mapa completo, sem controles, cabeçalho A4.
+const PRINT = new URLSearchParams(window.location.search).get("print") === "1";
+
+type DefinitionItem = { definitionId: string; revision: number; nodes: number; title: string };
 
 const PLATFORM_STATUS: Record<string, string> = {
 	queued: "READY",
@@ -69,11 +79,32 @@ function App() {
 	>([]);
 	const [runStatus, setRunStatus] = useState<string>();
 	const [isStarting, setIsStarting] = useState(false);
-	const [showAll, setShowAll] = useState(() => read(ALL_KEY) === "1");
+	const [showAllPref, setShowAll] = useState(() => read(ALL_KEY) === "1");
+	const showAll = PRINT || showAllPref;
+	const [definitions, setDefinitions] = useState<DefinitionItem[]>([]);
 	const state = useWorkflowWebSocket(instanceId);
 
 	useEffect(() => write(VIEW_KEY, view), [view]);
-	useEffect(() => write(ALL_KEY, showAll ? "1" : "0"), [showAll]);
+	useEffect(() => write(ALL_KEY, showAllPref ? "1" : "0"), [showAllPref]);
+
+	// Working processes publicados (cadeia-valor-unica).
+	useEffect(() => {
+		if (instanceId || PRINT) return;
+		fetch("/api/definitions")
+			.then((r) => (r.ok ? r.json() : { definitions: [] }))
+			.then((d) => setDefinitions(d.definitions ?? []))
+			.catch(() => setDefinitions([]));
+	}, [instanceId]);
+
+	// Troca de definição recarrega a página (o grafo é carregado no boot).
+	const chooseDefinition = (id: string) => {
+		const url = new URL(window.location.href);
+		url.searchParams.delete("run");
+		if (id) url.searchParams.set("def", id);
+		else url.searchParams.delete("def");
+		write(RUN_KEY, null);
+		window.location.assign(url);
+	};
 
 	useEffect(() => {
 		write(RUN_KEY, instanceId);
@@ -113,6 +144,9 @@ function App() {
 				body: JSON.stringify({
 					...(campaignId.trim() ? { campaignId: campaignId.trim() } : {}),
 					...(planId ? { planId } : {}),
+					...(ACTIVE.definitionId && !ACTIVE.error
+						? { definitionId: ACTIVE.definitionId }
+						: {}),
 				}),
 			});
 			if (!response.ok) throw new Error("start failed");
@@ -199,9 +233,21 @@ function App() {
 						{WORKFLOW.title}
 					</h1>
 					<p className="text-sm text-ink-2 sm:text-base">{WORKFLOW.subtitle}</p>
+					{ACTIVE.definitionId && !ACTIVE.error && (
+						<p className="font-mono text-[11px] text-ink-2">
+							{ACTIVE.definitionId} · r{ACTIVE.revision} · sha {ACTIVE.sha} ·{" "}
+							{WORKFLOW.nodes.length} nós
+							{PRINT && ` · gerado em ${new Date().toLocaleString("pt-BR")}`}
+						</p>
+					)}
+					{ACTIVE.error && (
+						<p className="rounded-xl bg-muted px-3 py-2 text-xs font-semibold">
+							⚠ {ACTIVE.error}. Exibindo o fluxo padrão.
+						</p>
+					)}
 				</div>
 
-				<dl className="grid grid-cols-1 gap-2 rounded-[22px] px-4 py-3 text-xs ring-1 ring-hairline/70 sm:grid-cols-[1fr_1fr_1fr_auto] sm:items-center sm:gap-4">
+				<dl className="no-print grid grid-cols-1 gap-2 rounded-[22px] px-4 py-3 text-xs ring-1 ring-hairline/70 sm:grid-cols-[1fr_1fr_1fr_auto] sm:items-center sm:gap-4">
 					<Field label="CMP">
 						{instanceId ? (
 							<span className="truncate font-mono">
@@ -284,6 +330,24 @@ function App() {
 					</div>
 				</dl>
 
+				{!instanceId && definitions.length > 0 && (
+					<label className="no-print flex items-center gap-2 text-xs">
+						<span className="text-[10px] font-bold tracking-wider text-ink-2">DEFINIÇÃO:</span>
+						<select
+							value={ACTIVE.error ? "" : (ACTIVE.definitionId ?? "")}
+							onChange={(e) => chooseDefinition(e.target.value)}
+							className="min-w-0 flex-1 border-b border-ink/25 bg-transparent py-0.5 font-mono outline-none focus:border-ink"
+						>
+							<option value="">Fluxo padrão · {WORKFLOW_DEFAULT_TITLE}</option>
+							{definitions.map((d) => (
+								<option key={d.definitionId} value={d.definitionId}>
+									{d.definitionId} · r{d.revision} · {d.nodes} nós · {d.title}
+								</option>
+							))}
+						</select>
+					</label>
+				)}
+
 				<div className="no-print flex flex-wrap items-center gap-3">
 					<Segmented
 						value={view}
@@ -309,12 +373,17 @@ function App() {
 					>
 						JSON
 					</button>
-					<button
-						onClick={() => window.print()}
-						className="hidden rounded-full px-3 py-1 text-xs font-semibold text-ink-2 ring-1 ring-ink/20 hover:text-ink sm:inline-flex"
+					<a
+						href={`/?${new URLSearchParams({
+							...(ACTIVE.definitionId && !ACTIVE.error ? { def: ACTIVE.definitionId } : {}),
+							print: "1",
+						})}`}
+						target="_blank"
+						rel="noreferrer"
+						className="inline-flex min-h-9 items-center rounded-full px-3 py-1 text-xs font-semibold text-ink-2 ring-1 ring-ink/20 hover:text-ink"
 					>
-						Imprimir A4
-					</button>
+						PDF A4
+					</a>
 				</div>
 			</header>
 
@@ -351,13 +420,14 @@ function App() {
 			)}
 
 			<main>
-				{view === "flow" && <FlowChart run={run} />}
-				{view === "kanban" && <KanbanView run={run} />}
-				{view === "list" && <ListView run={run} />}
+				{(PRINT || view === "flow") && <FlowChart run={run} />}
+				{!PRINT && view === "kanban" && <KanbanView run={run} />}
+				{!PRINT && view === "list" && <ListView run={run} />}
+				{PRINT && <PrintSheet />}
 			</main>
 
-			<Legend />
-			<JsonDrawer currentStep={state.currentStep} />
+			{!PRINT && <Legend />}
+			{!PRINT && <JsonDrawer currentStep={state.currentStep} />}
 		</div>
 	);
 }

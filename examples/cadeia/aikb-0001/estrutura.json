@@ -1,0 +1,726 @@
+{
+ "meta": {
+  "titulo": "PD-CLB-20260906-F01 · CICLO EDITORIAL 15 DIAS",
+  "objetivo": "produzir_o_pacote_da_Fase_1_e_entregar_o_handoff_para_a_Fase_2",
+  "inicio": "2026-10-05",
+  "fim": "2026-10-19",
+  "total_peso": 100.0,
+  "unidades_executaveis": 22,
+  "dias_operacionais": 15,
+  "nota": "Data de início A DEFINIR: 2026-10-05 é referência PROPOSED; calendário relativo D01–D15 (Tópico 5, ciclo de 15 dias)."
+ },
+ "fluxos_de_valor": [
+  {
+   "id": "VS-01",
+   "nome": "TEMA_E_EVIDENCIAS",
+   "peso": 13.636
+  },
+  {
+   "id": "VS-02",
+   "nome": "PECA_MAE",
+   "peso": 27.273
+  },
+  {
+   "id": "VS-03",
+   "nome": "DERIVADOS",
+   "peso": 36.364
+  },
+  {
+   "id": "VS-04",
+   "nome": "INTEGRACAO_E_HANDOFF",
+   "peso": 22.727
+  }
+ ],
+ "portas": [
+  {
+   "id": "G-TEMA",
+   "itens": [
+    "tema_com_dor_real_e_encaixe_de_nicho",
+    "topic_pack_fechado_titulo_cta_ferramenta"
+   ],
+   "libera": "G-CONFORMIDADE"
+  },
+  {
+   "id": "G-CONFORMIDADE",
+   "itens": [
+    "estilo_tabela_3.1",
+    "geo_seo",
+    "marcacao_de_derivados",
+    "nomenclatura_9.1"
+   ],
+   "libera": "G-HANDOFF-F2"
+  },
+  {
+   "id": "G-HANDOFF-F2",
+   "itens": [
+    "briefings_tecnicos_por_asset",
+    "specs_proporcao_duracao_texto_na_tela"
+   ],
+   "libera": "POS_LANCAMENTO"
+  }
+ ],
+ "calendario": [
+  {
+   "data": "2026-10-05",
+   "label": "D01_05_SEGUNDA",
+   "objetos": 1,
+   "peso_dia": 4.545,
+   "ciclos": {
+    "M0": {
+     "tarefas": [
+      {
+       "id": "T01",
+       "titulo": "Validação do tema do ciclo",
+       "peso": 4.545,
+       "depende_de": [],
+       "porta": "G-TEMA",
+       "status": "aberta",
+       "evidencia": null
+      }
+     ]
+    },
+    "M1": {
+     "tarefas": []
+    },
+    "M2": {
+     "tarefas": []
+    },
+    "M3": {
+     "tarefas": []
+    },
+    "M4": {
+     "tarefas": []
+    },
+    "18H": {
+     "tarefas": []
+    }
+   }
+  },
+  {
+   "data": "2026-10-06",
+   "label": "D02_06_TERCA",
+   "objetos": 1,
+   "peso_dia": 4.545,
+   "ciclos": {
+    "M0": {
+     "tarefas": []
+    },
+    "M1": {
+     "tarefas": [
+      {
+       "id": "T02",
+       "titulo": "Pesquisa e levantamento de evidências",
+       "peso": 4.545,
+       "depende_de": [
+        "T01"
+       ],
+       "porta": null,
+       "status": "aberta",
+       "evidencia": null
+      }
+     ]
+    },
+    "M2": {
+     "tarefas": []
+    },
+    "M3": {
+     "tarefas": []
+    },
+    "M4": {
+     "tarefas": []
+    },
+    "18H": {
+     "tarefas": []
+    }
+   }
+  },
+  {
+   "data": "2026-10-07",
+   "label": "D03_07_QUARTA",
+   "objetos": 1,
+   "peso_dia": 4.545,
+   "ciclos": {
+    "M0": {
+     "tarefas": []
+    },
+    "M1": {
+     "tarefas": []
+    },
+    "M2": {
+     "tarefas": [
+      {
+       "id": "T03",
+       "titulo": "Definição do Topic Pack",
+       "peso": 4.545,
+       "depende_de": [
+        "T02"
+       ],
+       "porta": "G-TEMA",
+       "status": "aberta",
+       "evidencia": null
+      }
+     ]
+    },
+    "M3": {
+     "tarefas": []
+    },
+    "M4": {
+     "tarefas": []
+    },
+    "18H": {
+     "tarefas": []
+    }
+   }
+  },
+  {
+   "data": "2026-10-08",
+   "label": "D04_08_QUINTA",
+   "objetos": 2,
+   "peso_dia": 9.09,
+   "ciclos": {
+    "M0": {
+     "tarefas": []
+    },
+    "M1": {
+     "tarefas": [
+      {
+       "id": "T04",
+       "titulo": "Outline da peça-mãe",
+       "peso": 4.545,
+       "depende_de": [
+        "T02",
+        "T03"
+       ],
+       "porta": null,
+       "status": "aberta",
+       "evidencia": null
+      }
+     ]
+    },
+    "M2": {
+     "tarefas": [
+      {
+       "id": "T17",
+       "titulo": "Outline e redação dos 3 ebooks",
+       "peso": 4.545,
+       "depende_de": [
+        "T02",
+        "T03"
+       ],
+       "porta": null,
+       "status": "aberta",
+       "evidencia": null
+      }
+     ]
+    },
+    "M3": {
+     "tarefas": []
+    },
+    "M4": {
+     "tarefas": []
+    },
+    "18H": {
+     "tarefas": []
+    }
+   }
+  },
+  {
+   "data": "2026-10-09",
+   "label": "D05_09_SEXTA",
+   "objetos": 1,
+   "peso_dia": 4.545,
+   "ciclos": {
+    "M0": {
+     "tarefas": []
+    },
+    "M1": {
+     "tarefas": [
+      {
+       "id": "T05",
+       "titulo": "Redação do artigo mãe",
+       "peso": 4.545,
+       "depende_de": [
+        "T04"
+       ],
+       "porta": null,
+       "status": "aberta",
+       "evidencia": null
+      }
+     ]
+    },
+    "M2": {
+     "tarefas": []
+    },
+    "M3": {
+     "tarefas": []
+    },
+    "M4": {
+     "tarefas": []
+    },
+    "18H": {
+     "tarefas": []
+    }
+   }
+  },
+  {
+   "data": "2026-10-10",
+   "label": "D06_10_SABADO",
+   "objetos": 1,
+   "peso_dia": 4.545,
+   "ciclos": {
+    "M0": {
+     "tarefas": []
+    },
+    "M1": {
+     "tarefas": [
+      {
+       "id": "T06",
+       "titulo": "Revisão de estilo editorial",
+       "peso": 4.545,
+       "depende_de": [
+        "T05"
+       ],
+       "porta": null,
+       "status": "aberta",
+       "evidencia": null
+      }
+     ]
+    },
+    "M2": {
+     "tarefas": []
+    },
+    "M3": {
+     "tarefas": []
+    },
+    "M4": {
+     "tarefas": []
+    },
+    "18H": {
+     "tarefas": []
+    }
+   }
+  },
+  {
+   "data": "2026-10-11",
+   "label": "D07_11_DOMINGO",
+   "objetos": 1,
+   "peso_dia": 4.545,
+   "ciclos": {
+    "M0": {
+     "tarefas": []
+    },
+    "M1": {
+     "tarefas": []
+    },
+    "M2": {
+     "tarefas": [
+      {
+       "id": "T07",
+       "titulo": "Otimização GEO/SEO do artigo",
+       "peso": 4.545,
+       "depende_de": [
+        "T06"
+       ],
+       "porta": null,
+       "status": "aberta",
+       "evidencia": null
+      }
+     ]
+    },
+    "M3": {
+     "tarefas": []
+    },
+    "M4": {
+     "tarefas": []
+    },
+    "18H": {
+     "tarefas": []
+    }
+   }
+  },
+  {
+   "data": "2026-10-12",
+   "label": "D08_12_SEGUNDA",
+   "objetos": 1,
+   "peso_dia": 4.545,
+   "ciclos": {
+    "M0": {
+     "tarefas": []
+    },
+    "M1": {
+     "tarefas": [
+      {
+       "id": "T08",
+       "titulo": "Roteiro do vídeo mãe (8–12 min)",
+       "peso": 4.545,
+       "depende_de": [
+        "T04",
+        "T07"
+       ],
+       "porta": null,
+       "status": "aberta",
+       "evidencia": null
+      }
+     ]
+    },
+    "M2": {
+     "tarefas": []
+    },
+    "M3": {
+     "tarefas": []
+    },
+    "M4": {
+     "tarefas": []
+    },
+    "18H": {
+     "tarefas": []
+    }
+   }
+  },
+  {
+   "data": "2026-10-13",
+   "label": "D09_13_TERCA",
+   "objetos": 1,
+   "peso_dia": 4.545,
+   "ciclos": {
+    "M0": {
+     "tarefas": []
+    },
+    "M1": {
+     "tarefas": []
+    },
+    "M2": {
+     "tarefas": [
+      {
+       "id": "T09",
+       "titulo": "Marcação de trechos-fonte para derivados",
+       "peso": 4.545,
+       "depende_de": [
+        "T07",
+        "T08"
+       ],
+       "porta": null,
+       "status": "aberta",
+       "evidencia": null
+      }
+     ]
+    },
+    "M3": {
+     "tarefas": []
+    },
+    "M4": {
+     "tarefas": []
+    },
+    "18H": {
+     "tarefas": []
+    }
+   }
+  },
+  {
+   "data": "2026-10-14",
+   "label": "D10_14_QUARTA",
+   "objetos": 2,
+   "peso_dia": 9.09,
+   "ciclos": {
+    "M0": {
+     "tarefas": []
+    },
+    "M1": {
+     "tarefas": [
+      {
+       "id": "T10",
+       "titulo": "Banco de derivados — textos curtos",
+       "peso": 4.545,
+       "depende_de": [
+        "T09"
+       ],
+       "porta": null,
+       "status": "aberta",
+       "evidencia": null
+      }
+     ]
+    },
+    "M2": {
+     "tarefas": [
+      {
+       "id": "T11",
+       "titulo": "Roteiro dos 4 vídeos verticais",
+       "peso": 4.545,
+       "depende_de": [
+        "T09"
+       ],
+       "porta": null,
+       "status": "aberta",
+       "evidencia": null
+      }
+     ]
+    },
+    "M3": {
+     "tarefas": []
+    },
+    "M4": {
+     "tarefas": []
+    },
+    "18H": {
+     "tarefas": []
+    }
+   }
+  },
+  {
+   "data": "2026-10-15",
+   "label": "D11_15_QUINTA",
+   "objetos": 2,
+   "peso_dia": 9.09,
+   "ciclos": {
+    "M0": {
+     "tarefas": []
+    },
+    "M1": {
+     "tarefas": [
+      {
+       "id": "T12",
+       "titulo": "Roteiro/copy dos 6 carrosséis",
+       "peso": 4.545,
+       "depende_de": [
+        "T09"
+       ],
+       "porta": null,
+       "status": "aberta",
+       "evidencia": null
+      }
+     ]
+    },
+    "M2": {
+     "tarefas": [
+      {
+       "id": "T13",
+       "titulo": "Copy das 6 imagens estáticas",
+       "peso": 4.545,
+       "depende_de": [
+        "T09"
+       ],
+       "porta": null,
+       "status": "aberta",
+       "evidencia": null
+      }
+     ]
+    },
+    "M3": {
+     "tarefas": []
+    },
+    "M4": {
+     "tarefas": []
+    },
+    "18H": {
+     "tarefas": []
+    }
+   }
+  },
+  {
+   "data": "2026-10-16",
+   "label": "D12_16_SEXTA",
+   "objetos": 3,
+   "peso_dia": 13.635,
+   "ciclos": {
+    "M0": {
+     "tarefas": []
+    },
+    "M1": {
+     "tarefas": [
+      {
+       "id": "T14",
+       "titulo": "Briefing dos 3 infográficos \"cena ambiente\" (16:9)",
+       "peso": 4.545,
+       "depende_de": [
+        "T09"
+       ],
+       "porta": null,
+       "status": "aberta",
+       "evidencia": null
+      }
+     ]
+    },
+    "M2": {
+     "tarefas": [
+      {
+       "id": "T15",
+       "titulo": "Sequência de 10–12 stories",
+       "peso": 4.545,
+       "depende_de": [
+        "T09"
+       ],
+       "porta": null,
+       "status": "aberta",
+       "evidencia": null
+      }
+     ]
+    },
+    "M3": {
+     "tarefas": [
+      {
+       "id": "T16",
+       "titulo": "Copy das 3 newsletters do ciclo",
+       "peso": 4.545,
+       "depende_de": [
+        "T07"
+       ],
+       "porta": null,
+       "status": "aberta",
+       "evidencia": null
+      }
+     ]
+    },
+    "M4": {
+     "tarefas": []
+    },
+    "18H": {
+     "tarefas": []
+    }
+   }
+  },
+  {
+   "data": "2026-10-17",
+   "label": "D13_17_SABADO",
+   "objetos": 2,
+   "peso_dia": 9.09,
+   "ciclos": {
+    "M0": {
+     "tarefas": []
+    },
+    "M1": {
+     "tarefas": []
+    },
+    "M2": {
+     "tarefas": []
+    },
+    "M3": {
+     "tarefas": [
+      {
+       "id": "T18",
+       "titulo": "Mapeamento dos 6 CTAs de ferramenta",
+       "peso": 4.545,
+       "depende_de": [
+        "T10",
+        "T11",
+        "T12",
+        "T13",
+        "T15",
+        "T16",
+        "T17"
+       ],
+       "porta": null,
+       "status": "aberta",
+       "evidencia": null
+      },
+      {
+       "id": "T19",
+       "titulo": "Checagem de coerência do arco temático",
+       "peso": 4.545,
+       "depende_de": [
+        "T18"
+       ],
+       "porta": null,
+       "status": "aberta",
+       "evidencia": null
+      }
+     ]
+    },
+    "M4": {
+     "tarefas": []
+    },
+    "18H": {
+     "tarefas": []
+    }
+   }
+  },
+  {
+   "data": "2026-10-18",
+   "label": "D14_18_DOMINGO",
+   "objetos": 2,
+   "peso_dia": 9.09,
+   "ciclos": {
+    "M0": {
+     "tarefas": []
+    },
+    "M1": {
+     "tarefas": []
+    },
+    "M2": {
+     "tarefas": []
+    },
+    "M3": {
+     "tarefas": [
+      {
+       "id": "T20",
+       "titulo": "Indexação e nomenclatura de todos os arquivos",
+       "peso": 4.545,
+       "depende_de": [
+        "T14",
+        "T19"
+       ],
+       "porta": null,
+       "status": "aberta",
+       "evidencia": null
+      }
+     ]
+    },
+    "M4": {
+     "tarefas": [
+      {
+       "id": "T21",
+       "titulo": "Checklist de conformidade pré-handoff",
+       "peso": 4.545,
+       "depende_de": [
+        "T20"
+       ],
+       "porta": "G-CONFORMIDADE",
+       "status": "aberta",
+       "evidencia": null
+      }
+     ]
+    },
+    "18H": {
+     "tarefas": []
+    }
+   }
+  },
+  {
+   "data": "2026-10-19",
+   "label": "D15_19_SEGUNDA",
+   "objetos": 1,
+   "peso_dia": 4.555,
+   "ciclos": {
+    "M0": {
+     "tarefas": []
+    },
+    "M1": {
+     "tarefas": []
+    },
+    "M2": {
+     "tarefas": []
+    },
+    "M3": {
+     "tarefas": []
+    },
+    "M4": {
+     "tarefas": [
+      {
+       "id": "T22",
+       "titulo": "Handoff para a Fase 2",
+       "peso": 4.555,
+       "depende_de": [
+        "T21"
+       ],
+       "porta": "G-HANDOFF-F2",
+       "status": "marco",
+       "evidencia": null
+      }
+     ]
+    },
+    "18H": {
+     "tarefas": []
+    }
+   }
+  }
+ ]
+}

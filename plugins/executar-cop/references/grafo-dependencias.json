@@ -1,0 +1,620 @@
+{
+  "meta": {
+    "fluxo_de_valor": "PEM-PIPELINE-PROPRIETARIO",
+    "versao": "0.4.0",
+    "fonte": [
+      "docs/architecture/HANDOFF-AGENTES-001.md §6 (cadeia proprietária)",
+      "docs/ADR-0003-PLUGIN-EXECUTAR-COP.md",
+      "plugins/executar-cop/references/cmd-cop-index.md §4 (roteamento)",
+      "ADR-0003 emenda b (2026-09-27): skills da Anthropic incorporadas; dependências documentadas nas próprias skills (start, update)",
+      "Cadeia de Valor Única (CV-CADEIA-001), 2026-10-01: nó independente; usa o Worker EXECUTAR (MCP /mcp) como recurso externo"
+    ],
+    "atualizado_em": "2026-10-01"
+  },
+  "nos": [
+    {
+      "id": "COPILOTO-EXECUTAR",
+      "titulo": "Rotina diária EXECUTAR (/bomdia, /agora, /estado, /fechardia, /replanejamento, /evidencia, /bloqueio)",
+      "tipo": "skill-conta",
+      "camada": 1,
+      "modulo": "copiloto-executar",
+      "cv_ids": [
+        "CV-BOMDIA-001",
+        "CV-AGORA-001",
+        "CV-ESTADO-001",
+        "CV-FECHAR-001",
+        "CV-REPLAN-001",
+        "CV-EVID-001",
+        "CV-BLOQ-001"
+      ],
+      "depende_de": [],
+      "desbloqueia": [],
+      "porta": null,
+      "estado": "aberta",
+      "saida_visual": false,
+      "recurso_externo": {
+        "tipo": "skill-conta",
+        "referencia": "copiloto-executar (skill da conta claude.ai; fonte fora deste repositório)",
+        "se_ausente": "bloqueado-externo"
+      }
+    },
+    {
+      "id": "MAPA-OS",
+      "titulo": "Mapa-OS visual a partir da fonte canônica (/mapa)",
+      "tipo": "skill-conta",
+      "camada": 1,
+      "modulo": "executar-mapa-os",
+      "cv_ids": [
+        "CV-MAPA-001"
+      ],
+      "depende_de": [],
+      "desbloqueia": [],
+      "porta": null,
+      "estado": "aberta",
+      "saida_visual": true,
+      "recurso_externo": {
+        "tipo": "skill-conta",
+        "referencia": "executar-mapa-os (skill da conta claude.ai; fonte fora deste repositório)",
+        "se_ausente": "bloqueado-externo"
+      }
+    },
+    {
+      "id": "PROD-TASK-MANAGEMENT",
+      "titulo": "Formato do TASKS.md (suporte, sem ID verbal)",
+      "tipo": "skill-plugin",
+      "camada": 1,
+      "modulo": "executar-cop:task-management",
+      "cv_ids": [
+        "CV-TAREFAS-001"
+      ],
+      "depende_de": [],
+      "desbloqueia": [
+        "PROD-START"
+      ],
+      "porta": null,
+      "estado": "aberta",
+      "saida_visual": false
+    },
+    {
+      "id": "PROD-START",
+      "titulo": "Preparação de TASKS.md, memória e dashboard (suporte, sem ID verbal)",
+      "tipo": "skill-plugin",
+      "camada": 1,
+      "modulo": "executar-cop:start",
+      "cv_ids": [
+        "CV-INICIO-001"
+      ],
+      "depende_de": [
+        "PROD-TASK-MANAGEMENT"
+      ],
+      "desbloqueia": [
+        "PROD-UPDATE"
+      ],
+      "porta": null,
+      "estado": "aberta",
+      "saida_visual": true
+    },
+    {
+      "id": "PROD-UPDATE",
+      "titulo": "Sincronização de tarefas e memória",
+      "tipo": "skill-plugin",
+      "camada": 1,
+      "modulo": "executar-cop:update",
+      "cv_ids": [
+        "CV-ATUAL-001",
+        "CV-ATUAL-002"
+      ],
+      "depende_de": [
+        "PROD-START"
+      ],
+      "desbloqueia": [],
+      "porta": null,
+      "estado": "aberta",
+      "saida_visual": false
+    },
+    {
+      "id": "PROD-MEMORY",
+      "titulo": "Memória operacional e contexto",
+      "tipo": "skill-plugin",
+      "camada": 1,
+      "modulo": "executar-cop:memory-management",
+      "cv_ids": [
+        "CV-CONTEXTO-001",
+        "CV-MEMORIA-001"
+      ],
+      "depende_de": [],
+      "desbloqueia": [],
+      "porta": null,
+      "estado": "aberta",
+      "saida_visual": false
+    },
+    {
+      "id": "OPS-CAPACITY-PLAN",
+      "titulo": "Plano de capacidade",
+      "tipo": "skill-plugin",
+      "camada": 2,
+      "modulo": "executar-cop:capacity-plan",
+      "cv_ids": [
+        "CV-CAP-001"
+      ],
+      "depende_de": [],
+      "desbloqueia": [],
+      "porta": null,
+      "estado": "aberta",
+      "saida_visual": true
+    },
+    {
+      "id": "OPS-CHANGE-REQUEST",
+      "titulo": "Pedido de mudança",
+      "tipo": "skill-plugin",
+      "camada": 2,
+      "modulo": "executar-cop:change-request",
+      "cv_ids": [
+        "CV-MUD-001"
+      ],
+      "depende_de": [],
+      "desbloqueia": [],
+      "porta": null,
+      "estado": "aberta",
+      "saida_visual": false
+    },
+    {
+      "id": "OPS-PROCESS-DOC",
+      "titulo": "Documentação de processo",
+      "tipo": "skill-plugin",
+      "camada": 2,
+      "modulo": "executar-cop:process-doc",
+      "cv_ids": [
+        "CV-PROC-001"
+      ],
+      "depende_de": [],
+      "desbloqueia": [],
+      "porta": null,
+      "estado": "aberta",
+      "saida_visual": true
+    },
+    {
+      "id": "OPS-RUNBOOK",
+      "titulo": "Procedimento operacional (runbook)",
+      "tipo": "skill-plugin",
+      "camada": 2,
+      "modulo": "executar-cop:runbook",
+      "cv_ids": [
+        "CV-POP-001"
+      ],
+      "depende_de": [],
+      "desbloqueia": [],
+      "porta": null,
+      "estado": "aberta",
+      "saida_visual": false
+    },
+    {
+      "id": "OPS-STATUS-REPORT",
+      "titulo": "Situação operacional",
+      "tipo": "skill-plugin",
+      "camada": 2,
+      "modulo": "executar-cop:status-report",
+      "cv_ids": [
+        "CV-SIT-001"
+      ],
+      "depende_de": [],
+      "desbloqueia": [],
+      "porta": null,
+      "estado": "aberta",
+      "saida_visual": true
+    },
+    {
+      "id": "OPS-VENDOR-REVIEW",
+      "titulo": "Avaliação de fornecedor",
+      "tipo": "skill-plugin",
+      "camada": 2,
+      "modulo": "executar-cop:vendor-review",
+      "cv_ids": [
+        "CV-FORN-001"
+      ],
+      "depende_de": [],
+      "desbloqueia": [],
+      "porta": null,
+      "estado": "aberta",
+      "saida_visual": false
+    },
+    {
+      "id": "OPS-RISK-ASSESSMENT",
+      "titulo": "Avaliação de risco",
+      "tipo": "skill-plugin",
+      "camada": 2,
+      "modulo": "executar-cop:risk-assessment",
+      "cv_ids": [
+        "CV-RISCO-001"
+      ],
+      "depende_de": [],
+      "desbloqueia": [],
+      "porta": null,
+      "estado": "aberta",
+      "saida_visual": false
+    },
+    {
+      "id": "OPS-COMPLIANCE-TRACKING",
+      "titulo": "Conformidade",
+      "tipo": "skill-plugin",
+      "camada": 2,
+      "modulo": "executar-cop:compliance-tracking",
+      "cv_ids": [
+        "CV-CONF-001"
+      ],
+      "depende_de": [],
+      "desbloqueia": [],
+      "porta": null,
+      "estado": "aberta",
+      "saida_visual": false
+    },
+    {
+      "id": "OPS-PROCESS-OPTIMIZATION",
+      "titulo": "Otimização de processo",
+      "tipo": "skill-plugin",
+      "camada": 2,
+      "modulo": "executar-cop:process-optimization",
+      "cv_ids": [
+        "CV-OTIM-001"
+      ],
+      "depende_de": [],
+      "desbloqueia": [],
+      "porta": null,
+      "estado": "aberta",
+      "saida_visual": false
+    },
+    {
+      "id": "PM-ROADMAP-UPDATE",
+      "titulo": "Roadmap de produto",
+      "tipo": "skill-plugin",
+      "camada": 2,
+      "modulo": "executar-cop:roadmap-update",
+      "cv_ids": [
+        "CV-ROADMAP-001"
+      ],
+      "depende_de": [],
+      "desbloqueia": [],
+      "porta": null,
+      "estado": "aberta",
+      "saida_visual": true
+    },
+    {
+      "id": "PM-WRITE-SPEC",
+      "titulo": "Spec/PRD",
+      "tipo": "skill-plugin",
+      "camada": 2,
+      "modulo": "executar-cop:write-spec",
+      "cv_ids": [
+        "CV-SPEC-001"
+      ],
+      "depende_de": [],
+      "desbloqueia": [],
+      "porta": null,
+      "estado": "aberta",
+      "saida_visual": false
+    },
+    {
+      "id": "PM-SYNTHESIZE-RESEARCH",
+      "titulo": "Síntese de pesquisa com usuários",
+      "tipo": "skill-plugin",
+      "camada": 2,
+      "modulo": "executar-cop:synthesize-research",
+      "cv_ids": [
+        "CV-PESQ-001"
+      ],
+      "depende_de": [],
+      "desbloqueia": [],
+      "porta": null,
+      "estado": "aberta",
+      "saida_visual": true
+    },
+    {
+      "id": "DEPENDENCY-ARCHITECT",
+      "titulo": "Reconstrução formal da rede de dependências (16_REG_Dependencias + Arquitetura de Preenchimento)",
+      "tipo": "skill-plugin",
+      "camada": 3,
+      "modulo": "executar-cop:executar-dependency-architect",
+      "cv_ids": [
+        "CV-DEPEND-001"
+      ],
+      "depende_de": [],
+      "desbloqueia": [
+        "ARVORE-ROADMAP"
+      ],
+      "porta": null,
+      "estado": "aberta",
+      "saida_visual": false,
+      "lacunas": [
+        "GAP: EXECUTAR_HUB_Control_Plane_v2.xlsx não recebido; validação com dados reais pendente (testes usam fixture FICTÍCIA).",
+        "GAP: definição do PF-24 (reconciliação cruzada) não está nas fontes recebidas."
+      ]
+    },
+    {
+      "id": "ARVORE-ROADMAP",
+      "titulo": "Planejamento canônico (estrutura.json)",
+      "tipo": "skill-plugin",
+      "camada": 3,
+      "modulo": "executar-cop:executar-arvore-roadmap",
+      "cv_ids": [
+        "CV-ARVORE-001"
+      ],
+      "depende_de": [
+        "DEPENDENCY-ARCHITECT"
+      ],
+      "desbloqueia": [
+        "ARVORE-VISUAL"
+      ],
+      "porta": null,
+      "estado": "aberta",
+      "saida_visual": false
+    },
+    {
+      "id": "ARVORE-VISUAL",
+      "titulo": "Visualização navegável (Executar · Árvore Visual / Mergulhe)",
+      "tipo": "skill-plugin",
+      "camada": 3,
+      "modulo": "executar-cop:executar-mergulhe",
+      "cv_ids": [
+        "CV-VISUAL-001"
+      ],
+      "depende_de": [
+        "ARVORE-ROADMAP"
+      ],
+      "desbloqueia": [
+        "EDITORIAL-OBSIDIAN"
+      ],
+      "porta": null,
+      "estado": "aberta",
+      "saida_visual": true
+    },
+    {
+      "id": "EDITORIAL-OBSIDIAN",
+      "titulo": "Publicação editorial (pipeline Obsidian v2.2)",
+      "tipo": "skill-plugin",
+      "camada": 3,
+      "modulo": "executar-cop:obsidian-editorial-pipeline",
+      "cv_ids": [
+        "CV-EDITORIAL-001"
+      ],
+      "depende_de": [
+        "ARVORE-VISUAL"
+      ],
+      "desbloqueia": [],
+      "porta": null,
+      "estado": "aberta",
+      "saida_visual": true
+    },
+    {
+      "id": "PM-COMPETITIVE-BRIEF",
+      "titulo": "Criar análise competitiva de concorrentes ou área de funcionalidade",
+      "tipo": "skill-plugin",
+      "camada": 2,
+      "modulo": "executar-cop:competitive-brief",
+      "cv_ids": [
+        "CV-CONCOR-001"
+      ],
+      "depende_de": [],
+      "desbloqueia": [],
+      "porta": null,
+      "estado": "aberta",
+      "saida_visual": true
+    },
+    {
+      "id": "PM-METRICS-REVIEW",
+      "titulo": "Revisar métricas de produto com tendência e ações",
+      "tipo": "skill-plugin",
+      "camada": 2,
+      "modulo": "executar-cop:metrics-review",
+      "cv_ids": [
+        "CV-METRICA-001"
+      ],
+      "depende_de": [],
+      "desbloqueia": [],
+      "porta": null,
+      "estado": "aberta",
+      "saida_visual": true
+    },
+    {
+      "id": "PM-PRODUCT-BRAINSTORMING",
+      "titulo": "Explorar ideia, problema ou questão de produto como parceiro de pensamento",
+      "tipo": "skill-plugin",
+      "camada": 2,
+      "modulo": "executar-cop:product-brainstorming",
+      "cv_ids": [
+        "CV-IDEIA-001"
+      ],
+      "depende_de": [],
+      "desbloqueia": [],
+      "porta": null,
+      "estado": "aberta",
+      "saida_visual": false
+    },
+    {
+      "id": "PM-SPRINT-PLANNING",
+      "titulo": "Planejar sprint: escopo, capacidade, metas e carryover",
+      "tipo": "skill-plugin",
+      "camada": 2,
+      "modulo": "executar-cop:sprint-planning",
+      "cv_ids": [
+        "CV-SPRINT-001"
+      ],
+      "depende_de": [],
+      "desbloqueia": [],
+      "porta": null,
+      "estado": "aberta",
+      "saida_visual": true
+    },
+    {
+      "id": "PM-STAKEHOLDER-UPDATE",
+      "titulo": "Gerar atualização para stakeholders por público e cadência",
+      "tipo": "skill-plugin",
+      "camada": 2,
+      "modulo": "executar-cop:stakeholder-update",
+      "cv_ids": [
+        "CV-STAKE-001"
+      ],
+      "depende_de": [],
+      "desbloqueia": [],
+      "porta": null,
+      "estado": "aberta",
+      "saida_visual": false
+    },
+    {
+      "id": "SETUP-PLUGIN-CUSTOMIZER",
+      "titulo": "Personalizar plugin para as ferramentas e fluxos da organização",
+      "tipo": "skill-plugin",
+      "camada": 1,
+      "modulo": "executar-cop:cowork-plugin-customizer",
+      "cv_ids": [
+        "CV-PLUGIN-001"
+      ],
+      "depende_de": [],
+      "desbloqueia": [],
+      "porta": null,
+      "estado": "aberta",
+      "saida_visual": false
+    },
+    {
+      "id": "SETUP-CREATE-PLUGIN",
+      "titulo": "Criar novo plugin do zero com estrutura válida",
+      "tipo": "skill-plugin",
+      "camada": 1,
+      "modulo": "executar-cop:create-cowork-plugin",
+      "cv_ids": [
+        "CV-PLUGIN-002"
+      ],
+      "depende_de": [],
+      "desbloqueia": [],
+      "porta": null,
+      "estado": "aberta",
+      "saida_visual": false
+    },
+    {
+      "id": "EXEC-PLAN-MODE",
+      "titulo": "Transformar prompt bruto em plano de execução rastreável antes de implementar",
+      "tipo": "skill-plugin",
+      "camada": 1,
+      "modulo": "executar-cop:executar-plan-mode",
+      "cv_ids": [
+        "CV-PLANO-001"
+      ],
+      "depende_de": [],
+      "desbloqueia": [],
+      "porta": null,
+      "estado": "aberta",
+      "saida_visual": false
+    },
+    {
+      "id": "EXEC-PRODUCT-CODE-DEV",
+      "titulo": "Conduzir produto → código: discovery, arquitetura, fatia vertical, testes e deploy",
+      "tipo": "skill-plugin",
+      "camada": 2,
+      "modulo": "executar-cop:product-code-development",
+      "cv_ids": [
+        "CV-PRODEV-001"
+      ],
+      "depende_de": [],
+      "desbloqueia": [],
+      "porta": null,
+      "estado": "aberta",
+      "saida_visual": false
+    },
+    {
+      "id": "EXEC-TOOLKIT",
+      "titulo": "Orquestrar workflow multiagente, imagem existente ou redação técnica",
+      "tipo": "skill-plugin",
+      "camada": 1,
+      "modulo": "executar-cop:execution-toolkit",
+      "cv_ids": [
+        "CV-TOOLKIT-001"
+      ],
+      "depende_de": [],
+      "desbloqueia": [],
+      "porta": null,
+      "estado": "aberta",
+      "saida_visual": true
+    },
+    {
+      "id": "CADEIA-VALOR-UNICA",
+      "titulo": "Cadeia de Valor Única (dependências + otimização + árvores + working process + runbook)",
+      "tipo": "skill-plugin",
+      "camada": 3,
+      "modulo": "executar-cop:cadeia-valor-unica",
+      "cv_ids": [
+        "CV-CADEIA-001"
+      ],
+      "depende_de": [],
+      "desbloqueia": [],
+      "porta": null,
+      "estado": "aberta",
+      "saida_visual": true,
+      "recurso_externo": {
+        "tipo": "mcp",
+        "referencia": "Worker EXECUTAR · MCP /mcp (OAuth ADMIN_TOKEN) — publicação do working process; artefatos locais seguem sem ele",
+        "se_ausente": "bloqueado-externo"
+      }
+    }
+  ],
+  "arestas": [
+    {
+      "dependency_id": "DEP-COP-001",
+      "source_artifact_id": "DEPENDENCY-ARCHITECT",
+      "target_artifact_id": "ARVORE-ROADMAP",
+      "relation": "alimenta",
+      "mandatory": true,
+      "gate_id": null,
+      "required_status": "concluida",
+      "status": "ativa",
+      "status_epistemico": "DIRECT",
+      "justificativa": "HANDOFF-AGENTES-001 §6: 16_REG_Dependencias + Arquitetura de Preenchimento passam a ser a fonte de entrada do estrutura.json. Vale no fluxo PEM-PIPELINE-PROPRIETARIO (entrada = Control Plane); fora dele, executar-arvore-roadmap aceita qualquer plano."
+    },
+    {
+      "dependency_id": "DEP-COP-002",
+      "source_artifact_id": "ARVORE-ROADMAP",
+      "target_artifact_id": "ARVORE-VISUAL",
+      "relation": "alimenta",
+      "mandatory": true,
+      "gate_id": null,
+      "required_status": "concluida",
+      "status": "ativa",
+      "status_epistemico": "DIRECT",
+      "justificativa": "HANDOFF-AGENTES-001 §6: ARVORE-VISUAL depende_de ARVORE-ROADMAP (visualização é projeção do estrutura.json). Vale no fluxo PEM-PIPELINE-PROPRIETARIO."
+    },
+    {
+      "dependency_id": "DEP-COP-003",
+      "source_artifact_id": "ARVORE-VISUAL",
+      "target_artifact_id": "EDITORIAL-OBSIDIAN",
+      "relation": "alimenta",
+      "mandatory": true,
+      "gate_id": null,
+      "required_status": "concluida",
+      "status": "ativa",
+      "status_epistemico": "DIRECT",
+      "justificativa": "HANDOFF-AGENTES-001 §6: EDITORIAL-OBSIDIAN depende_de ARVORE-VISUAL. Vale no fluxo PEM-PIPELINE-PROPRIETARIO; um ciclo editorial avulso (formulário próprio) não exige a árvore."
+    },
+    {
+      "dependency_id": "DEP-COP-004",
+      "source_artifact_id": "PROD-TASK-MANAGEMENT",
+      "target_artifact_id": "PROD-START",
+      "relation": "alimenta",
+      "mandatory": true,
+      "gate_id": null,
+      "required_status": "aberta",
+      "status": "ativa",
+      "status_epistemico": "DIRECT",
+      "justificativa": "skills/start/SKILL.md: 'If TASKS.md doesn't exist: Create it with the standard template (see task-management skill)'."
+    },
+    {
+      "dependency_id": "DEP-COP-005",
+      "source_artifact_id": "PROD-START",
+      "target_artifact_id": "PROD-UPDATE",
+      "relation": "alimenta",
+      "mandatory": true,
+      "gate_id": null,
+      "required_status": "concluida",
+      "status": "ativa",
+      "status_epistemico": "DIRECT",
+      "justificativa": "skills/update/SKILL.md: 'Read TASKS.md and memory/ directory. If they don't exist, suggest /productivity:start first'."
+    }
+  ]
+}

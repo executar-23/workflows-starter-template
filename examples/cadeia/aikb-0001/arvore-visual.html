@@ -1,0 +1,589 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>PD-CLB · CADEIA DE VALOR ÚNICA (ciclo 15 dias) · Executar · Árvore Visual</title>
+<style>
+:root{
+  color-scheme: light dark;
+  /* Token do calendário (plugins/executar-cop/assets/design-tokens/calendario-light-mode.md): vermelho só para o atual. */
+  --bg: light-dark(#f2f2ef,#111111);
+  --panel: light-dark(#ffffff,#1a1a1a);
+  --text: light-dark(#111111,#f2f2ef);
+  --muted: light-dark(#5a5a5a,#b5b5b0);
+  --line: light-dark(#e4e4e1,#333333);
+  --hover: light-dark(#f7f7f5,#222222);
+  --accent:#e31919;
+  --accent-soft: light-dark(#fdeaea,rgba(227,25,25,.18));
+  --ok: light-dark(#111111,#f2f2ef);
+  --warn: light-dark(#5a5a5a,#b5b5b0);
+  --future:#8c8c8c;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Helvetica Neue",Helvetica,Arial,sans-serif}
+.app{padding:24px;max-width:1400px;margin:0 auto}
+.topbar{display:flex;align-items:flex-start;justify-content:space-between;gap:18px;flex-wrap:wrap;margin-bottom:18px}
+.eyebrow{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-weight:750}
+h1{font-size:28px;line-height:1.15;margin:6px 0 8px}.subtitle{margin:0;max-width:760px;color:var(--muted);line-height:1.5}
+.toolbar{display:flex;gap:8px;flex-wrap:wrap}.btn{border:1px solid var(--line);background:var(--panel);color:inherit;border-radius:10px;padding:10px 13px;min-height:44px;font-weight:700;cursor:pointer}.btn:hover{background:var(--hover)}.btn:focus-visible,.toggle:focus-visible{outline:3px solid var(--text);outline-offset:2px}
+.legend{display:flex;gap:14px;flex-wrap:wrap;margin:0 0 18px;padding:12px 14px;border:1px solid var(--line);border-radius:12px;background:var(--panel)}
+.legend span{font-size:12px;color:var(--muted);display:flex;align-items:center;gap:7px}.dot{width:9px;height:9px;border-radius:50%;display:inline-block}.dot.atual{background:var(--accent)}.dot.liberado{background:var(--ok)}.dot.dependencia{background:var(--warn)}.dot.futuro{background:transparent;border:1px solid var(--future)}
+.viewport{overflow-x:auto;padding-bottom:8px}.tree{min-width:760px;margin:0;padding:0;list-style:none}.tree ul{list-style:none;margin:0;padding-left:30px;position:relative}.tree ul:before{content:"";position:absolute;left:14px;top:0;bottom:14px;border-left:1px solid var(--line)}.tree li{position:relative;margin:4px 0}.tree li:before{content:"";position:absolute;left:-16px;top:21px;width:16px;border-top:1px solid var(--line)}.tree>li:before{display:none}
+.node{display:flex;align-items:center;gap:8px;min-height:42px;border-radius:10px;padding:4px 8px 4px 4px;width:max-content;max-width:100%}.node.atual{background:var(--accent-soft);outline:1px solid var(--accent)}
+.toggle{width:34px;height:34px;border:0;border-radius:8px;background:transparent;color:inherit;display:grid;place-items:center;cursor:pointer;font-size:17px;flex:0 0 auto}.toggle:hover{background:var(--hover)}.toggle.leaf{cursor:default;opacity:.85}.label{font-size:14px;font-weight:700;white-space:nowrap}.tag{font-size:11px;padding:4px 7px;border-radius:999px;font-weight:800;letter-spacing:.02em;white-space:nowrap}.tag.atual{color:var(--accent);background:var(--accent-soft)}.tag.liberado{color:var(--ok);background:var(--hover);box-shadow:inset 0 0 0 1px var(--line)}.tag.dependencia{color:var(--warn);background:var(--hover)}.tag.futuro{color:var(--future);background:transparent;box-shadow:inset 0 0 0 1px var(--line)}.note{font-size:12px;color:var(--muted);margin-left:5px;white-space:nowrap}
+.status{margin-top:18px;padding:14px 16px;border-left:3px solid var(--text);background:var(--panel);border-radius:0 12px 12px 0;font-size:13px;line-height:1.55;color:var(--muted)}
+@media(max-width:640px){.app{padding:16px}h1{font-size:23px}.tree{min-width:700px}}
+</style>
+</head>
+<body>
+<main class="app" id="app">
+  <section class="topbar">
+    <div>
+      <div class="eyebrow">Executar · padrão proprietário</div>
+      <h1>Árvore Visual</h1>
+      <p class="subtitle">Navegação progressiva por ramos. Abra, feche e mergulhe até o nó necessário, mantendo dependências, estados e portas de liberação visíveis.</p>
+    </div>
+    <div class="toolbar" aria-label="Controles da árvore">
+      <button class="btn" id="abrirTudo" type="button">Abrir tudo</button>
+      <button class="btn" id="fecharTudo" type="button">Fechar tudo</button>
+      <button class="btn" id="irAtual" type="button">Ir para o estado atual</button>
+    </div>
+  </section>
+
+  <div class="legend" aria-label="Legenda">
+    <span><i class="dot atual"></i> Atual</span>
+    <span><i class="dot liberado"></i> Liberado</span>
+    <span><i class="dot dependencia"></i> Dependência / porta</span>
+    <span><i class="dot futuro"></i> Futuro</span>
+  </div>
+
+  <div class="viewport"><ul class="tree" id="tree" role="tree"></ul></div>
+  <div class="status" id="status" aria-live="polite"><strong>Estado:</strong> carregando árvore.</div>
+</main>
+<script>
+const ARVORE = {
+ "id": "pd-clb-20260906-f01",
+ "titulo": "PD-CLB · CADEIA DE VALOR ÚNICA (ciclo 15 dias)",
+ "tipo": "pasta",
+ "estado": "liberado",
+ "aberto": true,
+ "filhos": [
+  {
+   "id": "R-F1",
+   "titulo": "FASE 1 · PRODUÇÃO (estado futuro)",
+   "tipo": "pasta",
+   "estado": "liberado",
+   "aberto": true,
+   "filhos": [
+    {
+     "id": "R-TEMA",
+     "titulo": "Tema e evidências · T01–T03",
+     "tipo": "pasta",
+     "estado": "liberado",
+     "aberto": true,
+     "filhos": [
+      {
+       "id": "T01",
+       "titulo": "T01 · Validação do tema do ciclo",
+       "tipo": "arquivo",
+       "estado": "atual",
+       "desbloqueia": [
+        "T02"
+       ]
+      },
+      {
+       "id": "T02",
+       "titulo": "T02 · Pesquisa e levantamento de evidências",
+       "tipo": "arquivo",
+       "estado": "liberado",
+       "dependeDe": [
+        "T01"
+       ],
+       "desbloqueia": [
+        "T03",
+        "T04",
+        "T17"
+       ]
+      },
+      {
+       "id": "T03",
+       "titulo": "T03 · Definição do Topic Pack",
+       "tipo": "arquivo",
+       "estado": "liberado",
+       "dependeDe": [
+        "T02"
+       ],
+       "desbloqueia": [
+        "T04",
+        "T17"
+       ]
+      }
+     ]
+    },
+    {
+     "id": "R-MAE",
+     "titulo": "Peça-mãe ∥ ebooks · T04–T08 + T17",
+     "tipo": "pasta",
+     "estado": "futuro",
+     "filhos": [
+      {
+       "id": "T04",
+       "titulo": "T04 · Outline da peça-mãe",
+       "tipo": "arquivo",
+       "estado": "futuro",
+       "dependeDe": [
+        "T02",
+        "T03"
+       ],
+       "desbloqueia": [
+        "T05",
+        "T08"
+       ]
+      },
+      {
+       "id": "T05",
+       "titulo": "T05 · Redação do artigo mãe",
+       "tipo": "arquivo",
+       "estado": "futuro",
+       "dependeDe": [
+        "T04"
+       ],
+       "desbloqueia": [
+        "T06"
+       ]
+      },
+      {
+       "id": "T06",
+       "titulo": "T06 · Revisão de estilo editorial",
+       "tipo": "arquivo",
+       "estado": "futuro",
+       "dependeDe": [
+        "T05"
+       ],
+       "desbloqueia": [
+        "T07"
+       ]
+      },
+      {
+       "id": "T07",
+       "titulo": "T07 · Otimização GEO/SEO do artigo",
+       "tipo": "arquivo",
+       "estado": "futuro",
+       "dependeDe": [
+        "T06"
+       ],
+       "desbloqueia": [
+        "T08",
+        "T09",
+        "T16"
+       ]
+      },
+      {
+       "id": "T08",
+       "titulo": "T08 · Roteiro do vídeo mãe (8–12 min)",
+       "tipo": "arquivo",
+       "estado": "futuro",
+       "dependeDe": [
+        "T04",
+        "T07"
+       ],
+       "desbloqueia": [
+        "T09"
+       ]
+      },
+      {
+       "id": "T17",
+       "titulo": "T17 · Outline e redação dos 3 ebooks",
+       "tipo": "arquivo",
+       "estado": "futuro",
+       "nota": "ramo paralelo (M01)",
+       "dependeDe": [
+        "T02",
+        "T03"
+       ],
+       "desbloqueia": [
+        "T18"
+       ]
+      }
+     ]
+    },
+    {
+     "id": "R-DER",
+     "titulo": "Derivados em paralelo · T09 → T10–T16",
+     "tipo": "pasta",
+     "estado": "futuro",
+     "filhos": [
+      {
+       "id": "T09",
+       "titulo": "T09 · Marcação de trechos-fonte para derivados",
+       "tipo": "arquivo",
+       "estado": "futuro",
+       "dependeDe": [
+        "T07",
+        "T08"
+       ],
+       "desbloqueia": [
+        "T10",
+        "T11",
+        "T12",
+        "T13",
+        "T14",
+        "T15"
+       ]
+      },
+      {
+       "id": "T10",
+       "titulo": "T10 · Banco de derivados — textos curtos",
+       "tipo": "arquivo",
+       "estado": "futuro",
+       "nota": "paralelo (M02)",
+       "dependeDe": [
+        "T09"
+       ],
+       "desbloqueia": [
+        "T18"
+       ]
+      },
+      {
+       "id": "T11",
+       "titulo": "T11 · Roteiro dos 4 vídeos verticais",
+       "tipo": "arquivo",
+       "estado": "futuro",
+       "nota": "paralelo (M02)",
+       "dependeDe": [
+        "T09"
+       ],
+       "desbloqueia": [
+        "T18"
+       ]
+      },
+      {
+       "id": "T12",
+       "titulo": "T12 · Roteiro/copy dos 6 carrosséis",
+       "tipo": "arquivo",
+       "estado": "futuro",
+       "nota": "paralelo (M02)",
+       "dependeDe": [
+        "T09"
+       ],
+       "desbloqueia": [
+        "T18"
+       ]
+      },
+      {
+       "id": "T13",
+       "titulo": "T13 · Copy das 6 imagens estáticas",
+       "tipo": "arquivo",
+       "estado": "futuro",
+       "nota": "paralelo (M02)",
+       "dependeDe": [
+        "T09"
+       ],
+       "desbloqueia": [
+        "T18"
+       ]
+      },
+      {
+       "id": "T14",
+       "titulo": "T14 · Briefing dos 3 infográficos \"cena ambiente\" (16:9)",
+       "tipo": "arquivo",
+       "estado": "futuro",
+       "nota": "paralelo (M02)",
+       "dependeDe": [
+        "T09"
+       ],
+       "desbloqueia": [
+        "T20"
+       ]
+      },
+      {
+       "id": "T15",
+       "titulo": "T15 · Sequência de 10–12 stories",
+       "tipo": "arquivo",
+       "estado": "futuro",
+       "nota": "paralelo (M02)",
+       "dependeDe": [
+        "T09"
+       ],
+       "desbloqueia": [
+        "T18"
+       ]
+      },
+      {
+       "id": "T16",
+       "titulo": "T16 · Copy das 3 newsletters do ciclo",
+       "tipo": "arquivo",
+       "estado": "futuro",
+       "nota": "paralelo (M02)",
+       "dependeDe": [
+        "T07"
+       ],
+       "desbloqueia": [
+        "T18"
+       ]
+      }
+     ]
+    },
+    {
+     "id": "R-INT",
+     "titulo": "Integração e handoff · T18–T22",
+     "tipo": "pasta",
+     "estado": "futuro",
+     "filhos": [
+      {
+       "id": "T18",
+       "titulo": "T18 · Mapeamento dos 6 CTAs de ferramenta",
+       "tipo": "arquivo",
+       "estado": "futuro",
+       "dependeDe": [
+        "T10",
+        "T11",
+        "T12",
+        "T13",
+        "T15",
+        "T16",
+        "T17"
+       ],
+       "desbloqueia": [
+        "T19"
+       ]
+      },
+      {
+       "id": "T19",
+       "titulo": "T19 · Checagem de coerência do arco temático",
+       "tipo": "arquivo",
+       "estado": "futuro",
+       "dependeDe": [
+        "T18"
+       ],
+       "desbloqueia": [
+        "T20"
+       ]
+      },
+      {
+       "id": "T20",
+       "titulo": "T20 · Indexação e nomenclatura de todos os arquivos",
+       "tipo": "arquivo",
+       "estado": "futuro",
+       "dependeDe": [
+        "T14",
+        "T19"
+       ],
+       "desbloqueia": [
+        "T21"
+       ]
+      },
+      {
+       "id": "T21",
+       "titulo": "T21 · Checklist de conformidade (porta)",
+       "tipo": "porta",
+       "estado": "futuro",
+       "dependeDe": [
+        "T20"
+       ],
+       "desbloqueia": [
+        "T22"
+       ]
+      },
+      {
+       "id": "T22",
+       "titulo": "T22 · Handoff para a Fase 2",
+       "tipo": "destino",
+       "estado": "futuro",
+       "dependeDe": [
+        "T21"
+       ],
+       "desbloqueia": [
+        "F2"
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "R-FASES",
+   "titulo": "FASES 2–5 (A DEFINIR: doc detalha só a Fase 1)",
+   "tipo": "pasta",
+   "estado": "futuro",
+   "filhos": [
+    {
+     "id": "F2",
+     "titulo": "Fase 2 — Geração de imagens e vídeos",
+     "tipo": "pasta",
+     "estado": "dependencia",
+     "nota": "A DEFINIR",
+     "dependeDe": [
+      "T22"
+     ],
+     "desbloqueia": [
+      "F3"
+     ]
+    },
+    {
+     "id": "F3",
+     "titulo": "Fase 3 — Revisão",
+     "tipo": "pasta",
+     "estado": "dependencia",
+     "nota": "A DEFINIR",
+     "dependeDe": [
+      "F2"
+     ],
+     "desbloqueia": [
+      "F4"
+     ]
+    },
+    {
+     "id": "F4",
+     "titulo": "Fase 4 — Agendamento e publicação",
+     "tipo": "pasta",
+     "estado": "dependencia",
+     "nota": "A DEFINIR",
+     "dependeDe": [
+      "F3"
+     ],
+     "desbloqueia": [
+      "F5"
+     ]
+    },
+    {
+     "id": "F5",
+     "titulo": "Fase 5 — Análise e desempenho",
+     "tipo": "pasta",
+     "estado": "dependencia",
+     "nota": "A DEFINIR",
+     "dependeDe": [
+      "F4"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "R-CRIT",
+   "titulo": "NÓS CRÍTICOS",
+   "tipo": "pasta",
+   "estado": "dependencia",
+   "filhos": [
+    {
+     "id": "CR-T09",
+     "titulo": "T09 · marcação de trechos: alimenta 6 derivados",
+     "tipo": "referencia",
+     "nota": "caminho crítico"
+    },
+    {
+     "id": "CR-T21",
+     "titulo": "T21 · conformidade tardia (M03)",
+     "tipo": "referencia",
+     "nota": "retorno a T06 se reprovar"
+    },
+    {
+     "id": "CR-DATA",
+     "titulo": "Data de início do ciclo",
+     "tipo": "referencia",
+     "estado": "bloqueado-externo",
+     "nota": "A DEFINIR (usuário)"
+    }
+   ]
+  },
+  {
+   "id": "R-OTIM",
+   "titulo": "OTIMIZAÇÕES (M01–M05)",
+   "tipo": "pasta",
+   "filhos": [
+    {
+     "id": "M01",
+     "titulo": "M01 · paralelizar · DERIVED",
+     "tipo": "referencia",
+     "nota": "−1 casa sequencial (T17 sai do caminho crítico); duração em dias A DEFINIR"
+    },
+    {
+     "id": "M02",
+     "titulo": "M02 · paralelizar · DERIVED",
+     "tipo": "referencia",
+     "nota": "−6 casas sequenciais (7 derivados → 1 bloco); duração em dias A DEFINIR"
+    },
+    {
+     "id": "M03",
+     "titulo": "M03 · gate-antecipado · PROPOSED",
+     "tipo": "referencia",
+     "nota": "menos retrabalho tardio; taxa de reprovação em T21 A DEFINIR"
+    },
+    {
+     "id": "M04",
+     "titulo": "M04 · automatizar · PROPOSED",
+     "tipo": "referencia",
+     "nota": "T20 de manual para verificação; esforço A DEFINIR"
+    },
+    {
+     "id": "M05",
+     "titulo": "M05 · eliminar-redundancia · PROPOSED",
+     "tipo": "referencia",
+     "nota": "handoff sem redigitação; A DEFINIR"
+    }
+   ]
+  },
+  {
+   "id": "R-EVID",
+   "titulo": "EVIDÊNCIAS",
+   "tipo": "pasta",
+   "filhos": [
+    {
+     "id": "EV-MAPA",
+     "titulo": "mapa-dependencias.json/.csv",
+     "tipo": "evidencia"
+    },
+    {
+     "id": "EV-WF",
+     "titulo": "workflow-pd-clb-20260906-f01.json + PDF",
+     "tipo": "evidencia"
+    },
+    {
+     "id": "EV-RB",
+     "titulo": "runbook.md",
+     "tipo": "evidencia"
+    },
+    {
+     "id": "EV-REL",
+     "titulo": "relatorio-cadeia.md",
+     "tipo": "evidencia"
+    }
+   ]
+  }
+ ]
+};
+
+const estadoClasse = e => ['atual','liberado','dependencia','futuro'].includes(e) ? e : '';
+const iconeFechado = n => n.tipo==='porta' ? '🔒' : '📁';
+const iconeAberto = n => n.tipo==='porta' ? '🔓' : '📂';
+const iconeFolha = n => n.tipo==='porta' ? '🔓' : '📄';
+const root = document.getElementById('tree');
+const status = document.getElementById('status');
+
+function criarNo(nivel){
+  const li=document.createElement('li'); li.dataset.nodeId=nivel.id;
+  const row=document.createElement('div'); row.className='node'+(nivel.estado==='atual'?' atual':'');
+  const temFilhos=Array.isArray(nivel.filhos)&&nivel.filhos.length>0;
+  const btn=document.createElement('button'); btn.type='button'; btn.className='toggle'+(temFilhos?'':' leaf');
+  if(temFilhos){btn.setAttribute('aria-expanded',String(!!nivel.aberto));btn.setAttribute('aria-label',(nivel.aberto?'Fechar ':'Abrir ')+nivel.titulo);btn.textContent=nivel.aberto?iconeAberto(nivel):iconeFechado(nivel);}else{btn.textContent=iconeFolha(nivel);btn.setAttribute('aria-label','Nó final');}
+  const label=document.createElement('span'); label.className='label'; label.textContent=nivel.titulo;
+  row.append(btn,label);
+  const cls=estadoClasse(nivel.estado); if(cls){const tag=document.createElement('span'); tag.className='tag '+cls; tag.textContent=nivel.estado==='dependencia'?'DEPENDÊNCIA':nivel.estado.toUpperCase(); row.append(tag);}
+  if(nivel.nota){const note=document.createElement('span');note.className='note';note.textContent=nivel.nota;row.append(note);}
+  li.append(row);
+  if(temFilhos){const ul=document.createElement('ul');ul.hidden=!nivel.aberto;nivel.filhos.forEach(f=>ul.append(criarNo(f)));li.append(ul);btn.addEventListener('click',()=>{const aberto=btn.getAttribute('aria-expanded')==='true';btn.setAttribute('aria-expanded',String(!aberto));ul.hidden=aberto;btn.textContent=!aberto?iconeAberto(nivel):iconeFechado(nivel);btn.setAttribute('aria-label',(!aberto?'Fechar ':'Abrir ')+nivel.titulo);history.replaceState(null,'','#node='+encodeURIComponent(nivel.id));});}
+  return li;
+}
+root.append(criarNo(ARVORE));
+function todosBotoes(){return [...document.querySelectorAll('.toggle:not(.leaf)')]}
+function setTodos(aberto){todosBotoes().forEach(btn=>{const li=btn.closest('li');const ul=[...li.children].find(e=>e.tagName==='UL');if(!ul)return;btn.setAttribute('aria-expanded',String(aberto));ul.hidden=!aberto;const id=li.dataset.nodeId;const n=achar(ARVORE,id);btn.textContent=aberto?iconeAberto(n):iconeFechado(n);});}
+function achar(n,id){if(n.id===id)return n;for(const f of (n.filhos||[])){const r=achar(f,id);if(r)return r;}return null}
+function abrirCaminho(id){let alvo=document.querySelector('[data-node-id="'+CSS.escape(id)+'"]');if(!alvo)return;let p=alvo.parentElement;while(p&&p!==root){if(p.tagName==='UL'){p.hidden=false;const pai=p.parentElement;const btn=pai?.querySelector(':scope > .node > .toggle:not(.leaf)');if(btn){btn.setAttribute('aria-expanded','true');const n=achar(ARVORE,pai.dataset.nodeId);btn.textContent=iconeAberto(n);}}p=p.parentElement;}alvo.scrollIntoView({behavior:'smooth',block:'center',inline:'nearest'});}
+document.getElementById('abrirTudo').addEventListener('click',()=>{setTodos(true);status.innerHTML='<strong>Visualização:</strong> todos os ramos estão abertos.'});
+document.getElementById('fecharTudo').addEventListener('click',()=>{setTodos(false);abrirCaminho('fila');status.innerHTML='<strong>Visualização:</strong> ramos recolhidos. A fila principal permanece acessível.'});
+document.getElementById('irAtual').addEventListener('click',()=>{abrirCaminho('d25');status.innerHTML='<strong>Estado atual:</strong> 25/08 · Central de lançamento.'});
+const hash=new URLSearchParams(location.hash.replace(/^#/,''));if(hash.get('node'))abrirCaminho(hash.get('node'));else abrirCaminho('d25');
+status.innerHTML='<strong>Estado atual:</strong> 25/08 · Central de lançamento. Abra os ramos para mergulhar nas dependências.';
+</script>
+</body>
+</html>
