@@ -106,7 +106,7 @@ export function Segmented<T extends string>({
 	return (
 		<div
 			role="tablist"
-			className="inline-flex rounded-full bg-white p-0.5 ring-1 ring-ink/20"
+			className="inline-flex rounded-full bg-card p-0.5 ring-1 ring-ink/20"
 		>
 			{options.map(([key, label]) => (
 				<button
@@ -115,7 +115,7 @@ export function Segmented<T extends string>({
 					aria-selected={value === key}
 					onClick={() => onChange(key)}
 					className={`min-h-9 rounded-full px-3 py-2 text-xs font-semibold transition sm:min-h-0 sm:py-1 ${
-						value === key ? "bg-ink text-white" : "text-ink-2 hover:text-ink"
+						value === key ? "bg-ink text-background" : "text-ink-2 hover:text-ink"
 					}`}
 				>
 					{label}

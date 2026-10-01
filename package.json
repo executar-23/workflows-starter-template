@@ -52,17 +52,18 @@
 	},
 	"private": true,
 	"scripts": {
-		"build": "node scripts/embed-cadeia-prompt.mjs && tsc -b && vite build",
+		"build": "node scripts/generate-ai-registry.mjs && node scripts/embed-cadeia-prompt.mjs && tsc -b && vite build",
 		"cf-typegen": "wrangler types",
-		"check": "tsc && wrangler deploy --dry-run",
+		"check": "node scripts/generate-ai-registry.mjs && tsc && wrangler deploy --dry-run",
 		"deploy": "npm run build && wrangler deploy",
 		"agent:token": "bash scripts/sync-agent-token.sh",
 		"deploy:inline": "npm run build && node scripts/build-inline-assets.mjs && wrangler deploy -c wrangler.inline.jsonc",
-		"dev": "vite",
+		"dev": "node scripts/generate-ai-registry.mjs && vite",
 		"lint": "eslint .",
 		"preview": "npm run build && vite preview",
 		"pdf": "node scripts/print-pdf.mjs",
-		"test": "vitest run"
+		"test": "vitest run",
+		"registry:generate": "node scripts/generate-ai-registry.mjs"
 	},
 	"type": "module"
 }

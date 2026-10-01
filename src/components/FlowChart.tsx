@@ -250,7 +250,7 @@ export function FlowChart({ run }: { run: RunView }) {
 						<div
 							ref={register(node.id)}
 							id={`node-${node.id}`}
-							className={`h-9 w-9 rounded-full bg-white ${
+							className={`h-9 w-9 rounded-full bg-card ${
 								node.kind === "end"
 									? "border-[1.5px] border-ink outline-[1.5px] outline-offset-2 outline-ink outline"
 									: "border-[1.5px] border-ink"
@@ -295,7 +295,7 @@ export function FlowChart({ run }: { run: RunView }) {
 							key={node.id}
 							ref={register(node.id)}
 							id={`node-${node.id}`}
-							className={`flex w-[min(300px,calc(100%-44px))] flex-col items-center gap-2 bg-white py-1 transition duration-300 ${fade}`}
+							className={`flex w-[min(300px,calc(100%-44px))] flex-col items-center gap-2 bg-card py-1 transition duration-300 ${fade}`}
 						>
 							<Diamond
 								refFn={() => {}}
@@ -306,7 +306,7 @@ export function FlowChart({ run }: { run: RunView }) {
 							/>
 							<div className="flex flex-wrap items-center justify-center gap-1.5">
 								{live && (
-									<span className="rounded-full bg-ink px-1.5 py-[1px] text-[9.5px] font-bold tracking-[0.15em] text-white">
+									<span className="rounded-full bg-ink px-1.5 py-[1px] text-[9.5px] font-bold tracking-[0.15em] text-background">
 										▶ AGORA
 									</span>
 								)}
@@ -352,7 +352,7 @@ export function FlowChart({ run }: { run: RunView }) {
 						<div className="absolute right-[calc(100%+18px)] top-1/2 flex w-[230px] -translate-y-1/2 flex-col items-end gap-1 text-right">
 							<div className="flex items-center gap-1.5">
 								{live && (
-									<span className="rounded-full bg-ink px-1.5 py-[1px] text-[9.5px] font-bold tracking-[0.15em] text-white">
+									<span className="rounded-full bg-ink px-1.5 py-[1px] text-[9.5px] font-bold tracking-[0.15em] text-background">
 										▶ AGORA
 									</span>
 								)}
@@ -517,7 +517,7 @@ export function FlowChart({ run }: { run: RunView }) {
 							markerHeight="7"
 							orient="auto-start-reverse"
 						>
-							<path d="M0 0 L10 5 L0 10 z" fill="#171717" />
+							<path d="M0 0 L10 5 L0 10 z" fill="var(--foreground)" />
 						</marker>
 						<marker
 							id="arrow-faint"
@@ -528,7 +528,7 @@ export function FlowChart({ run }: { run: RunView }) {
 							markerHeight="7"
 							orient="auto-start-reverse"
 						>
-							<path d="M0 0 L10 5 L0 10 z" fill="#c8c8c8" />
+							<path d="M0 0 L10 5 L0 10 z" fill="var(--border)" />
 						</marker>
 						<marker
 							id="arrow-muted"
@@ -539,7 +539,7 @@ export function FlowChart({ run }: { run: RunView }) {
 							markerHeight="6"
 							orient="auto-start-reverse"
 						>
-							<path d="M0 0 L10 5 L0 10 z" fill="#666666" />
+							<path d="M0 0 L10 5 L0 10 z" fill="var(--muted-foreground)" />
 						</marker>
 					</defs>
 					{geo.edges.map((edge, i) => (
@@ -547,7 +547,7 @@ export function FlowChart({ run }: { run: RunView }) {
 							key={i}
 							d={edge.d}
 							fill="none"
-							stroke={edge.muted ? "#c8c8c8" : "#171717"}
+							stroke={edge.muted ? "var(--border)" : "var(--foreground)"}
 							strokeWidth={1.75}
 							markerEnd={edge.muted ? "url(#arrow-faint)" : "url(#arrow)"}
 						/>
@@ -557,7 +557,7 @@ export function FlowChart({ run }: { run: RunView }) {
 							<path
 								d={loop.d}
 								fill="none"
-								stroke="#666666"
+								stroke="var(--muted-foreground)"
 								strokeWidth={1.1}
 								strokeDasharray="5 4"
 								markerEnd="url(#arrow-muted)"
@@ -567,7 +567,7 @@ export function FlowChart({ run }: { run: RunView }) {
 								y={loop.y}
 								fontSize={10}
 								fontWeight={600}
-								fill="#666666"
+								fill="var(--muted-foreground)"
 							>
 								{loop.label}
 							</text>
@@ -597,7 +597,7 @@ function Diamond({
 		<div
 			ref={refFn}
 			id={`node-${id}`}
-			className={`flex rotate-45 items-center justify-center bg-white ${
+			className={`flex rotate-45 items-center justify-center bg-card ${
 				active ? "ring-[2.5px]" : "ring-[1.5px]"
 			} ring-ink`}
 			style={{ width: size, height: size, borderRadius: 3 }}

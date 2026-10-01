@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { ChevronLeft, ChevronRight, Download, GitBranch, LogOut, Menu, Moon, Monitor, Sun, Upload, X } from "lucide-react";
+import { BarChart3, Bot, ChevronLeft, ChevronRight, Download, GitBranch, LogOut, Menu, Moon, Monitor, Sun, Upload, Workflow, X } from "lucide-react";
 import { Button } from "~/components/ui/button";
 import { MODULES, MODULES_BY_ID, NAV_GROUPS, toCSV } from "~/lib/hub/data";
 import type { HubData } from "~/lib/hub/types";
@@ -12,6 +12,8 @@ import { Dashboard } from "./dashboard";
 import { ICONS } from "./icons";
 import { ModuleView } from "./module-view";
 import { BlogView } from "./blog-view";
+import { AIDiagramView, AIProfileView, AIRegistryView } from "./ai-workspace";
+import { WorkflowAnalyticsView, WorkflowManagerView } from "./workflow-workspace";
 
 type Theme = "light" | "system" | "dark";
 const THEME_KEY = "rc_hub_theme";
@@ -20,7 +22,40 @@ const STATIC_LABELS: Record<string, string> = {
 	config: "Listas controladas",
 	blog: "Blog Risco Cognitivo",
 	sobre: "Sobre",
+	ai: "AI Registry",
+	"ai-profile": "Perfil CV",
+	"ai-diagram": "Diagrama",
+	workflows: "Workflow Manager",
+	"workflow-analytics": "Workflow Analytics",
 };
+
+type AdminPathState = {
+	route: string;
+	entityId?: string;
+	workflowId?: string;
+};
+
+const decodeRoute = (value: string) => {
+	try {
+		return decodeURIComponent(value);
+	} catch {
+		return value;
+	}
+};
+
+function readAdminPath(pathname = window.location.pathname): AdminPathState {
+	const clean = pathname.replace(/\/+$/, "") || "/admin";
+	if (clean === "/admin/ai") return { route: "ai" };
+	const diagram = clean.match(/^\/admin\/ai\/([^/]+)\/diagram$/);
+	if (diagram) return { route: "ai-diagram", entityId: decodeRoute(diagram[1]) };
+	const profile = clean.match(/^\/admin\/ai\/([^/]+)$/);
+	if (profile) return { route: "ai-profile", entityId: decodeRoute(profile[1]) };
+	if (clean === "/admin/workflows/analytics") return { route: "workflow-analytics" };
+	const workflow = clean.match(/^\/admin\/workflows\/([^/]+)$/);
+	if (workflow) return { route: "workflows", workflowId: decodeRoute(workflow[1]) };
+	if (clean === "/admin/workflows") return { route: "workflows" };
+	return { route: "dashboard" };
+}
 
 function download(filename: string, mime: string, body: string) {
 	const url = URL.createObjectURL(new Blob([body], { type: mime }));
@@ -33,7 +68,10 @@ function download(filename: string, mime: string, body: string) {
 
 export function HubShell() {
 	const store = useHubStore();
-	const [route, setRoute] = useState("dashboard");
+	const initialPath = useRef(readAdminPath()).current;
+	const [route, setRoute] = useState(initialPath.route);
+	const [entityId, setEntityId] = useState<string | null>(initialPath.entityId ?? null);
+	const [workflowId, setWorkflowId] = useState<string | null>(initialPath.workflowId ?? null);
 	const [pending, setPending] = useState<string | null>(null);
 	const [collapsed, setCollapsed] = useState(false);
 	// Mobile first: abaixo de md o menu vira gaveta sobreposta.
@@ -71,6 +109,7 @@ export function HubShell() {
 	// Link profundo: /admin#<módulo>/<recordId> (vindo do workflow).
 	useEffect(() => {
 		const follow = () => {
+			if (!/^\/admin\/?$/.test(window.location.pathname)) return;
 			let hash = "";
 			try {
 				hash = decodeURIComponent(window.location.hash.slice(1));
@@ -80,6 +119,8 @@ export function HubShell() {
 			const [moduleId, recordId] = hash.split("/");
 			if (moduleId && (MODULES_BY_ID[moduleId] || STATIC_LABELS[moduleId])) {
 				setRoute(moduleId);
+				setEntityId(null);
+				setWorkflowId(null);
 				setPending(recordId || null);
 				setNavOpen(false);
 			}
@@ -89,8 +130,34 @@ export function HubShell() {
 		return () => window.removeEventListener("hashchange", follow);
 	}, []);
 
+	const applyPath = (pathname: string) => {
+		const next = readAdminPath(pathname);
+		setRoute(next.route);
+		setEntityId(next.entityId ?? null);
+		setWorkflowId(next.workflowId ?? null);
+		setPending(null);
+	};
+
+	useEffect(() => {
+		const followPath = () => applyPath(window.location.pathname);
+		window.addEventListener("popstate", followPath);
+		return () => window.removeEventListener("popstate", followPath);
+	}, []);
+
+	const goPath = (path: string) => {
+		window.history.pushState(null, "", path);
+		applyPath(path);
+		setNavOpen(false);
+	};
+
 	const go = (id: string, recordId?: string) => {
+		const hash = recordId
+			? "#" + encodeURIComponent(id) + "/" + encodeURIComponent(recordId)
+			: "";
+		window.history.pushState(null, "", "/admin" + hash);
 		setRoute(id);
+		setEntityId(null);
+		setWorkflowId(null);
 		setPending(recordId ?? null);
 		setNavOpen(false);
 	};
@@ -177,6 +244,44 @@ export function HubShell() {
 					<GitBranch className="size-4 shrink-0" />
 					{!collapsed && <span className="truncate">Workflow EXECUTAR</span>}
 				</a>
+				<div className="mx-2.5 mb-2 grid gap-1">
+					<button
+						type="button"
+						title="AI Registry"
+						onClick={() => goPath("/admin/ai")}
+						className={cn(
+							"flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-left text-sm hover:bg-accent",
+							route.startsWith("ai") && "bg-[var(--color-brand-subtle)] font-semibold text-[var(--color-brand-default)]",
+						)}
+					>
+						<Bot className="size-4 shrink-0" />
+						{!collapsed && <span className="truncate">AI Registry</span>}
+					</button>
+					<button
+						type="button"
+						title="Workflow Manager"
+						onClick={() => goPath("/admin/workflows")}
+						className={cn(
+							"flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-left text-sm hover:bg-accent",
+							route === "workflows" && "bg-[var(--color-brand-subtle)] font-semibold text-[var(--color-brand-default)]",
+						)}
+					>
+						<Workflow className="size-4 shrink-0" />
+						{!collapsed && <span className="truncate">Workflows</span>}
+					</button>
+					<button
+						type="button"
+						title="Workflow Analytics"
+						onClick={() => goPath("/admin/workflows/analytics")}
+						className={cn(
+							"flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-left text-sm hover:bg-accent",
+							route === "workflow-analytics" && "bg-[var(--color-brand-subtle)] font-semibold text-[var(--color-brand-default)]",
+						)}
+					>
+						<BarChart3 className="size-4 shrink-0" />
+						{!collapsed && <span className="truncate">Analytics</span>}
+					</button>
+				</div>
 				<nav className="flex-1 space-y-2 overflow-y-auto px-2.5 pb-3" aria-label="Módulos">
 					{NAV_GROUPS.map((g, gi) => (
 						<div key={gi}>
@@ -296,7 +401,30 @@ export function HubShell() {
 					</div>
 				)}
 				<div className="min-h-0 flex-1 overflow-y-auto">
-					{route === "dashboard" ? (
+					{route === "ai" ? (
+						<AIRegistryView onOpen={(id) => goPath("/admin/ai/" + encodeURIComponent(id))} />
+					) : route === "ai-profile" && entityId ? (
+						<AIProfileView
+							entityId={entityId}
+							onBack={() => goPath("/admin/ai")}
+							onDiagram={() => goPath("/admin/ai/" + encodeURIComponent(entityId) + "/diagram")}
+							onWorkflows={() => goPath("/admin/workflows")}
+						/>
+					) : route === "ai-diagram" && entityId ? (
+						<AIDiagramView
+							entityId={entityId}
+							onBack={() => goPath("/admin/ai")}
+							onProfile={() => goPath("/admin/ai/" + encodeURIComponent(entityId))}
+						/>
+					) : route === "workflows" ? (
+						<WorkflowManagerView
+							workflowId={workflowId}
+							onSelect={(id) => goPath("/admin/workflows/" + encodeURIComponent(id))}
+							onOpenAnalytics={() => goPath("/admin/workflows/analytics")}
+						/>
+					) : route === "workflow-analytics" ? (
+						<WorkflowAnalyticsView onBack={() => goPath("/admin/workflows")} />
+					) : route === "dashboard" ? (
 						<Dashboard store={store} onNavigate={go} />
 					) : route === "config" ? (
 						<ConfigView store={store} />
