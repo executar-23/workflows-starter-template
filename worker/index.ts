@@ -3,6 +3,7 @@ export { WorkflowStatusDO } from "./durable-object";
 export { TaskBoardDO } from "./task-board";
 export { HubStoreDO } from "./hub-store";
 import { handleHubApi } from "./hub-api";
+import { handleCmsApi } from "./cms-api";
 import { corsHeaders, handleAgentApi, handleRunApi, json } from "./agent-api";
 
 type EventBody = {
@@ -42,6 +43,10 @@ export default {
 				},
 			});
 		}
+
+		// Entrypoint único: campanhas e publicação no blog a partir do CMS.
+		const cmsResponse = await handleCmsApi(request, env, url);
+		if (cmsResponse) return cmsResponse;
 
 		// CMS (Hub Editorial): sessão de administrador própria (ADMIN_TOKEN).
 		const hubResponse = await handleHubApi(request, env, url);

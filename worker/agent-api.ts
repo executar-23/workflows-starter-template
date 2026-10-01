@@ -2,6 +2,7 @@ import { NODE_BY_ID, producesOf, runPrefix } from "../shared/schema";
 import { bindTasks, judgePassed, validatePlanCsv } from "../shared/plan";
 import { artifactKey, listArtifacts, putArtifact } from "./artifacts";
 import type { DonePayload } from "./workflow";
+import { CMS_RUN, isBlogPrUrl } from "./cms-api";
 
 // API de execução real: agentes Claude Code (Bearer AGENT_TOKEN) e UI.
 
@@ -134,6 +135,29 @@ export async function handleAgentApi(
 					{ error: `Tarefa em estado ${task.status}: agentes só concluem tarefas despachadas` },
 					{ status: 409 },
 				);
+			// Tarefa do CMS (publicação no blog): sem run do workflow; grava o PR no conteúdo.
+			if (task.runId === CMS_RUN) {
+				const prUrl = String(body.prUrl ?? "");
+				const slug = String(body.slug ?? "");
+				if (prUrl && !isBlogPrUrl(env, prUrl))
+					return json({ error: "prUrl deve ser um PR do repositório do blog" }, { status: 400 });
+				if (!prUrl && !String(body.evidence ?? "").trim())
+					return json({ error: "Envie prUrl ou evidence" }, { status: 400 });
+				const result = await board(env).complete(taskId, {
+					evidence: String(body.evidence ?? ""),
+					artifacts: prUrl ? [prUrl] : [],
+					gaps: Array.isArray(body.gaps) ? body.gaps.map(String) : [],
+					by: agentName(request, body),
+				});
+				if (task.item) {
+					const hub = env.HUB_STORE.get(env.HUB_STORE.idFromName("hub"));
+					await hub.patchFields(agentName(request, body), "content", task.item, {
+						Blog_PR: prUrl || "Concluída sem PR (ver evidência)",
+						...(slug ? { Blog_slug: slug } : {}),
+					});
+				}
+				return json(result);
+			}
 			// Só a entrega que o run está esperando agora (nada de tentativa antiga).
 			const awaiting = await runStatus(env, task.runId).getAwaiting();
 			if (awaiting?.eventType !== task.doneEvent)

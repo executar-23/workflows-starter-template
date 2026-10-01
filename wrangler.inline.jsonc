@@ -70,6 +70,13 @@
 			"bucket_name": "executar-artifacts"
 		}
 	],
+	/**
+	 * Blog Risco Cognitivo controlado pelo CMS (/admin)
+	 */
+	"vars": {
+		"BLOG_REPO": "executar-23/Risco-cognitivo-blog",
+		"BLOG_URL": "https://risco-cognitivo-blog.executar-rotina-8b7.workers.dev"
+	},
 	"workers_dev": true,
 	"upload_source_maps": true
 }

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { ReactNode } from "react";
 import { NODE_BY_ID, WORKFLOW } from "../shared/schema";
 import { FlowChart } from "./components/FlowChart";
@@ -156,9 +156,31 @@ function App() {
 
 	const current = state.currentStep ? NODE_BY_ID.get(state.currentStep) : null;
 
+	// #27: o padding inferior acompanha a altura real do banner fixo (celular).
+	const bannerRef = useRef<HTMLDivElement>(null);
+	const [bannerHeight, setBannerHeight] = useState(0);
+	useEffect(() => {
+		const el = bannerRef.current;
+		if (!el) {
+			setBannerHeight(0);
+			return;
+		}
+		const update = () =>
+			setBannerHeight(getComputedStyle(el).position === "fixed" ? el.offsetHeight : 0);
+		update();
+		const observer = new ResizeObserver(update);
+		observer.observe(el);
+		window.addEventListener("resize", update);
+		return () => {
+			observer.disconnect();
+			window.removeEventListener("resize", update);
+		};
+	}, [awaitingNode]);
+
 	return (
 		<div
-			className={`min-h-screen bg-white text-ink ${awaitingNode ? "pb-52 sm:pb-0" : ""}`}
+			className="min-h-screen bg-white text-ink"
+			style={bannerHeight ? { paddingBottom: bannerHeight + 16 } : undefined}
 		>
 			<header className="flex flex-col gap-5 px-4 pb-5 pt-6 sm:px-6 sm:pt-8">
 				<div className="flex flex-col gap-1">
@@ -189,6 +211,14 @@ function App() {
 										{" "}
 										· plano {state.meta.planId}
 									</span>
+								)}
+								{state.meta.contentRecordId && (
+									<a
+										href={`/admin#content/${encodeURIComponent(state.meta.contentRecordId)}`}
+										className="no-print ml-2 font-sans font-semibold underline"
+									>
+										Conteúdo no CMS →
+									</a>
 								)}
 							</span>
 						) : (
@@ -291,7 +321,9 @@ function App() {
 			{/* Próxima casa (WIP = 1): sempre visível enquanto o fluxo rola. */}
 			{awaitingNode && state.awaiting && (
 				// Celular: ação fixa no rodapé, ao alcance do polegar; desktop: sticky no topo.
-				<div className="no-print fixed inset-x-0 bottom-0 z-30 bg-white/95 px-3 pb-[max(0.5rem,env(safe-area-inset-bottom))] pt-2 shadow-[0_-8px_24px_rgba(0,0,0,0.08)] backdrop-blur sm:sticky sm:bottom-auto sm:top-0 sm:bg-white/90 sm:px-6 sm:py-2 sm:shadow-none">
+				<div
+					ref={bannerRef}
+					className="no-print fixed inset-x-0 bottom-0 z-30 bg-white/95 px-3 pb-[max(0.5rem,env(safe-area-inset-bottom))] pt-2 shadow-[0_-8px_24px_rgba(0,0,0,0.08)] backdrop-blur sm:sticky sm:bottom-auto sm:top-0 sm:bg-white/90 sm:px-6 sm:py-2 sm:shadow-none">
 					<div className="flex max-h-[60vh] flex-col gap-2 overflow-y-auto rounded-[22px] bg-muted px-4 py-3 ring-2 ring-ink sm:max-h-none sm:flex-row sm:items-center sm:overflow-visible">
 						<div className="flex-1 text-sm">
 							<span className="mr-2 text-[11px] font-bold tracking-wider">

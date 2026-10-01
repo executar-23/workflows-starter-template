@@ -47,3 +47,9 @@
   Usar `min-h-9 sm:min-h-0`.
 - [🔄] #25 No modo compact, o rótulo "PGxx · join" fica à direita do losango (`src/components/FlowChart.tsx:279`) e o trilho direito entra pelo vértice direito, riscando o texto: pôr o rótulo do join à esquerda.
 - [🔄] #26 No modo compact, o wrapper do bloco paralelo (`src/components/FlowChart.tsx:410`) não é `w-full`, então os cards dos ramos do PG01 ficam com 188 px, enquanto os do PG03 e os demais ficam com 300 px: adicionar `w-full` no modo compact para a largura ficar consistente.
+
+> Origem: /verify Phase 6 (2026-09-30) — CMS em /admin
+
+- [🔄] #27 #23 continua com padding fixo `pb-52 sm:pb-0` (`src/App.tsx:161`), e o banner de ação pode chegar a 60vh no modo evidência. Dimensionar pela altura real (ResizeObserver → variável CSS) para não cobrir o fim da página.
+- [🔄] #28 `POST /api/auth/login` não limita tentativas (`worker/hub-api.ts`). Antes do deploy da Phase 8, adicionar um rate limit simples, por exemplo um contador por IP com janela no HubStoreDO ou uma regra de WAF, para reduzir força bruta no `ADMIN_TOKEN`.
+- [ ] #29 No deploy não inline (`wrangler.jsonc:12`, `not_found_handling: single-page-application`), `/admin/<sub-rota>` cai no `index.html` do workflow. Hoje o CMS só usa `/admin/`. Documentar a limitação no README ou usar `run_worker_first` para `/admin/*` se o CMS passar a ter rotas por URL.

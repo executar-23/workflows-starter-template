@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { ChevronRight, Plus, Search, Trash2, X } from "lucide-react";
 import { Button } from "~/components/ui/button";
+import { CmsActions } from "./cms-actions";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
 import { Textarea } from "~/components/ui/textarea";
@@ -93,13 +94,23 @@ function PublishButton({ record, store }: { record: HubRecord; store: HubStore }
 				setState("running");
 				try {
 					const result = await store.publish(record._id);
-					setState(result === "complete" || result === "already-published" ? "done" : "error");
+					setState(
+						result === "complete" || result === "already-published" || result === "queued"
+							? "done"
+							: "error",
+					);
 				} catch {
 					setState("error");
 				}
 			}}
 		>
-			{state === "running" ? "Publicando…" : state === "error" ? "Falhou — tentar de novo" : "Publicar"}
+			{state === "running"
+				? "Publicando…"
+				: state === "done"
+					? "Enviado ao agente blog-publisher"
+					: state === "error"
+						? "Falhou — tentar de novo"
+						: "Publicar no blog"}
 		</Button>
 	);
 }
@@ -125,7 +136,7 @@ function DetailPanel({
 	const [draft, setDraft] = useState<HubRecord>(record);
 
 	return (
-		<div className="max-w-2xl p-6">
+		<div className="max-w-2xl p-4 md:p-6">
 			<div className="mb-4 flex items-start justify-between gap-3">
 				<div>
 					<div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
@@ -138,6 +149,7 @@ function DetailPanel({
 				</Button>
 			</div>
 			<div className="space-y-4">
+				{mod.id === "content" && !isNew && <CmsActions record={record} store={store} />}
 				{mod.fields.map(([key, label, type]) => (
 					<div key={key} className="space-y-1.5">
 						<Label htmlFor={undefined}>{label}</Label>

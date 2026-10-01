@@ -23,6 +23,7 @@ export const NAV_GROUPS: { title: string | null; items: string[] }[] = [
 		items: ["seo", "calendar", "distribution", "performance"],
 	},
 	{ title: "Estratégia", items: ["backlog", "taxonomy", "decisions"] },
+	{ title: "Blog", items: ["blog"] },
 	{ title: null, items: ["config", "sobre"] },
 ];
 

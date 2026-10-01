@@ -4,6 +4,7 @@ import {
 	Calendar,
 	FileText,
 	GitBranch,
+	Globe,
 	Image,
 	Info,
 	LayoutDashboard,
@@ -25,6 +26,7 @@ import {
 
 export const ICONS: Record<string, LucideIcon> = {
 	dashboard: LayoutDashboard,
+	blog: Globe,
 	content: FileText,
 	brief: BookOpen,
 	arguments: MessageSquare,

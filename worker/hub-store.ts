@@ -171,6 +171,63 @@ export class HubStoreDO extends DurableObject {
 		return { ok: true, record: { _id: id, ...fields } };
 	}
 
+	// Atualização parcial (merge) de um registro existente.
+	async patchFields(
+		actor: string,
+		module: string,
+		id: string,
+		partial: HubFields,
+	): Promise<UpsertResult | null> {
+		const current = await this.get(module, id);
+		if (!current) return null;
+		const { _id, ...fields } = current;
+		void _id;
+		return this.upsert(actor, module, id, { ...fields, ...partial });
+	}
+
+	async findByCode(module: string, code: string): Promise<HubRecord | null> {
+		const row = this.sql
+			.exec<Row>("SELECT module, id, data FROM records WHERE module = ? AND code = ?", module, code)
+			.toArray()[0];
+		return row ? toRecord(row) : null;
+	}
+
+	// Registros de outros módulos ligados ao conteúdo pelo campo Content_ID.
+	async related(contentId: string): Promise<Record<string, HubRecord[]>> {
+		const out: Record<string, HubRecord[]> = {};
+		for (const row of this.sql
+			.exec<Row>(
+				"SELECT module, id, data FROM records WHERE module <> 'content' AND json_extract(data, '$.Content_ID') = ? ORDER BY module",
+				contentId,
+			)
+			.toArray()) {
+			(out[row.module] ??= []).push(toRecord(row));
+		}
+		return out;
+	}
+
+	// Limite de tentativas de login (janela de 15 min, contador no meta).
+	async loginFailures(windowStart: number): Promise<number> {
+		const row = this.sql
+			.exec<{ value: string }>("SELECT value FROM meta WHERE key = 'login_failures'")
+			.toArray()[0];
+		const stamps = row ? (JSON.parse(row.value) as number[]) : [];
+		return stamps.filter((t) => t >= windowStart).length;
+	}
+
+	async noteLoginFailure(now: number, windowStart: number): Promise<number> {
+		const row = this.sql
+			.exec<{ value: string }>("SELECT value FROM meta WHERE key = 'login_failures'")
+			.toArray()[0];
+		const stamps = [...(row ? (JSON.parse(row.value) as number[]) : []).filter((t) => t >= windowStart), now];
+		this.sql.exec(
+			"INSERT INTO meta (key, value) VALUES ('login_failures', ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value",
+			JSON.stringify(stamps.slice(-50)),
+		);
+		this.audit("anon", "login_failed", null, null);
+		return stamps.length;
+	}
+
 	async remove(actor: string, module: string, id: string): Promise<boolean> {
 		let deleted = false;
 		this.ctx.storage.transactionSync(() => {

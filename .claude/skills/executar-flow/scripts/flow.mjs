@@ -26,7 +26,7 @@ Comandos:
   get <chaveR2> [--out arquivo]        baixa um artefato de entrada
   put <runId> <nó> <arquivo> [--item X] [--name nome]
                                        sobe um artefato (imprime a chave R2)
-  complete <taskId> (--evidence TXT | --evidence-file F) [--artifact K]... [--gap TXT]...
+  complete <taskId> (--evidence TXT | --evidence-file F) [--artifact K]... [--gap TXT]... [--pr-url URL --slug S]
                                        conclui a tarefa com evidência
   plan-upload --campaign C --internal F.md --csv F.csv --judge F.txt [--periodo P]
                                        envia o plano upstream (skill plano-operacional-rastreavel)
@@ -192,11 +192,19 @@ switch (command) {
 			? readFileSync(opts["evidence-file"], "utf8")
 			: (opts.evidence ?? "");
 		const artifacts = list(opts.artifact);
-		if (!evidence.trim() && !artifacts.length) die("informe --evidence/--evidence-file e/ou --artifact");
+		if (!evidence.trim() && !artifacts.length && !opts["pr-url"])
+			die("informe --evidence/--evidence-file, --artifact e/ou --pr-url");
 		const data = await api(`/api/tasks/${enc(rest[0])}/complete`, {
 			method: "POST",
 			headers: { "Content-Type": "application/json" },
-			body: JSON.stringify({ evidence, artifacts, gaps: list(opts.gap), agent: agentName }),
+			body: JSON.stringify({
+				evidence,
+				artifacts,
+				gaps: list(opts.gap),
+				agent: agentName,
+				...(opts["pr-url"] ? { prUrl: opts["pr-url"] } : {}),
+				...(opts.slug ? { slug: opts.slug } : {}),
+			}),
 		});
 		console.log(`✓ ${data.task.taskId} concluída — o Worker confere os artefatos no R2`);
 		break;

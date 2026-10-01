@@ -11,12 +11,14 @@ import { ConfigView } from "./config-view";
 import { Dashboard } from "./dashboard";
 import { ICONS } from "./icons";
 import { ModuleView } from "./module-view";
+import { BlogView } from "./blog-view";
 
 type Theme = "light" | "system" | "dark";
 const THEME_KEY = "rc_hub_theme";
 const STATIC_LABELS: Record<string, string> = {
 	dashboard: "Dashboard",
 	config: "Listas controladas",
+	blog: "Blog Risco Cognitivo",
 	sobre: "Sobre",
 };
 
@@ -65,6 +67,21 @@ export function HubShell() {
 	const mod = MODULES_BY_ID[route];
 	const title = STATIC_LABELS[route] ?? mod?.label ?? "";
 	const label = (id: string) => STATIC_LABELS[id] ?? MODULES_BY_ID[id]?.label ?? id;
+
+	// Link profundo: /admin#<módulo>/<recordId> (vindo do workflow).
+	useEffect(() => {
+		const follow = () => {
+			const [moduleId, recordId] = decodeURIComponent(window.location.hash.slice(1)).split("/");
+			if (moduleId && (MODULES_BY_ID[moduleId] || STATIC_LABELS[moduleId])) {
+				setRoute(moduleId);
+				setPending(recordId || null);
+				setNavOpen(false);
+			}
+		};
+		follow();
+		window.addEventListener("hashchange", follow);
+		return () => window.removeEventListener("hashchange", follow);
+	}, []);
 
 	const go = (id: string, recordId?: string) => {
 		setRoute(id);
@@ -277,6 +294,8 @@ export function HubShell() {
 						<Dashboard store={store} onNavigate={go} />
 					) : route === "config" ? (
 						<ConfigView store={store} />
+					) : route === "blog" ? (
+						<BlogView store={store} onOpenContent={(id) => go("content", id)} />
 					) : route === "sobre" ? (
 						<AboutView />
 					) : mod ? (

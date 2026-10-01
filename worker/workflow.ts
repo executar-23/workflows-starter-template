@@ -104,6 +104,9 @@ export class MyWorkflow extends WorkflowEntrypoint<Env, WorkflowParams> {
 					campaignId,
 					assetIds: assetIds.join(", "),
 					...(params.planId ? { planId: params.planId } : {}),
+					...(params.metadata?.contentRecordId
+						? { contentRecordId: params.metadata.contentRecordId }
+						: {}),
 				})
 				.catch(() => {});
 

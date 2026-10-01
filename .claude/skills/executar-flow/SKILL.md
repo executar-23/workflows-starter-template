@@ -29,6 +29,7 @@ Repita até a fila esvaziar ou até 10 rodadas:
    | `agent:research` | `research-agent` |
    | `agent:plano-ops` | `plano-ops-agent` |
    | `agent:analytics` | `analytics-agent` |
+   | `agent:blog-publisher` | `blog-publisher` (tarefas do CMS, `runId = cms`: publicar no blog) |
 
    Subagentes não disparam outros subagentes, então o roteamento é sempre feito aqui, pela sessão principal.
 3. Aguarde o subagente terminar. Confira com `node .claude/skills/executar-flow/scripts/flow.mjs tasks --run <runId>` se a tarefa ficou `concluida`. Se o subagente relatar bloqueio, **não** conclua a tarefa por ele: registre no resumo e siga para a próxima.

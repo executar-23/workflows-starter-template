@@ -10,7 +10,8 @@ Worker Cloudflare (Workflows + Durable Objects + R2) com UI React. O fluxo intei
   - `/loop 10m /executar-flow` mantém a fila rodando enquanto a sessão estiver aberta;
   - para rodar sem sessão aberta (headless/cron): `claude -p "/executar-flow" --permission-mode acceptEdits`;
   - Routine cloud "EXECUTAR · fila de agentes": roda de hora em hora, ou na hora pelo "Run now".
-- **Subagentes** (`/agents`): `clp-orchestrator`, `research-agent`, `plano-ops-agent` e `analytics-agent`.
+- **Subagentes** (`/agents`): `clp-orchestrator`, `research-agent`, `plano-ops-agent`, `analytics-agent` e `blog-publisher` (publicação no blog a partir do CMS).
+- **CMS (`/admin`):** Hub Editorial do blog Risco Cognitivo. No conteúdo: "Iniciar campanha" abre um run com `campaignId = CNT-RC-*`; "Publicar no blog" despacha uma tarefa para o `blog-publisher`, que abre um PR pronto no `executar-23/Risco-cognitivo-blog`.
 - **Plano do mês (upstream):** delegue ao `plano-ops-agent` com o intake. Ele usa a skill `plano-operacional-rastreavel`, passa o plano pelo juiz `validar_plano.py` e envia com `flow.mjs plan-upload`. Depois, inicie o run com o `planId` retornado.
 - **Diagnóstico:** `node .claude/skills/executar-flow/scripts/flow.mjs whoami` e `node .claude/skills/executar-flow/scripts/flow.mjs tasks --status despachada`.
 

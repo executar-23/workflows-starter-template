@@ -10,19 +10,21 @@ const ACTOR = "admin";
 const ID_RE = /^[A-Za-z0-9_-]{1,64}$/;
 const KEY_RE = /^[A-Za-z0-9_]{1,64}$/;
 const MAX_VALUE = 20_000;
+const LOGIN_WINDOW_MS = 15 * 60 * 1000;
+const LOGIN_MAX_FAILURES = 10;
 
 type Json = Record<string, unknown>;
 
 // Mesmo envelope do Hub de origem: { success, result } / { success:false, errors }.
-const ok = (result: unknown, init: ResponseInit = {}) =>
+export const ok = (result: unknown, init: ResponseInit = {}) =>
 	Response.json({ success: true, result }, { ...init, headers: { ...corsHeaders, ...(init.headers ?? {}) } });
-const fail = (status: number, message: string, headers: HeadersInit = {}) =>
+export const fail = (status: number, message: string, headers: HeadersInit = {}) =>
 	Response.json(
 		{ success: false, errors: [{ code: status, message }] },
 		{ status, headers: { ...corsHeaders, ...headers } },
 	);
 
-const store = (env: Env) => env.HUB_STORE.get(env.HUB_STORE.idFromName("hub"));
+export const store = (env: Env) => env.HUB_STORE.get(env.HUB_STORE.idFromName("hub"));
 const adminToken = (env: Env) => (env as Env & { ADMIN_TOKEN?: string }).ADMIN_TOKEN;
 
 const enc = new TextEncoder();
@@ -69,7 +71,7 @@ function readCookie(request: Request, name: string) {
 	return null;
 }
 
-async function isAdmin(request: Request, env: Env) {
+export async function isAdmin(request: Request, env: Env) {
 	const secret = adminToken(env);
 	const value = readCookie(request, COOKIE);
 	if (!secret || !value) return false;
@@ -106,7 +108,7 @@ async function guarded(fn: () => Promise<Response>) {
 	}
 }
 
-/** Rotas /api/auth/*, /api/hub*, /api/vocab*, /api/workflows/publish. */
+/** Rotas /api/auth/*, /api/hub*, /api/vocab*. Publicação/campanhas: cms-api.ts. */
 export async function handleHubApi(
 	request: Request,
 	env: Env,
@@ -119,16 +121,24 @@ export async function handleHubApi(
 		path === "/api/hub" ||
 		path.startsWith("/api/hub/") ||
 		path === "/api/vocab" ||
-		path.startsWith("/api/vocab/") ||
-		path === "/api/workflows/publish";
+		path.startsWith("/api/vocab/");
 	if (!isHubRoute) return null;
 
 	// ---------- sessão ----------
 	if (path === "/api/auth/login" && method === "POST") {
 		const secret = adminToken(env);
 		if (!secret) return fail(503, "ADMIN_TOKEN não configurado no Worker");
+		// #28: no máximo 10 falhas a cada 15 min (contador no HubStoreDO).
+		const now = Date.now();
+		const windowStart = now - LOGIN_WINDOW_MS;
+		if ((await store(env).loginFailures(windowStart)) >= LOGIN_MAX_FAILURES) {
+			return fail(429, "Muitas tentativas. Aguarde 15 minutos.", { "Retry-After": "900" });
+		}
 		const body = (await request.json().catch(() => ({}))) as Json;
-		if (!safeEqual(String(body.token ?? ""), secret)) return fail(401, "Token inválido");
+		if (!safeEqual(String(body.token ?? ""), secret)) {
+			await store(env).noteLoginFailure(now, windowStart);
+			return fail(401, "Token inválido");
+		}
 		const epoch = await store(env).sessionEpoch();
 		return ok(
 			{ email: ACTOR },
@@ -209,11 +219,6 @@ export async function handleHubApi(
 		if (!KEY_RE.test(name) || !Array.isArray(body?.items)) return fail(400, "items inválido");
 		await hub.vocabPut(ACTOR, name, body!.items.map(String).slice(0, 500));
 		return ok({ name });
-	}
-
-	// Publicação no blog: Fase 7 (tarefa para o agente blog-publisher).
-	if (path === "/api/workflows/publish") {
-		return fail(501, "Publicação no blog chega na Fase 7 (agente blog-publisher)");
 	}
 
 	return fail(404, "Not Found");
