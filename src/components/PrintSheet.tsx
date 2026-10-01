@@ -6,10 +6,10 @@ import { PHASE_BY_ID, WORKFLOW } from "../active-graph";
 // quebra página. Marca body[data-ready] para o print-pdf.mjs (Playwright).
 export function PrintSheet() {
 	useEffect(() => {
-		const timer = setTimeout(() => {
+		const ready = setTimeout(() => {
 			document.body.dataset.ready = "1";
-		}, 800);
-		return () => clearTimeout(timer);
+		}, 1000);
+		return () => clearTimeout(ready);
 	}, []);
 
 	return (

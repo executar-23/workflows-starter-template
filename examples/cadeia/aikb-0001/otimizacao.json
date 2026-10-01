@@ -1,0 +1,233 @@
+{
+ "estado_atual": {
+  "ordem": [
+   "T01",
+   "T02",
+   "T03",
+   "T04",
+   "T05",
+   "T06",
+   "T07",
+   "T08",
+   "T09",
+   "T10",
+   "T11",
+   "T12",
+   "T13",
+   "T14",
+   "T15",
+   "T16",
+   "T17",
+   "T18",
+   "T19",
+   "T20",
+   "T21",
+   "T22"
+  ],
+  "descricao": "22 tarefas em série estrita (ordem da Tabela 8.2), 1 checagem de conformidade no fim (T21)",
+  "casas_sequenciais": 22
+ },
+ "caminho_critico": [
+  "T01",
+  "T02",
+  "T03",
+  "T04",
+  "T05",
+  "T06",
+  "T07",
+  "T08",
+  "T09",
+  "T11",
+  "T18",
+  "T19",
+  "T20",
+  "T21",
+  "T22"
+ ],
+ "desperdicios": [
+  {
+   "id": "W01",
+   "tipo": "espera",
+   "onde": [
+    "T17"
+   ],
+   "descricao": "Ebooks (T17) esperam toda a peça-mãe e os derivados, mas só dependem do Topic Pack (T03) e das evidências (T02).",
+   "tag": "DERIVED"
+  },
+  {
+   "id": "W02",
+   "tipo": "gargalo",
+   "onde": [
+    "T10",
+    "T11",
+    "T12",
+    "T13",
+    "T14",
+    "T15",
+    "T16"
+   ],
+   "descricao": "Sete derivados em série, embora todos dependam apenas da marcação de trechos (T09) e da peça-mãe final (T07).",
+   "tag": "DERIVED"
+  },
+  {
+   "id": "W03",
+   "tipo": "retrabalho",
+   "onde": [
+    "T21"
+   ],
+   "descricao": "Conformidade (estilo, GEO, marcação, nomenclatura) só é checada em T21: falha tardia reabre o ciclo a partir da revisão.",
+   "tag": "DERIVED"
+  },
+  {
+   "id": "W04",
+   "tipo": "manual",
+   "onde": [
+    "T20"
+   ],
+   "descricao": "Indexação e renomeação de todos os arquivos feitas à mão no fim do ciclo (convenção 9.1 / pastas 9.2).",
+   "tag": "DERIVED"
+  },
+  {
+   "id": "W05",
+   "tipo": "handoff",
+   "onde": [
+    "T14",
+    "T22"
+   ],
+   "descricao": "Specs de formato aparecem no briefing dos infográficos (T14) e de novo no pacote de handoff (T22).",
+   "tag": "PROPOSED"
+  }
+ ],
+ "mudancas": [
+  {
+   "id": "M01",
+   "tipo": "paralelizar",
+   "descricao": "Ramo paralelo: T17 (ebooks) corre junto com a peça-mãe T04→T08, logo após o Topic Pack.",
+   "afeta": [
+    "T17",
+    "T04",
+    "T05",
+    "T06",
+    "T07",
+    "T08"
+   ],
+   "impacto": "−1 casa sequencial (T17 sai do caminho crítico); duração em dias A DEFINIR",
+   "tag": "DERIVED",
+   "resolve": [
+    "W01"
+   ]
+  },
+  {
+   "id": "M02",
+   "tipo": "paralelizar",
+   "descricao": "Derivados T10–T16 em paralelo entre PS2 e PJ2 (todos dependem só de T09/T07).",
+   "afeta": [
+    "T10",
+    "T11",
+    "T12",
+    "T13",
+    "T14",
+    "T15",
+    "T16"
+   ],
+   "impacto": "−6 casas sequenciais (7 derivados → 1 bloco); duração em dias A DEFINIR",
+   "tag": "DERIVED",
+   "resolve": [
+    "W02"
+   ]
+  },
+  {
+   "id": "M03",
+   "tipo": "gate-antecipado",
+   "descricao": "Aplicar o checklist de estilo (Tabela 3.1) na saída de T06 e a convenção 9.1 na criação de cada arquivo; T21 vira conferência final com retorno a T06.",
+   "afeta": [
+    "T06",
+    "T20",
+    "T21"
+   ],
+   "impacto": "menos retrabalho tardio; taxa de reprovação em T21 A DEFINIR",
+   "tag": "PROPOSED",
+   "resolve": [
+    "W03"
+   ]
+  },
+  {
+   "id": "M04",
+   "tipo": "automatizar",
+   "descricao": "Gerar nomes `[HUB]-[PILAR]-[AAAAMMDD]-[SEQ]-[TIPO]-V[VERSÃO]__[slug]` e as 10 pastas por script; T20 passa a validar em vez de renomear.",
+   "afeta": [
+    "T20"
+   ],
+   "impacto": "T20 de manual para verificação; esforço A DEFINIR",
+   "tag": "PROPOSED",
+   "resolve": [
+    "W04"
+   ]
+  },
+  {
+   "id": "M05",
+   "tipo": "eliminar-redundancia",
+   "descricao": "Template único de briefing técnico (proporção, duração, texto na tela) preenchido em T11–T14 e apenas consolidado em T22.",
+   "afeta": [
+    "T11",
+    "T12",
+    "T13",
+    "T14",
+    "T22"
+   ],
+   "impacto": "handoff sem redigitação; A DEFINIR",
+   "tag": "PROPOSED",
+   "resolve": [
+    "W05"
+   ]
+  }
+ ],
+ "arestas_removidas": [],
+ "decisoes_pendentes": [
+  "T08 (roteiro do vídeo) poderia correr junto com T05–T07 (DEP T04→T08 é DIRECT), mas depende da versão pós-GEO (DEP T07→T08 PROPOSED) e o motor não suporta split aninhado: mantido em série após T07 até decisão do dono do processo.",
+  "Data de início do ciclo: A DEFINIR (roadmap usa 2026-10-05 como referência PROPOSED)."
+ ],
+ "estado_futuro": {
+  "ordem": [
+   "T01",
+   "T02",
+   "T03",
+   "T04",
+   "T05",
+   "T06",
+   "T07",
+   "T08",
+   "T17",
+   "T09",
+   "T10",
+   "T11",
+   "T12",
+   "T13",
+   "T14",
+   "T15",
+   "T16",
+   "T18",
+   "T19",
+   "T20",
+   "T21",
+   "T22"
+  ],
+  "paralelos": [
+   [
+    "T04-T08",
+    "T17"
+   ],
+   [
+    "T10",
+    "T11",
+    "T12",
+    "T13",
+    "T14",
+    "T15",
+    "T16"
+   ]
+  ],
+  "casas_sequenciais": 15,
+  "premissa": "ASSUMPTION: casas de duração equivalente; ganho em dias A DEFINIR (doc não traz duração por tarefa)"
+ }
+}

@@ -1,0 +1,217 @@
+PD-CLB-20260906-F01 · CICLO EDITORIAL 15 DIAS/
+│
+├── 00_VISAO_GERAL.txt
+│   │
+│   ├── OBJETIVO/
+│   │   └── produzir_o_pacote_da_Fase_1_e_entregar_o_handoff_para_a_Fase_2
+│   │
+│   ├── PROGRESSO/
+│   │   ├── total.............................. 100%
+│   │   ├── unidades_executaveis............... 22
+│   │   ├── dias_operacionais................... 15
+│   │   ├── inicio............................... 2026-10-05
+│   │   └── fim................................... 2026-10-19
+│   │
+│   └── FLUXO_DE_VALOR/
+│       ├── VS-01_TEMA_E_EVIDENCIAS............. 13,636%
+│       ├── VS-02_PECA_MAE...................... 27,273%
+│       ├── VS-03_DERIVADOS..................... 36,364%
+│       └── VS-04_INTEGRACAO_E_HANDOFF.......... 22,727%
+│
+├── 01_PORTAS_E_ENTREGAS.txt
+│   │
+│   ├── G-TEMA/
+│   │   ├── tema_com_dor_real_e_encaixe_de_nicho
+│   │   ├── topic_pack_fechado_titulo_cta_ferramenta
+│   │   └── LIBERA -> G-CONFORMIDADE
+│   │
+│   ├── G-CONFORMIDADE/
+│   │   ├── estilo_tabela_3.1
+│   │   ├── geo_seo
+│   │   ├── marcacao_de_derivados
+│   │   ├── nomenclatura_9.1
+│   │   └── LIBERA -> G-HANDOFF-F2
+│   │
+│   ├── G-HANDOFF-F2/
+│   │   ├── briefings_tecnicos_por_asset
+│   │   ├── specs_proporcao_duracao_texto_na_tela
+│   │   └── LIBERA -> POS_LANCAMENTO
+│   │
+│
+└── 02_CRONOGRAMA/
+    │
+    └── 2026-10_OUTUBRO/
+        │
+        ├── SEMANA_01_05-A-11/
+        │   │
+        │   ├── 05_SEGUNDA_[1_objetos]_[4,545%]/
+        │   │   ├── M0/
+        │   │   │   ├── ○ T01 [4,545%] Validação do tema do ciclo
+        │   │   │   │       <= —
+        │   │   │   │       => G-TEMA
+        │   │   ├── M1/
+        │   │   ├── M2/
+        │   │   ├── M3/
+        │   │   ├── M4/
+        │   │   ├── 18H/
+        │   │
+        │   ├── 06_TERCA_[1_objetos]_[4,545%]/
+        │   │   ├── M0/
+        │   │   ├── M1/
+        │   │   │   ├── ○ T02 [4,545%] Pesquisa e levantamento de evidências
+        │   │   │   │       <= T01
+        │   │   ├── M2/
+        │   │   ├── M3/
+        │   │   ├── M4/
+        │   │   ├── 18H/
+        │   │
+        │   ├── 07_QUARTA_[1_objetos]_[4,545%]/
+        │   │   ├── M0/
+        │   │   ├── M1/
+        │   │   ├── M2/
+        │   │   │   ├── ○ T03 [4,545%] Definição do Topic Pack
+        │   │   │   │       <= T02
+        │   │   │   │       => G-TEMA
+        │   │   ├── M3/
+        │   │   ├── M4/
+        │   │   ├── 18H/
+        │   │
+        │   ├── 08_QUINTA_[2_objetos]_[9,09%]/
+        │   │   ├── M0/
+        │   │   ├── M1/
+        │   │   │   ├── ○ T04 [4,545%] Outline da peça-mãe
+        │   │   │   │       <= T02 + T03
+        │   │   ├── M2/
+        │   │   │   ├── ○ T17 [4,545%] Outline e redação dos 3 ebooks
+        │   │   │   │       <= T02 + T03
+        │   │   ├── M3/
+        │   │   ├── M4/
+        │   │   ├── 18H/
+        │   │
+        │   ├── 09_SEXTA_[1_objetos]_[4,545%]/
+        │   │   ├── M0/
+        │   │   ├── M1/
+        │   │   │   ├── ○ T05 [4,545%] Redação do artigo mãe
+        │   │   │   │       <= T04
+        │   │   ├── M2/
+        │   │   ├── M3/
+        │   │   ├── M4/
+        │   │   ├── 18H/
+        │   │
+        │   ├── 10_SABADO_[1_objetos]_[4,545%]/
+        │   │   ├── M0/
+        │   │   ├── M1/
+        │   │   │   ├── ○ T06 [4,545%] Revisão de estilo editorial
+        │   │   │   │       <= T05
+        │   │   ├── M2/
+        │   │   ├── M3/
+        │   │   ├── M4/
+        │   │   ├── 18H/
+        │   │
+        │   ├── 11_DOMINGO_[1_objetos]_[4,545%]/
+        │   │   ├── M0/
+        │   │   ├── M1/
+        │   │   ├── M2/
+        │   │   │   ├── ○ T07 [4,545%] Otimização GEO/SEO do artigo
+        │   │   │   │       <= T06
+        │   │   ├── M3/
+        │   │   ├── M4/
+        │   │   ├── 18H/
+        │
+        ├── SEMANA_02_12-A-18/
+        │   │
+        │   ├── 12_SEGUNDA_[1_objetos]_[4,545%]/
+        │   │   ├── M0/
+        │   │   ├── M1/
+        │   │   │   ├── ○ T08 [4,545%] Roteiro do vídeo mãe (8–12 min)
+        │   │   │   │       <= T04 + T07
+        │   │   ├── M2/
+        │   │   ├── M3/
+        │   │   ├── M4/
+        │   │   ├── 18H/
+        │   │
+        │   ├── 13_TERCA_[1_objetos]_[4,545%]/
+        │   │   ├── M0/
+        │   │   ├── M1/
+        │   │   ├── M2/
+        │   │   │   ├── ○ T09 [4,545%] Marcação de trechos-fonte para derivados
+        │   │   │   │       <= T07 + T08
+        │   │   ├── M3/
+        │   │   ├── M4/
+        │   │   ├── 18H/
+        │   │
+        │   ├── 14_QUARTA_[2_objetos]_[9,09%]/
+        │   │   ├── M0/
+        │   │   ├── M1/
+        │   │   │   ├── ○ T10 [4,545%] Banco de derivados — textos curtos
+        │   │   │   │       <= T09
+        │   │   ├── M2/
+        │   │   │   ├── ○ T11 [4,545%] Roteiro dos 4 vídeos verticais
+        │   │   │   │       <= T09
+        │   │   ├── M3/
+        │   │   ├── M4/
+        │   │   ├── 18H/
+        │   │
+        │   ├── 15_QUINTA_[2_objetos]_[9,09%]/
+        │   │   ├── M0/
+        │   │   ├── M1/
+        │   │   │   ├── ○ T12 [4,545%] Roteiro/copy dos 6 carrosséis
+        │   │   │   │       <= T09
+        │   │   ├── M2/
+        │   │   │   ├── ○ T13 [4,545%] Copy das 6 imagens estáticas
+        │   │   │   │       <= T09
+        │   │   ├── M3/
+        │   │   ├── M4/
+        │   │   ├── 18H/
+        │   │
+        │   ├── 16_SEXTA_[3_objetos]_[13,635%]/
+        │   │   ├── M0/
+        │   │   ├── M1/
+        │   │   │   ├── ○ T14 [4,545%] Briefing dos 3 infográficos "cena ambiente" (16:9)
+        │   │   │   │       <= T09
+        │   │   ├── M2/
+        │   │   │   ├── ○ T15 [4,545%] Sequência de 10–12 stories
+        │   │   │   │       <= T09
+        │   │   ├── M3/
+        │   │   │   ├── ○ T16 [4,545%] Copy das 3 newsletters do ciclo
+        │   │   │   │       <= T07
+        │   │   ├── M4/
+        │   │   ├── 18H/
+        │   │
+        │   ├── 17_SABADO_[2_objetos]_[9,09%]/
+        │   │   ├── M0/
+        │   │   ├── M1/
+        │   │   ├── M2/
+        │   │   ├── M3/
+        │   │   │   ├── ○ T18 [4,545%] Mapeamento dos 6 CTAs de ferramenta
+        │   │   │   │       <= T10 + T11 + T12 + T13 + T15 + T16 + T17
+        │   │   │   ├── ○ T19 [4,545%] Checagem de coerência do arco temático
+        │   │   │   │       <= T18
+        │   │   ├── M4/
+        │   │   ├── 18H/
+        │   │
+        │   ├── 18_DOMINGO_[2_objetos]_[9,09%]/
+        │   │   ├── M0/
+        │   │   ├── M1/
+        │   │   ├── M2/
+        │   │   ├── M3/
+        │   │   │   ├── ○ T20 [4,545%] Indexação e nomenclatura de todos os arquivos
+        │   │   │   │       <= T14 + T19
+        │   │   ├── M4/
+        │   │   │   ├── ○ T21 [4,545%] Checklist de conformidade pré-handoff
+        │   │   │   │       <= T20
+        │   │   │   │       => G-CONFORMIDADE
+        │   │   ├── 18H/
+        │
+        ├── SEMANA_03_19-A-19/
+        │   │
+        │   ├── 19_SEGUNDA_[1_objetos]_[4,555%]/
+        │   │   ├── M0/
+        │   │   ├── M1/
+        │   │   ├── M2/
+        │   │   ├── M3/
+        │   │   ├── M4/
+        │   │   │   ├── ◆ T22 [4,555%] Handoff para a Fase 2
+        │   │   │   │       <= T21
+        │   │   │   │       => G-HANDOFF-F2
+        │   │   ├── 18H/

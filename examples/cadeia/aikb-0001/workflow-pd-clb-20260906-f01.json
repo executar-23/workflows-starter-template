@@ -1,0 +1,479 @@
+{
+ "id": "pd-clb-20260906-f01",
+ "version": 1,
+ "program": "PROGRAMA EXECUTAR · CADEIA DE VALOR ÚNICA",
+ "title": "CREATOR-LED GROWTH · CICLO EDITORIAL 15 DIAS",
+ "subtitle": "Working process (estado futuro) · PD-CLB-20260906-F01-DOC-V01",
+ "source": [
+  "AIKB-0001 · PD-CLB-20260906-F01-DOC-V01 (Tabelas 8.1 e 8.2)",
+  "cadeia-valor-unica · mapa-dependencias.json + otimizacao.json"
+ ],
+ "phases": [
+  {
+   "id": "f1-a",
+   "number": "1A",
+   "name": "Tema e evidências"
+  },
+  {
+   "id": "f1-b",
+   "number": "1B",
+   "name": "Peça-mãe ∥ ebooks"
+  },
+  {
+   "id": "f1-c",
+   "number": "1C",
+   "name": "Derivados"
+  },
+  {
+   "id": "f1-d",
+   "number": "1D",
+   "name": "Integração e handoff"
+  },
+  {
+   "id": "fase-2",
+   "number": "02",
+   "name": "Geração de imagens e vídeos"
+  },
+  {
+   "id": "fase-3",
+   "number": "03",
+   "name": "Revisão"
+  },
+  {
+   "id": "fase-4",
+   "number": "04",
+   "name": "Agendamento e publicação"
+  },
+  {
+   "id": "fase-5",
+   "number": "05",
+   "name": "Análise e desempenho"
+  }
+ ],
+ "nodes": [
+  {
+   "id": "START",
+   "kind": "start",
+   "title": "Início do ciclo (15 dias)",
+   "dependsOn": []
+  },
+  {
+   "id": "T01",
+   "kind": "activity",
+   "title": "Validação do tema do ciclo",
+   "phase": "f1-a",
+   "dependsOn": [
+    "START"
+   ],
+   "executor": "human",
+   "output": "Confirmar que o tema nasce de dor real (comentário, dado de uso do app/agente, pergunta recorrente) e tem encaixe de nicho.",
+   "ids": []
+  },
+  {
+   "id": "T02",
+   "kind": "activity",
+   "title": "Pesquisa e levantamento de evidências",
+   "phase": "f1-a",
+   "dependsOn": [
+    "T01"
+   ],
+   "executor": "human",
+   "output": "Reunir dados, estudos e fontes citáveis que sustentam o(s) claim(s) centrais do ciclo.",
+   "ids": [
+    "DEP-0001"
+   ]
+  },
+  {
+   "id": "T03",
+   "kind": "activity",
+   "title": "Definição do Topic Pack",
+   "phase": "f1-a",
+   "dependsOn": [
+    "T02"
+   ],
+   "executor": "human",
+   "output": "Fechar título de trabalho, CTA e ferramenta associada ao ciclo.",
+   "ids": [
+    "DEP-0002"
+   ]
+  },
+  {
+   "id": "PS1",
+   "kind": "parallel-split",
+   "title": "Peça-mãe ∥ ebooks (M01)",
+   "phase": "f1-b",
+   "dependsOn": [
+    "T03"
+   ],
+   "symbol": "+"
+  },
+  {
+   "id": "T04",
+   "kind": "activity",
+   "title": "Outline da peça-mãe",
+   "phase": "f1-b",
+   "dependsOn": [
+    "PS1"
+   ],
+   "executor": "human",
+   "output": "Estrutura do artigo em blocos (Tópico 5.2), já marcando Claim/Evidência/Exemplo/Interpretação por bloco.",
+   "ids": [
+    "DEP-0003",
+    "DEP-0004"
+   ]
+  },
+  {
+   "id": "T05",
+   "kind": "activity",
+   "title": "Redação do artigo mãe",
+   "phase": "f1-b",
+   "dependsOn": [
+    "T04"
+   ],
+   "executor": "human",
+   "output": "Texto final de 1.800–2.400 palavras, com exemplos práticos e ao menos um tutorial passo a passo.",
+   "ids": [
+    "DEP-0005"
+   ]
+  },
+  {
+   "id": "T06",
+   "kind": "activity",
+   "title": "Revisão de estilo editorial",
+   "phase": "f1-b",
+   "dependsOn": [
+    "T05"
+   ],
+   "executor": "human",
+   "output": "Checklist da Tabela 3.1 aplicado linha a linha (didático, prático, evidências, zero coach, jornalístico).",
+   "ids": [
+    "DEP-0006"
+   ]
+  },
+  {
+   "id": "T07",
+   "kind": "activity",
+   "title": "Otimização GEO/SEO do artigo",
+   "phase": "f1-b",
+   "dependsOn": [
+    "T06"
+   ],
+   "executor": "human",
+   "output": "Estrutura de perguntas e respostas diretas, dados em destaque, hierarquia de títulos, fontes citadas.",
+   "ids": [
+    "DEP-0007"
+   ]
+  },
+  {
+   "id": "T08",
+   "kind": "activity",
+   "title": "Roteiro do vídeo mãe (8–12 min)",
+   "phase": "f1-b",
+   "dependsOn": [
+    "T07"
+   ],
+   "executor": "human",
+   "output": "Roteiro com gancho, blocos espelhando o artigo e chamada para os derivados.",
+   "ids": [
+    "DEP-0008",
+    "DEP-0009"
+   ]
+  },
+  {
+   "id": "T17",
+   "kind": "activity",
+   "title": "Outline e redação dos 3 ebooks",
+   "phase": "f1-b",
+   "dependsOn": [
+    "PS1"
+   ],
+   "executor": "human",
+   "output": "Lead magnets ligados ao CTA do Topic Pack, aprofundando um recorte específico do tema.",
+   "ids": [
+    "DEP-0020",
+    "DEP-0021"
+   ]
+  },
+  {
+   "id": "PJ1",
+   "kind": "parallel-join",
+   "title": "Peça-mãe e ebooks prontos",
+   "phase": "f1-b",
+   "dependsOn": [
+    "T08",
+    "T17"
+   ],
+   "symbol": "+"
+  },
+  {
+   "id": "T09",
+   "kind": "activity",
+   "title": "Marcação de trechos-fonte para derivados",
+   "phase": "f1-c",
+   "dependsOn": [
+    "PJ1"
+   ],
+   "executor": "human",
+   "output": "Sinalizar no artigo e no roteiro do vídeo quais trechos/timestamps viram qual derivado.",
+   "ids": [
+    "DEP-0010",
+    "DEP-0011"
+   ]
+  },
+  {
+   "id": "PS2",
+   "kind": "parallel-split",
+   "title": "Derivados em paralelo (M02)",
+   "phase": "f1-c",
+   "dependsOn": [
+    "T09"
+   ],
+   "symbol": "+"
+  },
+  {
+   "id": "T10",
+   "kind": "activity",
+   "title": "Banco de derivados — textos curtos",
+   "phase": "f1-c",
+   "dependsOn": [
+    "PS2"
+   ],
+   "executor": "human",
+   "output": "Legendas e posts para Instagram, LinkedIn, TikTok e Shorts a partir dos trechos marcados.",
+   "ids": [
+    "DEP-0012"
+   ]
+  },
+  {
+   "id": "T11",
+   "kind": "activity",
+   "title": "Roteiro dos 4 vídeos verticais",
+   "phase": "f1-c",
+   "dependsOn": [
+    "PS2"
+   ],
+   "executor": "human",
+   "output": "Cortes do vídeo mãe adaptados a Reels/TikTok/Shorts, com gancho próprio nos primeiros segundos.",
+   "ids": [
+    "DEP-0013"
+   ]
+  },
+  {
+   "id": "T12",
+   "kind": "activity",
+   "title": "Roteiro/copy dos 6 carrosséis",
+   "phase": "f1-c",
+   "dependsOn": [
+    "PS2"
+   ],
+   "executor": "human",
+   "output": "Sequência de slides por carrossel, com uma ideia por slide.",
+   "ids": [
+    "DEP-0014"
+   ]
+  },
+  {
+   "id": "T13",
+   "kind": "activity",
+   "title": "Copy das 6 imagens estáticas",
+   "phase": "f1-c",
+   "dependsOn": [
+    "PS2"
+   ],
+   "executor": "human",
+   "output": "Texto de apoio e legenda de cada imagem do ciclo.",
+   "ids": [
+    "DEP-0015"
+   ]
+  },
+  {
+   "id": "T14",
+   "kind": "activity",
+   "title": "Briefing dos 3 infográficos \"cena ambiente\" (16:9)",
+   "phase": "f1-c",
+   "dependsOn": [
+    "PS2"
+   ],
+   "executor": "human",
+   "output": "Conceito visual e dados a representar em cada infográfico, para handoff à Fase 2.",
+   "ids": [
+    "DEP-0016"
+   ]
+  },
+  {
+   "id": "T15",
+   "kind": "activity",
+   "title": "Sequência de 10–12 stories",
+   "phase": "f1-c",
+   "dependsOn": [
+    "PS2"
+   ],
+   "executor": "human",
+   "output": "Roteiro da sequência com as \"quatro portas\" (descoberta, prova, urgência, retenção) e CTA(s).",
+   "ids": [
+    "DEP-0017"
+   ]
+  },
+  {
+   "id": "T16",
+   "kind": "activity",
+   "title": "Copy das 3 newsletters do ciclo",
+   "phase": "f1-c",
+   "dependsOn": [
+    "PS2"
+   ],
+   "executor": "human",
+   "output": "Sequência de e-mails que educa por segmento, antecipa objeções e mostra prova antes do CTA.",
+   "ids": [
+    "DEP-0018"
+   ]
+  },
+  {
+   "id": "PJ2",
+   "kind": "parallel-join",
+   "title": "Derivados prontos",
+   "phase": "f1-c",
+   "dependsOn": [
+    "T10",
+    "T11",
+    "T12",
+    "T13",
+    "T14",
+    "T15",
+    "T16"
+   ],
+   "symbol": "+"
+  },
+  {
+   "id": "T18",
+   "kind": "activity",
+   "title": "Mapeamento dos 6 CTAs de ferramenta",
+   "phase": "f1-d",
+   "dependsOn": [
+    "PJ2"
+   ],
+   "executor": "human",
+   "output": "Definir em quais peças cada um dos 6 CTAs de ferramenta aparece.",
+   "ids": [
+    "DEP-0022",
+    "DEP-0023",
+    "DEP-0024",
+    "DEP-0025",
+    "DEP-0026",
+    "DEP-0027",
+    "DEP-0028"
+   ]
+  },
+  {
+   "id": "T19",
+   "kind": "activity",
+   "title": "Checagem de coerência do arco temático",
+   "phase": "f1-d",
+   "dependsOn": [
+    "T18"
+   ],
+   "executor": "human",
+   "output": "Cruzar o ciclo atual com os artigos fundadores anteriores do mesmo arco (ex.: sequência de 3 artigos), garantindo continuidade de nomenclatura e CTA.",
+   "ids": [
+    "DEP-0030"
+   ]
+  },
+  {
+   "id": "T20",
+   "kind": "activity",
+   "title": "Indexação e nomenclatura de todos os arquivos",
+   "phase": "f1-d",
+   "dependsOn": [
+    "T19"
+   ],
+   "executor": "human",
+   "output": "Aplicar a convenção do Tópico 9.1 a cada asset e organizar nas pastas padrão (Tópico 9.2).",
+   "ids": [
+    "DEP-0031",
+    "DEP-0032"
+   ]
+  },
+  {
+   "id": "T21",
+   "kind": "gate",
+   "title": "Checklist de conformidade pré-handoff",
+   "phase": "f1-d",
+   "dependsOn": [
+    "T20"
+   ],
+   "decision": "human",
+   "event": "t21-conformidade",
+   "output": "Confirmar estilo, GEO, marcação de derivados e nomenclatura antes de liberar para a Fase 2.",
+   "onReject": {
+    "target": "T06",
+    "label": "Corrigir estilo/GEO/marcação/nomenclatura"
+   }
+  },
+  {
+   "id": "T22",
+   "kind": "activity",
+   "title": "Handoff para a Fase 2",
+   "phase": "f1-d",
+   "dependsOn": [
+    "T21"
+   ],
+   "executor": "human",
+   "output": "Pacote de briefings técnicos por asset visual/vídeo, com specs de formato (proporção, duração, texto na tela).",
+   "ids": [
+    "DEP-0034"
+   ]
+  },
+  {
+   "id": "F2",
+   "kind": "subprocess",
+   "title": "Fase 2 — Geração de imagens e vídeos",
+   "phase": "fase-2",
+   "dependsOn": [
+    "T22"
+   ],
+   "executor": "human",
+   "note": "A DEFINIR: o process doc detalha só a Fase 1"
+  },
+  {
+   "id": "F3",
+   "kind": "subprocess",
+   "title": "Fase 3 — Revisão",
+   "phase": "fase-3",
+   "dependsOn": [
+    "F2"
+   ],
+   "executor": "human",
+   "note": "A DEFINIR: o process doc detalha só a Fase 1"
+  },
+  {
+   "id": "F4",
+   "kind": "subprocess",
+   "title": "Fase 4 — Agendamento e publicação",
+   "phase": "fase-4",
+   "dependsOn": [
+    "F3"
+   ],
+   "executor": "human",
+   "note": "A DEFINIR: o process doc detalha só a Fase 1"
+  },
+  {
+   "id": "F5",
+   "kind": "subprocess",
+   "title": "Fase 5 — Análise e desempenho",
+   "phase": "fase-5",
+   "dependsOn": [
+    "F4"
+   ],
+   "executor": "human",
+   "note": "A DEFINIR: o process doc detalha só a Fase 1"
+  },
+  {
+   "id": "END",
+   "kind": "end",
+   "title": "Ciclo encerrado · feedback para o próximo tema",
+   "dependsOn": [
+    "F5"
+   ]
+  }
+ ]
+}

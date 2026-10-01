@@ -15,6 +15,14 @@ Worker Cloudflare (Workflows + Durable Objects + R2) com UI React. O fluxo intei
 - **Plano do mês (upstream):** delegue ao `plano-ops-agent` com o intake. Ele usa a skill `plano-operacional-rastreavel`, passa o plano pelo juiz `validar_plano.py` e envia com `flow.mjs plan-upload`. Depois, inicie o run com o `planId` retornado.
 - **Diagnóstico:** `node .claude/skills/executar-flow/scripts/flow.mjs whoami` e `node .claude/skills/executar-flow/scripts/flow.mjs tasks --status despachada`.
 
+## Cadeia de Valor Única (upstream)
+
+- **Agente/skill:** `cadeia-valor-unica` (`/cadeia-unica` no plugin `executar-cop`). Process doc → 5 artefatos (árvore roadmap, árvore visual, working process, relatório único, runbook), Estratégia 07 + handoff, WIP = 1, `out/cadeia/<slug>/ESTADO.md` único. Juiz: `python3 .claude/skills/cadeia-valor-unica/scripts/validar_cadeia.py out/cadeia/<slug> --etapa all`.
+- **Working process no Worker:** `flow.mjs def-validate|def-upload|def-put|def-list|def-start` (R2 `definitions/` imutável + `cadeia/<slug>/`); UI em `/?def=<slug>`, PDF A4 em `/?def=<slug>&print=1` ou `npm run pdf -- <slug>`.
+- **MCP:** `POST /mcp` (Streamable HTTP, OAuth: `/authorize` pede o `ADMIN_TOKEN`). Conector no claude.ai: Configurações → Conectores → Adicionar personalizado → `<URL do Worker>/mcp`.
+- **Exemplo completo:** `examples/cadeia/aikb-0001/` (AIKB-0001 · PD-CLB-20260906-F01).
+- **Plugins:** `.claude-plugin/marketplace.json` → `plugins/executar-cop` (0.4.0) e `plugins/agent-handoff` (0.4.2).
+
 ## Credenciais
 
 - `EXECUTAR_URL` e `EXECUTAR_AGENT_TOKEN` são **variáveis do ambiente**: cloud em Edit → variáveis de ambiente; local em `export` ou em `.claude/settings.local.json`. Nunca cole o token no chat nem o grave no repositório.

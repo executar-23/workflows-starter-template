@@ -1,0 +1,490 @@
+{
+ "id": "pd-clb-20260906-f01",
+ "titulo": "PD-CLB · CADEIA DE VALOR ÚNICA (ciclo 15 dias)",
+ "tipo": "pasta",
+ "estado": "liberado",
+ "aberto": true,
+ "filhos": [
+  {
+   "id": "R-F1",
+   "titulo": "FASE 1 · PRODUÇÃO (estado futuro)",
+   "tipo": "pasta",
+   "estado": "liberado",
+   "aberto": true,
+   "filhos": [
+    {
+     "id": "R-TEMA",
+     "titulo": "Tema e evidências · T01–T03",
+     "tipo": "pasta",
+     "estado": "liberado",
+     "aberto": true,
+     "filhos": [
+      {
+       "id": "T01",
+       "titulo": "T01 · Validação do tema do ciclo",
+       "tipo": "arquivo",
+       "estado": "atual",
+       "desbloqueia": [
+        "T02"
+       ]
+      },
+      {
+       "id": "T02",
+       "titulo": "T02 · Pesquisa e levantamento de evidências",
+       "tipo": "arquivo",
+       "estado": "liberado",
+       "dependeDe": [
+        "T01"
+       ],
+       "desbloqueia": [
+        "T03",
+        "T04",
+        "T17"
+       ]
+      },
+      {
+       "id": "T03",
+       "titulo": "T03 · Definição do Topic Pack",
+       "tipo": "arquivo",
+       "estado": "liberado",
+       "dependeDe": [
+        "T02"
+       ],
+       "desbloqueia": [
+        "T04",
+        "T17"
+       ]
+      }
+     ]
+    },
+    {
+     "id": "R-MAE",
+     "titulo": "Peça-mãe ∥ ebooks · T04–T08 + T17",
+     "tipo": "pasta",
+     "estado": "futuro",
+     "filhos": [
+      {
+       "id": "T04",
+       "titulo": "T04 · Outline da peça-mãe",
+       "tipo": "arquivo",
+       "estado": "futuro",
+       "dependeDe": [
+        "T02",
+        "T03"
+       ],
+       "desbloqueia": [
+        "T05",
+        "T08"
+       ]
+      },
+      {
+       "id": "T05",
+       "titulo": "T05 · Redação do artigo mãe",
+       "tipo": "arquivo",
+       "estado": "futuro",
+       "dependeDe": [
+        "T04"
+       ],
+       "desbloqueia": [
+        "T06"
+       ]
+      },
+      {
+       "id": "T06",
+       "titulo": "T06 · Revisão de estilo editorial",
+       "tipo": "arquivo",
+       "estado": "futuro",
+       "dependeDe": [
+        "T05"
+       ],
+       "desbloqueia": [
+        "T07"
+       ]
+      },
+      {
+       "id": "T07",
+       "titulo": "T07 · Otimização GEO/SEO do artigo",
+       "tipo": "arquivo",
+       "estado": "futuro",
+       "dependeDe": [
+        "T06"
+       ],
+       "desbloqueia": [
+        "T08",
+        "T09",
+        "T16"
+       ]
+      },
+      {
+       "id": "T08",
+       "titulo": "T08 · Roteiro do vídeo mãe (8–12 min)",
+       "tipo": "arquivo",
+       "estado": "futuro",
+       "dependeDe": [
+        "T04",
+        "T07"
+       ],
+       "desbloqueia": [
+        "T09"
+       ]
+      },
+      {
+       "id": "T17",
+       "titulo": "T17 · Outline e redação dos 3 ebooks",
+       "tipo": "arquivo",
+       "estado": "futuro",
+       "nota": "ramo paralelo (M01)",
+       "dependeDe": [
+        "T02",
+        "T03"
+       ],
+       "desbloqueia": [
+        "T18"
+       ]
+      }
+     ]
+    },
+    {
+     "id": "R-DER",
+     "titulo": "Derivados em paralelo · T09 → T10–T16",
+     "tipo": "pasta",
+     "estado": "futuro",
+     "filhos": [
+      {
+       "id": "T09",
+       "titulo": "T09 · Marcação de trechos-fonte para derivados",
+       "tipo": "arquivo",
+       "estado": "futuro",
+       "dependeDe": [
+        "T07",
+        "T08"
+       ],
+       "desbloqueia": [
+        "T10",
+        "T11",
+        "T12",
+        "T13",
+        "T14",
+        "T15"
+       ]
+      },
+      {
+       "id": "T10",
+       "titulo": "T10 · Banco de derivados — textos curtos",
+       "tipo": "arquivo",
+       "estado": "futuro",
+       "nota": "paralelo (M02)",
+       "dependeDe": [
+        "T09"
+       ],
+       "desbloqueia": [
+        "T18"
+       ]
+      },
+      {
+       "id": "T11",
+       "titulo": "T11 · Roteiro dos 4 vídeos verticais",
+       "tipo": "arquivo",
+       "estado": "futuro",
+       "nota": "paralelo (M02)",
+       "dependeDe": [
+        "T09"
+       ],
+       "desbloqueia": [
+        "T18"
+       ]
+      },
+      {
+       "id": "T12",
+       "titulo": "T12 · Roteiro/copy dos 6 carrosséis",
+       "tipo": "arquivo",
+       "estado": "futuro",
+       "nota": "paralelo (M02)",
+       "dependeDe": [
+        "T09"
+       ],
+       "desbloqueia": [
+        "T18"
+       ]
+      },
+      {
+       "id": "T13",
+       "titulo": "T13 · Copy das 6 imagens estáticas",
+       "tipo": "arquivo",
+       "estado": "futuro",
+       "nota": "paralelo (M02)",
+       "dependeDe": [
+        "T09"
+       ],
+       "desbloqueia": [
+        "T18"
+       ]
+      },
+      {
+       "id": "T14",
+       "titulo": "T14 · Briefing dos 3 infográficos \"cena ambiente\" (16:9)",
+       "tipo": "arquivo",
+       "estado": "futuro",
+       "nota": "paralelo (M02)",
+       "dependeDe": [
+        "T09"
+       ],
+       "desbloqueia": [
+        "T20"
+       ]
+      },
+      {
+       "id": "T15",
+       "titulo": "T15 · Sequência de 10–12 stories",
+       "tipo": "arquivo",
+       "estado": "futuro",
+       "nota": "paralelo (M02)",
+       "dependeDe": [
+        "T09"
+       ],
+       "desbloqueia": [
+        "T18"
+       ]
+      },
+      {
+       "id": "T16",
+       "titulo": "T16 · Copy das 3 newsletters do ciclo",
+       "tipo": "arquivo",
+       "estado": "futuro",
+       "nota": "paralelo (M02)",
+       "dependeDe": [
+        "T07"
+       ],
+       "desbloqueia": [
+        "T18"
+       ]
+      }
+     ]
+    },
+    {
+     "id": "R-INT",
+     "titulo": "Integração e handoff · T18–T22",
+     "tipo": "pasta",
+     "estado": "futuro",
+     "filhos": [
+      {
+       "id": "T18",
+       "titulo": "T18 · Mapeamento dos 6 CTAs de ferramenta",
+       "tipo": "arquivo",
+       "estado": "futuro",
+       "dependeDe": [
+        "T10",
+        "T11",
+        "T12",
+        "T13",
+        "T15",
+        "T16",
+        "T17"
+       ],
+       "desbloqueia": [
+        "T19"
+       ]
+      },
+      {
+       "id": "T19",
+       "titulo": "T19 · Checagem de coerência do arco temático",
+       "tipo": "arquivo",
+       "estado": "futuro",
+       "dependeDe": [
+        "T18"
+       ],
+       "desbloqueia": [
+        "T20"
+       ]
+      },
+      {
+       "id": "T20",
+       "titulo": "T20 · Indexação e nomenclatura de todos os arquivos",
+       "tipo": "arquivo",
+       "estado": "futuro",
+       "dependeDe": [
+        "T14",
+        "T19"
+       ],
+       "desbloqueia": [
+        "T21"
+       ]
+      },
+      {
+       "id": "T21",
+       "titulo": "T21 · Checklist de conformidade (porta)",
+       "tipo": "porta",
+       "estado": "futuro",
+       "dependeDe": [
+        "T20"
+       ],
+       "desbloqueia": [
+        "T22"
+       ]
+      },
+      {
+       "id": "T22",
+       "titulo": "T22 · Handoff para a Fase 2",
+       "tipo": "destino",
+       "estado": "futuro",
+       "dependeDe": [
+        "T21"
+       ],
+       "desbloqueia": [
+        "F2"
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "R-FASES",
+   "titulo": "FASES 2–5 (A DEFINIR: doc detalha só a Fase 1)",
+   "tipo": "pasta",
+   "estado": "futuro",
+   "filhos": [
+    {
+     "id": "F2",
+     "titulo": "Fase 2 — Geração de imagens e vídeos",
+     "tipo": "pasta",
+     "estado": "dependencia",
+     "nota": "A DEFINIR",
+     "dependeDe": [
+      "T22"
+     ],
+     "desbloqueia": [
+      "F3"
+     ]
+    },
+    {
+     "id": "F3",
+     "titulo": "Fase 3 — Revisão",
+     "tipo": "pasta",
+     "estado": "dependencia",
+     "nota": "A DEFINIR",
+     "dependeDe": [
+      "F2"
+     ],
+     "desbloqueia": [
+      "F4"
+     ]
+    },
+    {
+     "id": "F4",
+     "titulo": "Fase 4 — Agendamento e publicação",
+     "tipo": "pasta",
+     "estado": "dependencia",
+     "nota": "A DEFINIR",
+     "dependeDe": [
+      "F3"
+     ],
+     "desbloqueia": [
+      "F5"
+     ]
+    },
+    {
+     "id": "F5",
+     "titulo": "Fase 5 — Análise e desempenho",
+     "tipo": "pasta",
+     "estado": "dependencia",
+     "nota": "A DEFINIR",
+     "dependeDe": [
+      "F4"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "R-CRIT",
+   "titulo": "NÓS CRÍTICOS",
+   "tipo": "pasta",
+   "estado": "dependencia",
+   "filhos": [
+    {
+     "id": "CR-T09",
+     "titulo": "T09 · marcação de trechos: alimenta 6 derivados",
+     "tipo": "referencia",
+     "nota": "caminho crítico"
+    },
+    {
+     "id": "CR-T21",
+     "titulo": "T21 · conformidade tardia (M03)",
+     "tipo": "referencia",
+     "nota": "retorno a T06 se reprovar"
+    },
+    {
+     "id": "CR-DATA",
+     "titulo": "Data de início do ciclo",
+     "tipo": "referencia",
+     "estado": "bloqueado-externo",
+     "nota": "A DEFINIR (usuário)"
+    }
+   ]
+  },
+  {
+   "id": "R-OTIM",
+   "titulo": "OTIMIZAÇÕES (M01–M05)",
+   "tipo": "pasta",
+   "filhos": [
+    {
+     "id": "M01",
+     "titulo": "M01 · paralelizar · DERIVED",
+     "tipo": "referencia",
+     "nota": "−1 casa sequencial (T17 sai do caminho crítico); duração em dias A DEFINIR"
+    },
+    {
+     "id": "M02",
+     "titulo": "M02 · paralelizar · DERIVED",
+     "tipo": "referencia",
+     "nota": "−6 casas sequenciais (7 derivados → 1 bloco); duração em dias A DEFINIR"
+    },
+    {
+     "id": "M03",
+     "titulo": "M03 · gate-antecipado · PROPOSED",
+     "tipo": "referencia",
+     "nota": "menos retrabalho tardio; taxa de reprovação em T21 A DEFINIR"
+    },
+    {
+     "id": "M04",
+     "titulo": "M04 · automatizar · PROPOSED",
+     "tipo": "referencia",
+     "nota": "T20 de manual para verificação; esforço A DEFINIR"
+    },
+    {
+     "id": "M05",
+     "titulo": "M05 · eliminar-redundancia · PROPOSED",
+     "tipo": "referencia",
+     "nota": "handoff sem redigitação; A DEFINIR"
+    }
+   ]
+  },
+  {
+   "id": "R-EVID",
+   "titulo": "EVIDÊNCIAS",
+   "tipo": "pasta",
+   "filhos": [
+    {
+     "id": "EV-MAPA",
+     "titulo": "mapa-dependencias.json/.csv",
+     "tipo": "evidencia"
+    },
+    {
+     "id": "EV-WF",
+     "titulo": "workflow-pd-clb-20260906-f01.json + PDF",
+     "tipo": "evidencia"
+    },
+    {
+     "id": "EV-RB",
+     "titulo": "runbook.md",
+     "tipo": "evidencia"
+    },
+    {
+     "id": "EV-REL",
+     "titulo": "relatorio-cadeia.md",
+     "tipo": "evidencia"
+    }
+   ]
+  }
+ ]
+}

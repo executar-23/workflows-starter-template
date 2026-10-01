@@ -38,7 +38,8 @@ export const MAX_DEFINITION_BYTES = 256 * 1024;
 
 const DEF_ID = /^[a-z0-9][a-z0-9-]{2,63}$/;
 const NODE_ID = /^[A-Z][A-Z0-9-]{0,15}$/;
-const UNDEFINED = /A[ _]DEFINIR|TBD/i;
+// Marcador explícito (maiúsculas): "ferramenta Definir…" não é lacuna.
+const UNDEFINED = /\bA[ _]DEFINIR\b|\bTBD\b/;
 
 export interface ValidationResult {
 	ok: boolean;
