@@ -103,7 +103,25 @@ export function buildPublishPrompt(
 
 type GitHubEntry = { name: string; type: string; html_url: string };
 
-async function listBlogPosts(env: Env) {
+type BlogPost = { slug: string; file: string | null; url: string; githubUrl: string };
+
+// Alternativa quando a API do GitHub recusa o IP do Worker (403 por limite compartilhado):
+// o RSS público do blog lista os mesmos posts.
+async function listPostsFromRss(env: Env): Promise<BlogPost[]> {
+	const res = await fetch(`${blogUrl(env)}/rss.xml`, { headers: { "User-Agent": "executar-cms" } });
+	if (!res.ok) throw new Error(`RSS do blog respondeu ${res.status}`);
+	const xml = await res.text();
+	const slugs = new Set<string>();
+	for (const m of xml.matchAll(/<link>[^<]*\/blog\/([a-z0-9-]+)\/?<\/link>/g)) slugs.add(m[1]);
+	return [...slugs].map((slug) => ({
+		slug,
+		file: null,
+		url: `${blogUrl(env)}/blog/${slug}/`,
+		githubUrl: `https://github.com/${blogRepo(env)}/tree/main/src/content/blog`,
+	}));
+}
+
+async function listBlogPosts(env: Env): Promise<BlogPost[]> {
 	const repo = blogRepo(env);
 	const api = `https://api.github.com/repos/${repo}/contents/src/content/blog`;
 	const cache = (caches as unknown as { default: Cache }).default;
@@ -113,7 +131,7 @@ async function listBlogPosts(env: Env) {
 		const live = await fetch(api, {
 			headers: { "User-Agent": "executar-cms", Accept: "application/vnd.github+json" },
 		});
-		if (!live.ok) throw new Error(`GitHub respondeu ${live.status}`);
+		if (!live.ok) return listPostsFromRss(env);
 		res = new Response(await live.text(), {
 			headers: { "Content-Type": "application/json", "Cache-Control": `max-age=${POSTS_TTL_S}` },
 		});

@@ -32,4 +32,4 @@ Worker Cloudflare (Workflows + Durable Objects + R2) com UI React. O fluxo intei
 - **Não inventar:** dado ausente é `TBD` e vira GAP; "A DEFINIR" continua "A DEFINIR".
 - **Mudanças de código:** seguir o Agent Handoff (`/plan` → `/execute` → `/verify` em contexto novo), com estado em `.handoff/`.
 - **Verificação:** `npx vitest run`, `npx eslint .`, `npm run build` e, para tipos, `npx tsc -b`.
-- **Deploy:** `npm run build && node scripts/build-inline-assets.mjs && CLOUDFLARE_API_TOKEN=proxy-managed npx wrangler deploy -c wrangler.inline.jsonc`.
+- **Deploy** (conta Cloudflare padrão: Hub.executar; app em https://workflows-starter-template.hub-executar.workers.dev, bucket R2 `executar-artifacts`): `npm run build && node scripts/build-inline-assets.mjs && CLOUDFLARE_API_TOKEN=proxy-managed npx wrangler deploy -c wrangler.inline.jsonc`.

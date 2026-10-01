@@ -7,7 +7,7 @@ import type { HubStore } from "~/lib/hub/use-hub-store";
 
 type Post = {
 	slug: string;
-	file: string;
+	file: string | null;
 	url: string;
 	githubUrl: string;
 	contents: { recordId: string; contentId: string }[];
